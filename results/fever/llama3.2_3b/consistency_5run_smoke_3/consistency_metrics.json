@@ -1,0 +1,98 @@
+{
+  "total_cases": 3,
+  "run_count": 5,
+  "expected_inference_attempts": 15,
+  "successful_inference_requests": 15,
+  "inference_failure_count": 0,
+  "invalid_format_count": 0,
+  "complete_case_count": 3,
+  "incomplete_case_count": 0,
+  "exact_consistency_count": 2,
+  "exact_consistency_rate": 0.6666666666666666,
+  "mean_modal_agreement": 0.9333333333333332,
+  "agreement_distribution": {
+    "5_of_5": 2,
+    "4_of_5": 1,
+    "3_of_5": 0,
+    "2_of_5": 0
+  },
+  "unique_label_count_distribution": {
+    "1": 2,
+    "2": 1,
+    "3": 0
+  },
+  "tie_case_count": 0,
+  "stability_classification": {
+    "STABLE_CORRECT": {
+      "count": 0,
+      "percentage": 0.0
+    },
+    "STABLE_WRONG": {
+      "count": 2,
+      "percentage": 0.6666666666666666
+    },
+    "UNSTABLE": {
+      "count": 1,
+      "percentage": 0.3333333333333333
+    },
+    "INCOMPLETE": {
+      "count": 0,
+      "percentage": 0.0
+    }
+  },
+  "consensus": {
+    "eligible_non_tied_cases": 3,
+    "tie_count": 0,
+    "correct_count": 0,
+    "fever_accuracy": 0.0
+  },
+  "nei_behavior": {
+    "cases_with_nei_at_least_once": 1,
+    "cases_with_nei_all_five_runs": 0,
+    "cases_switching_between_nei_and_verdict": 1,
+    "total_nei_predictions": 4
+  },
+  "run_accuracy": [
+    {
+      "run": 1,
+      "seed": 101,
+      "correct": 0,
+      "total": 3,
+      "fever_accuracy": 0.0
+    },
+    {
+      "run": 2,
+      "seed": 202,
+      "correct": 0,
+      "total": 3,
+      "fever_accuracy": 0.0
+    },
+    {
+      "run": 3,
+      "seed": 303,
+      "correct": 0,
+      "total": 3,
+      "fever_accuracy": 0.0
+    },
+    {
+      "run": 4,
+      "seed": 404,
+      "correct": 0,
+      "total": 3,
+      "fever_accuracy": 0.0
+    },
+    {
+      "run": 5,
+      "seed": 505,
+      "correct": 1,
+      "total": 3,
+      "fever_accuracy": 0.3333333333333333
+    }
+  ],
+  "accuracy_summary": {
+    "mean": 0.06666666666666667,
+    "population_standard_deviation": 0.13333333333333333,
+    "minimum": 0.0,
+    "maximum": 0.3333333333333333
+  }
+}

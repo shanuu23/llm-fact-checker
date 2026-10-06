@@ -1,0 +1,4 @@
+fever_id,claim,gold_label,control_prediction,reorder_eligible,reorder_prediction,reorder_prediction_changed,reorder_outcome,distractor_prediction,distractor_prediction_changed,distractor_outcome
+1423,Roberto Orci wrote Star Trek.,SUPPORTED,REFUTED,True,SUPPORTED,True,BENEFICIAL_FLIP,REFUTED,False,STAYED_WRONG
+1917,The current Duke of York has been unmarried since his 1996 divorce.,SUPPORTED,REFUTED,True,SUPPORTED,True,BENEFICIAL_FLIP,REFUTED,False,STAYED_WRONG
+2466,Cheese in the Trap (TV series) stars Batman.,REFUTED,NOT ENOUGH INFORMATION,False,,,INELIGIBLE,NOT ENOUGH INFORMATION,False,STAYED_WRONG
