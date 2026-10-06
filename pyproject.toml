@@ -18,6 +18,7 @@ classifiers = [
 dependencies = [
     "jupyterlab==4.6.1",
     "loguru",
+    "matplotlib>=3.11.2",
     "mkdocs",
     "numpy>=2.5.3",
     "pandas==2.2.2",
