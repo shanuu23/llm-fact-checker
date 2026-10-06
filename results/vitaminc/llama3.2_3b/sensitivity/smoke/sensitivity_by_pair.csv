@@ -1,0 +1,4 @@
+pair_id,claim,support_prediction,refute_prediction,complete,prediction_changed,correct_sensitivity,outcome,support_inference_error,refute_inference_error,support_valid_format,refute_valid_format
+5ea2d97dc9e77c0009cdac5f_4__5ea2d97dc9e77c0009cdac5f_3,Eddie Griffin liked the performance of Cheryl Branson .,REFUTED,REFUTED,True,False,False,NO_CHANGE_CORRECT_ON_REFUTE,,,True,True
+5eb29884c9e77c0008d924c0_4__5eb29884c9e77c0008d924c0_3,Bas Dost started playing professionally at FC Jostoos .,NOT ENOUGH INFORMATION,NOT ENOUGH INFORMATION,True,False,False,NEI_INVOLVED,,,True,True
+5eb29886c9e77c0008d9296e_4__5eb29886c9e77c0008d9296e_3,The ranking by Next Generation ended before August 2006 .,NOT ENOUGH INFORMATION,SUPPORTED,True,True,False,NEI_INVOLVED,,,True,True

@@ -16,11 +16,15 @@ classifiers = [
     
 ]
 dependencies = [
+    "jupyterlab==4.6.1",
     "loguru",
     "mkdocs",
+    "numpy>=2.5.3",
+    "pandas==2.2.2",
     "pip",
     "python-dotenv",
     "ruff",
+    "scikit-learn==1.6.1",
     "tqdm",
     "typer",
 ]

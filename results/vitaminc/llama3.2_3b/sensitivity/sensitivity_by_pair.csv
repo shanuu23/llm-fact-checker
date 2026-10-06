@@ -1,0 +1,101 @@
+pair_id,claim,support_prediction,refute_prediction,complete,prediction_changed,correct_sensitivity,outcome,support_inference_error,refute_inference_error,support_valid_format,refute_valid_format
+5ea2d97dc9e77c0009cdac5f_4__5ea2d97dc9e77c0009cdac5f_3,Eddie Griffin liked the performance of Cheryl Branson .,REFUTED,REFUTED,True,False,False,NO_CHANGE_CORRECT_ON_REFUTE,,,True,True
+5eb29884c9e77c0008d924c0_4__5eb29884c9e77c0008d924c0_3,Bas Dost started playing professionally at FC Jostoos .,NOT ENOUGH INFORMATION,NOT ENOUGH INFORMATION,True,False,False,NEI_INVOLVED,,,True,True
+5eb29886c9e77c0008d9296e_4__5eb29886c9e77c0008d9296e_3,The ranking by Next Generation ended before August 2006 .,NOT ENOUGH INFORMATION,SUPPORTED,True,True,False,NEI_INVOLVED,,,True,True
+5eb29887c9e77c0008d930a8_4__5eb29887c9e77c0008d930a8_3,"Limassol 's urban population is less than 190,000 .",REFUTED,REFUTED,True,False,False,NO_CHANGE_CORRECT_ON_REFUTE,,,True,True
+5eb29888c9e77c0008d93544_1__5eb29888c9e77c0008d93544_2,"Based on less than 30 critics , the film The House That Jack Built holds an approval rating of more than 51 % and an average rating of more than 5.9/10 on Rotten Tomatoes .",NOT ENOUGH INFORMATION,NOT ENOUGH INFORMATION,True,False,False,NEI_INVOLVED,,,True,True
+5eb29888c9e77c0008d9369c_1__5eb29888c9e77c0008d9369c_2,Emma and Hook go back to Storybrooke .,SUPPORTED,SUPPORTED,True,False,False,NO_CHANGE_CORRECT_ON_SUPPORT,,,True,True
+5eb2988ac9e77c0008d94802_1__5eb2988ac9e77c0008d94802_2,"On Metacritic , Gloria Bell has less than 38 reviews .",NOT ENOUGH INFORMATION,NOT ENOUGH INFORMATION,True,False,False,NEI_INVOLVED,,,True,True
+5eb9573ac9e77c0008fa178f_4__5eb9573ac9e77c0008fa178f_3,The Good Place scored 100 % based on more than 57 reviews .,NOT ENOUGH INFORMATION,SUPPORTED,True,True,False,NEI_INVOLVED,,,True,True
+5ebbf32bc9e77c000929568d_4__5ebbf32bc9e77c000929568d_3,The movie Vettai was released after January 13th .,REFUTED,SUPPORTED,True,True,False,WRONG_DIRECTION,,,True,True
+5ebe6f2ec9e77c0008407bca_1__5ebe6f2ec9e77c0008407bca_2,"Focus ( film ) , earned under $ 44.2 million in North America and an overall total of less than $ 101.9 million .",REFUTED,REFUTED,True,False,False,NO_CHANGE_CORRECT_ON_REFUTE,,,True,True
+5ebe6f2fc9e77c0008407daf_4__5ebe6f2fc9e77c0008407daf_3,More than 90 critics reviewed The Odd Life of Timothy Green and had an approval rating above 39 % .,REFUTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ebe6f2fc9e77c00084080d5_4__5ebe6f2fc9e77c00084080d5_3,"Dope has more than 75 reviews , and an average rating of over 7.55/10 .",REFUTED,REFUTED,True,False,False,NO_CHANGE_CORRECT_ON_REFUTE,,,True,True
+5ebe6f31c9e77c0008408c54_1__5ebe6f31c9e77c0008408c54_2,"On IMDb , the miniseries Chernobyl had an average rating of more than 9.5 stars out of 10 .",SUPPORTED,SUPPORTED,True,False,False,NO_CHANGE_CORRECT_ON_SUPPORT,,,True,True
+5ebe6f31c9e77c0008408e86_4__5ebe6f31c9e77c0008408e86_3,"Bam Bam , used in Confessions of a Dangerous Mind , is written by Ophline Russell Meyers and Winston Riley .",REFUTED,REFUTED,True,False,False,NO_CHANGE_CORRECT_ON_REFUTE,,,True,True
+5ec284fcc9e77c0008415c53_4__5ec284fcc9e77c0008415c53_3,The name of Laika 's CEO was `` Ted '' .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ec284fdc9e77c000841667d_1__5ec284fdc9e77c000841667d_2,Blended garnered favorable reviews .,REFUTED,REFUTED,True,False,False,NO_CHANGE_CORRECT_ON_REFUTE,,,True,True
+5ec284fdc9e77c00084166ba_4__5ec284fdc9e77c00084166ba_3,Vada Chennai was released after 2017 .,REFUTED,REFUTED,True,False,False,NO_CHANGE_CORRECT_ON_REFUTE,,,True,True
+5ec284fdc9e77c00084169eb_4__5ec284fdc9e77c00084169eb_3,"Suburbicon received a rating of less than 34 % on Rotten Tomatoes , with more than 80 reviews .",REFUTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ec284fec9e77c000841709f_1__5ec284fec9e77c000841709f_2,Avril Lavigne has sold more than 45 million albums and more than 55 million singles around the world .,NOT ENOUGH INFORMATION,NOT ENOUGH INFORMATION,True,False,False,NEI_INVOLVED,,,True,True
+5ec284fec9e77c0008417315_4__5ec284fec9e77c0008417315_3,Glenn Alan Robinson III plays for the Detroit Pistons .,SUPPORTED,SUPPORTED,True,False,False,NO_CHANGE_CORRECT_ON_SUPPORT,,,True,True
+5ec284fec9e77c00084174fc_1__5ec284fec9e77c00084174fc_2,Irish immigration to Great Britain dates as far back as more than 200 years .,SUPPORTED,SUPPORTED,True,False,False,NO_CHANGE_CORRECT_ON_SUPPORT,,,True,True
+5ec5598dc9e77c000842c41d_1__5ec5598dc9e77c000842c41d_2,Cincinnati 's 356 yards of offense to Phoenix ’ s 275 marked the first time in Super Bowl history that a team won with fewer yards .,REFUTED,REFUTED,True,False,False,NO_CHANGE_CORRECT_ON_REFUTE,,,True,True
+5ec7d50cc9e77c00084412be_1__5ec7d50cc9e77c00084412be_2,Color me Badd sold under 14 million records globally .,NOT ENOUGH INFORMATION,REFUTED,True,True,False,NEI_INVOLVED,,,True,True
+5ec7d50dc9e77c0008442164_4__5ec7d50dc9e77c0008442164_3,Portsmouth F.C . was founded before 2005 .,SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ec7d50dc9e77c000844222d_4__5ec7d50dc9e77c000844222d_3,"After 18 May 2019 , Student of the Year 2 had grossed over 85 crores globally .",REFUTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ec7d50dc9e77c000844222f_1__5ec7d50dc9e77c000844222f_2,The film Student of the Year 2 made a box office of under 80 crores .,SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ec7d50ec9e77c00084429ec_4__5ec7d50ec9e77c00084429ec_3,Martika is an Spanish/Mexican-American singer-songwriter and actress .,SUPPORTED,SUPPORTED,True,False,False,NO_CHANGE_CORRECT_ON_SUPPORT,,,True,True
+5ece9462c9e77c0008466ecb_4__5ece9462c9e77c0008466ecb_3,St. Francis Hospital 's EMS division operates a minumum of five BLS transport units at all times of the day .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ece9464c9e77c00084679ab_4__5ece9464c9e77c00084679ab_3,9th Wonder and Salaam Remi were co-producers of the album End Game .,SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ed4de03c9e77c00084892de_4__5ed4de03c9e77c00084892de_3,"Maurice Harris , Keenan Allen 's cousin , plays for the New England Patriots .",SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ed4de04c9e77c00084895b4_4__5ed4de04c9e77c00084895b4_3,The movie Shanghai Knights has a rating higher than 80 % on Rotten Tomatoes .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ed4de09c9e77c000848ad6f_4__5ed4de09c9e77c000848ad6f_3,Jenson Button and Sauber 's Pascal Wehrlein collided after the 59th lap .,NOT ENOUGH INFORMATION,NOT ENOUGH INFORMATION,True,False,False,NEI_INVOLVED,,,True,True
+5ed50880c9e77c000848d0a4_3__5ed50880c9e77c000848d0a4_4,The US Airways Flight 1549 had pilots other than Chesley Sullenberger and Jeffrey Skiles .,REFUTED,REFUTED,True,False,False,NO_CHANGE_CORRECT_ON_REFUTE,,,True,True
+5ed50880c9e77c000848d196_1__5ed50880c9e77c000848d196_2,Cthulhu is worshipped by cultists .,SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ed50880c9e77c000848d340_3__5ed50880c9e77c000848d340_4,The film The Last Song was filmed in the countryside .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ed50880c9e77c000848d376_3__5ed50880c9e77c000848d376_4,Musala is a mountain peak .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ed50880c9e77c000848d3ba_3__5ed50880c9e77c000848d3ba_4,Angelina Jolie has a leading role in the film Temple Grandin .,SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ed50880c9e77c000848d41d_1__5ed50880c9e77c000848d41d_2,59 was the debut number of Shut Up .,NOT ENOUGH INFORMATION,NOT ENOUGH INFORMATION,True,False,False,NEI_INVOLVED,,,True,True
+5ed50880c9e77c000848d4a4_3__5ed50880c9e77c000848d4a4_4,"In 2016 , Emilia Clarke was named Esquires Sexiest Woman Alive .",REFUTED,REFUTED,True,False,False,NO_CHANGE_CORRECT_ON_REFUTE,,,True,True
+5ed50880c9e77c000848d4be_3__5ed50880c9e77c000848d4be_4,Elizabeth Olsen is a dog .,REFUTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ed50880c9e77c000848d4c8_3__5ed50880c9e77c000848d4c8_4,Laura Robson is a Wimbledon Senior Girls ' Championship winner .,REFUTED,SUPPORTED,True,True,False,WRONG_DIRECTION,,,True,True
+5ed50880c9e77c000848d4e4_3__5ed50880c9e77c000848d4e4_4,The TV series Gotham premiered on HBO .,SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ed50880c9e77c000848d554_1__5ed50880c9e77c000848d554_2,"Keith Stanfield was born on August 12 , 1991 .",SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ed50880c9e77c000848d618_3__5ed50880c9e77c000848d618_4,The Africa Cup of Nations is a tournament .,SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ed50880c9e77c000848d64e_1__5ed50880c9e77c000848d64e_2,The Love Club EP is by Lorde .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ed50880c9e77c000848d6e6_1__5ed50880c9e77c000848d6e6_2,Doug Petrie appeared in a web-based film .,SUPPORTED,SUPPORTED,True,False,False,NO_CHANGE_CORRECT_ON_SUPPORT,,,True,True
+5ed50880c9e77c000848d6e9_3__5ed50880c9e77c000848d6e9_4,Charles Howard Hinton was born in France .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ed50880c9e77c000848d916_3__5ed50880c9e77c000848d916_4,Maximum Overdrive was written by James Cameron .,SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ed50880c9e77c000848d91d_3__5ed50880c9e77c000848d91d_4,Shomu Mukherjee was born 19 June 1943 .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ed50880c9e77c000848d97a_1__5ed50880c9e77c000848d97a_2,Gray Matters was released in 2006 .,SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ed50880c9e77c000848dc1e_1__5ed50880c9e77c000848dc1e_2,The New England Patriots holds the record for most Super Bowls reached .,SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ed50880c9e77c000848dc7d_3__5ed50880c9e77c000848dc7d_4,The film Victor Frankenstein stars James McAvoy .,SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ed50880c9e77c000848dc8d_1__5ed50880c9e77c000848dc8d_2,William Cohen comes from Maine .,SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ed50880c9e77c000848dd12_1__5ed50880c9e77c000848dd12_2,Alcoholic drink is one of the most widely used recreational drugs in the world .,SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ed50880c9e77c000848dd37_3__5ed50880c9e77c000848dd37_4,The Pakistan Movement was the result of a series of transformations in Indian society .,SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ed50881c9e77c000848dd9d_1__5ed50881c9e77c000848dd9d_2,See.SZA.Run is only influenced by soul .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ed50881c9e77c000848de8a_3__5ed50881c9e77c000848de8a_4,Kungfu was a primary influence upon Brazilian Jiu-Jitsu .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ed50881c9e77c000848df12_3__5ed50881c9e77c000848df12_4,"William Blackstone went to Trinity College , Cambridge .",SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ed50881c9e77c000848df15_1__5ed50881c9e77c000848df15_2,Google Search shows home listings .,SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ed50881c9e77c000848df1a_3__5ed50881c9e77c000848df1a_4,Volkswagen Group facilitates motor financing and leasing .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ed50881c9e77c000848e137_1__5ed50881c9e77c000848e137_2,David Lloyd George was named one of the 100 Greatest Britons .,SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ed50881c9e77c000848e1fb_3__5ed50881c9e77c000848e1fb_4,Ted Cruz was born in 1970 .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ed50881c9e77c000848e5b5_1__5ed50881c9e77c000848e5b5_2,Simon Cowell gives money .,SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ed50881c9e77c000848e5d6_3__5ed50881c9e77c000848e5d6_4,Kevin Bacon is a film actor .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ed50881c9e77c000848e766_3__5ed50881c9e77c000848e766_4,The city of Padua is located in Italy .,SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ed50881c9e77c000848e9c2_3__5ed50881c9e77c000848e9c2_4,General Motors had a singular automotive institution .,NOT ENOUGH INFORMATION,REFUTED,True,True,False,NEI_INVOLVED,,,True,True
+5ed50881c9e77c000848ea5d_3__5ed50881c9e77c000848ea5d_4,Two and a Half Men is a television thriller series .,SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ed50881c9e77c000848eb24_1__5ed50881c9e77c000848eb24_2,Leslie Alexander has a former profession .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ed50882c9e77c000848ed73_1__5ed50882c9e77c000848ed73_2,Adam Lambert 's album premiered at number one on the U.S . Billboard 200 in 2009 .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ed50882c9e77c000848ee1f_1__5ed50882c9e77c000848ee1f_2,Commodore is only a land rank .,REFUTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ed50882c9e77c000848ee93_3__5ed50882c9e77c000848ee93_4,Season one of the TV series `` Louie '' was written and directed by Louis C.K .,SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ed50882c9e77c000848ee9d_3__5ed50882c9e77c000848ee9d_4,Minor League Baseball provides opportunities for player development .,SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ed50882c9e77c000848ef20_1__5ed50882c9e77c000848ef20_2,Sean Gunn is best known for his role as Thomas Edison .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ed50882c9e77c000848f03b_3__5ed50882c9e77c000848f03b_4,The Premier League Asia Trophy is a soccer competition .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ed50882c9e77c000848f17e_3__5ed50882c9e77c000848f17e_4,The film `` Tangled '' was released in theatres in 2010 .,SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ed50882c9e77c000848f19a_3__5ed50882c9e77c000848f19a_4,The militant group `` Hezbollah '' received war training from Syria .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ed50882c9e77c000848f1ae_1__5ed50882c9e77c000848f1ae_2,Timur was an Arabian lord .,SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ed50882c9e77c000848f1b5_3__5ed50882c9e77c000848f1b5_4,There are four installments of `` The Hunger Games '' film series .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ed50882c9e77c000848f4f3_1__5ed50882c9e77c000848f4f3_2,Henri Kontinen won the Australian Open men 's doubles championship .,REFUTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ed50882c9e77c000848f59c_3__5ed50882c9e77c000848f59c_4,More than 60 % of American adults had consumed an alcoholic drink at some point in 2015 .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ed50882c9e77c000848f5e7_3__5ed50882c9e77c000848f5e7_4,Alex Jones was born in 1974 .,SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ed50882c9e77c000848f97c_1__5ed50882c9e77c000848f97c_2,Pitch Perfect 2 centers on a singing group .,SUPPORTED,SUPPORTED,True,False,False,NO_CHANGE_CORRECT_ON_SUPPORT,,,True,True
+5ed50882c9e77c000848f9fc_3__5ed50882c9e77c000848f9fc_4,Virginia exports computer chips .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ed50882c9e77c000848fa1a_3__5ed50882c9e77c000848fa1a_4,The Walking Dead franchise includes a board game .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ed50882c9e77c000848fb36_3__5ed50882c9e77c000848fb36_4,The TV series Younger aired on Fox Premium .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ed7ad02c9e77c00084a6f6c_1__5ed7ad02c9e77c00084a6f6c_2,Less than 240 people reviewed Ralph Breaks the Internet on Rotten Tomatoes .,SUPPORTED,REFUTED,True,True,True,CORRECT_FLIP,,,True,True
+5ed7ad03c9e77c00084a7917_4__5ed7ad03c9e77c00084a7917_3,The film Bottle Shock was released in 2008 .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ede072ec9e77c00084d243d_4__5ede072ec9e77c00084d243d_3,"John Wick : Chapter 3 - Parabellum grossed more than $ 140 million in the United States and Canada , and a worldwide total of more than $ 256 million .",NOT ENOUGH INFORMATION,NOT ENOUGH INFORMATION,True,False,False,NEI_INVOLVED,,,True,True
+5ede072ec9e77c00084d244c_4__5ede072ec9e77c00084d244c_3,John Wick : Chapter 3 - Parabellum has an average rating of more than 7.45/10 based on more than 280 reviews .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ede072fc9e77c00084d2bb9_4__5ede072fc9e77c00084d2bb9_3,Rodriguez has made more than 692 home runs .,SUPPORTED,SUPPORTED,True,False,False,NO_CHANGE_CORRECT_ON_SUPPORT,,,True,True
+5ee3932cc9e77c0008ccaf7a_4__5ee3932cc9e77c0008ccaf7a_3,UNESCO showed that the impact of the 2019-20 coronavirus pandemic in less than 190 countries with nationwide closure affected less than 95 % of the student population around the world .,NOT ENOUGH INFORMATION,REFUTED,True,True,False,NEI_INVOLVED,,,True,True
+5ee393b6c9e77c0008ccb948_1__5ee393b6c9e77c0008ccb948_2,"Less than 275 cases of coronavirus had been confirmed in Bulgaria by March 26 , 2020 .",NOT ENOUGH INFORMATION,REFUTED,True,True,False,NEI_INVOLVED,,,True,True
+5ee393b6c9e77c0008ccbe1a_4__5ee393b6c9e77c0008ccbe1a_3,"Bulgaria had more than 740 confirmed cases of coronavirus as of April 15th , 2020 during the pandemic .",SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ee39419c9e77c0008ccf6e2_4__5ee39419c9e77c0008ccf6e2_3,"In Westworld , guests have unlimited freedom to rape the hosts .",REFUTED,REFUTED,True,False,False,NO_CHANGE_CORRECT_ON_REFUTE,,,True,True
+5ee39419c9e77c0008ccf804_4__5ee39419c9e77c0008ccf804_3,Veep has an average score above 9/10 and over 20 reviews .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ee39419c9e77c0008ccf91a_1__5ee39419c9e77c0008ccf91a_2,"In the film Menace II Society , Kaydee Lawson grew up in South Central Los Angeles .",SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ee39419c9e77c0008ccfb93_4__5ee39419c9e77c0008ccfb93_3,"A United Kingdom earned more than $ 9.8 million globally , and scored less than 82.5 % based on more than 124 reviews .",NOT ENOUGH INFORMATION,NOT ENOUGH INFORMATION,True,False,False,NEI_INVOLVED,,,True,True
+5ee39419c9e77c0008ccfbaa_4__5ee39419c9e77c0008ccfbaa_3,Practical Magic scored more than 22 % based on more than 60 reviews .,NOT ENOUGH INFORMATION,NOT ENOUGH INFORMATION,True,False,False,NEI_INVOLVED,,,True,True
+5ee3949bc9e77c0008ccfe4c_1__5ee3949bc9e77c0008ccfe4c_2,SZA was born before 1992 .,SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
+5ee3949bc9e77c0008cd0148_4__5ee3949bc9e77c0008cd0148_3,"In North America , A Good Day to Die Hard grossed over $ 67,300,000 and in other territories more than $ 235,800,000 , making a worldwide total of $ 303,177,962 .",SUPPORTED,NOT ENOUGH INFORMATION,True,True,False,NEI_INVOLVED,,,True,True
