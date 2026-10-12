@@ -3,33 +3,29 @@
 from __future__ import annotations
 
 from collections import Counter
-import csv
 from datetime import UTC, datetime
-import hashlib
 import json
 from pathlib import Path
 import platform
 import statistics
-import subprocess
 from typing import Any
 
+from llm_fact_checker.common import (
+    file_sha256,
+    git_commit,
+    read_jsonl,
+    write_csv,
+    write_jsonl,
+)
 from llm_fact_checker.evaluation import calculate_metrics
-from llm_fact_checker.fever import read_jsonl, write_jsonl
-from llm_fact_checker.ollama import SYSTEM_PROMPT, OllamaClient, infer_cases
+from llm_fact_checker.ollama import OllamaClient, infer_cases
+from llm_fact_checker.prompts import SYSTEM_PROMPT
 
 EXPECTED_DATASET_SHA256 = "6bc7cf910cb0b31186e5fc397ebc7cefab2de1ee65d29ae601e369d8758344cb"
 MODEL = "llama3.2:3b"
 TEMPERATURE = 0.2
 RUN_SEEDS = (101, 202, 303, 404, 505)
 PREDICTION_LABELS = ("SUPPORTED", "REFUTED", "NOT ENOUGH INFORMATION")
-
-
-def file_sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
 
 
 def validate_prepared_dataset(path: Path) -> tuple[list[dict[str, Any]], str]:
@@ -208,43 +204,30 @@ def calculate_consistency_metrics(
     }
 
 
+CASE_CSV_FIELDS = [
+    "fever_id",
+    "claim",
+    "gold_label",
+    *(f"run_{index}_prediction" for index in range(1, 6)),
+    "unique_label_count",
+    "modal_label",
+    "modal_count",
+    "modal_agreement",
+    "exact_agreement",
+    "tie",
+    "incomplete",
+    "consensus_prediction",
+    "consistency_classification",
+]
+RUN_ACCURACY_FIELDS = ["run", "seed", "correct", "total", "fever_accuracy"]
+
+
 def _write_case_csv(path: Path, rows: list[dict[str, Any]]) -> None:
-    fields = [
-        "fever_id",
-        "claim",
-        "gold_label",
-        *(f"run_{index}_prediction" for index in range(1, 6)),
-        "unique_label_count",
-        "modal_label",
-        "modal_count",
-        "modal_agreement",
-        "exact_agreement",
-        "tie",
-        "incomplete",
-        "consensus_prediction",
-        "consistency_classification",
-    ]
-    with path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=fields)
-        writer.writeheader()
-        writer.writerows(rows)
+    write_csv(path, rows, CASE_CSV_FIELDS)
 
 
 def _write_run_accuracy(path: Path, metrics: dict[str, Any]) -> None:
-    fields = ["run", "seed", "correct", "total", "fever_accuracy"]
-    with path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=fields)
-        writer.writeheader()
-        writer.writerows(metrics["run_accuracy"])
-
-
-def _git_commit() -> str | None:
-    try:
-        return subprocess.run(
-            ["git", "rev-parse", "HEAD"], check=True, capture_output=True, text=True
-        ).stdout.strip()
-    except (FileNotFoundError, subprocess.CalledProcessError):
-        return None
+    write_csv(path, metrics["run_accuracy"], RUN_ACCURACY_FIELDS)
 
 
 def _report(metrics: dict[str, Any], config: dict[str, Any]) -> str:
@@ -385,7 +368,7 @@ def run_consistency_experiment(
             "llm_fact_checker": "0.0.1",
             "http_client": "urllib (standard library)",
         },
-        "git_commit": _git_commit(),
+        "git_commit": git_commit(),
     }
     (results_dir / "run_config.json").write_text(
         json.dumps(config, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"

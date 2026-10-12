@@ -4,18 +4,23 @@ from __future__ import annotations
 
 from collections import Counter, defaultdict
 from collections.abc import Iterable
-import csv
 from datetime import UTC, datetime
 import json
 from pathlib import Path
 import platform
 import random
-import subprocess
 from typing import Any
 
-from llm_fact_checker.consistency import file_sha256
-from llm_fact_checker.fever import read_jsonl, write_jsonl
-from llm_fact_checker.ollama import ALLOWED_LABELS, SYSTEM_PROMPT, OllamaClient, infer_cases
+from llm_fact_checker.common import (
+    file_sha256,
+    git_commit,
+    percentage,
+    read_jsonl,
+    write_csv,
+    write_jsonl,
+)
+from llm_fact_checker.ollama import OllamaClient, infer_cases
+from llm_fact_checker.prompts import ALLOWED_LABELS, SYSTEM_PROMPT
 
 EXPECTED_TEST_SHA256 = "7f799e076dec184e31533d46704fef2022d08ef68a0db2c44f138d2b4e552f36"
 EXPECTED_TEST_ROWS = 55_197
@@ -384,23 +389,7 @@ def calculate_sensitivity_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def _write_pair_csv(path: Path, rows: list[dict[str, Any]]) -> None:
-    with path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
-        writer.writeheader()
-        writer.writerows(rows)
-
-
-def _git_commit() -> str | None:
-    try:
-        return subprocess.run(
-            ["git", "rev-parse", "HEAD"], check=True, capture_output=True, text=True
-        ).stdout.strip()
-    except (FileNotFoundError, subprocess.CalledProcessError):
-        return None
-
-
-def _percentage(value: float | None) -> str:
-    return "N/A" if value is None else f"{value:.3%}"
+    write_csv(path, rows)
 
 
 def _report(metrics: dict[str, Any], config: dict[str, Any]) -> str:
@@ -420,8 +409,8 @@ This experiment tests whether `{config["ollama_model"]}` changes its verdict cor
 
 ## Primary result
 
-- Correct sensitivity: {metrics["correct_sensitivity_count"]}/{metrics["total_pairs"]} ({_percentage(metrics["correct_sensitivity_rate"])})
-- Verdict flips: {metrics["flip_count"]}/{metrics["complete_pairs"]} ({_percentage(metrics["flip_rate"])})
+- Correct sensitivity: {metrics["correct_sensitivity_count"]}/{metrics["total_pairs"]} ({percentage(metrics["correct_sensitivity_rate"])})
+- Verdict flips: {metrics["flip_count"]}/{metrics["complete_pairs"]} ({percentage(metrics["flip_rate"])})
 - Correct flips: {metrics["correct_flip_count"]}
 - Incorrect flips: {metrics["incorrect_flip_count"]}
 
@@ -436,9 +425,9 @@ This experiment tests whether `{config["ollama_model"]}` changes its verdict cor
 
 ## Individual accuracy
 
-- SUPPORT side: {accuracy["support_correct"]}/{metrics["total_pairs"]} ({_percentage(accuracy["support_accuracy"])})
-- REFUTE side: {accuracy["refute_correct"]}/{metrics["total_pairs"]} ({_percentage(accuracy["refute_accuracy"])})
-- Overall rows: {accuracy["overall_correct"]}/{accuracy["overall_rows"]} ({_percentage(accuracy["overall_accuracy"])})
+- SUPPORT side: {accuracy["support_correct"]}/{metrics["total_pairs"]} ({percentage(accuracy["support_accuracy"])})
+- REFUTE side: {accuracy["refute_correct"]}/{metrics["total_pairs"]} ({percentage(accuracy["refute_accuracy"])})
+- Overall rows: {accuracy["overall_correct"]}/{accuracy["overall_rows"]} ({percentage(accuracy["overall_accuracy"])})
 
 ## NEI behavior
 
@@ -525,7 +514,7 @@ def run_vitaminc_sensitivity(
         "python_version": platform.python_version(),
         "ollama_version": ollama_metadata["version"],
         "ollama_model_metadata": ollama_metadata["model"],
-        "git_commit": _git_commit(),
+        "git_commit": git_commit(),
     }
     (results_dir / "sensitivity_metrics.json").write_text(
         json.dumps(metrics, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"

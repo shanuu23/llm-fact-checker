@@ -12,7 +12,7 @@ from llm_fact_checker.fever import (
     scan_wikipedia,
     select_evidence_set,
 )
-from llm_fact_checker.ollama import parse_prediction
+from llm_fact_checker.prompts import parse_prediction
 
 
 def fever_record(fever_id: int, label: str, claim: str) -> dict:

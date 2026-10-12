@@ -8,17 +8,14 @@ from datetime import UTC, datetime
 import json
 from pathlib import Path
 import platform
-import subprocess
 from typing import Any
 
+from llm_fact_checker.common import git_commit, read_jsonl, write_jsonl
 from llm_fact_checker.consistency import run_consistency_experiment
 from llm_fact_checker.evaluation import evaluate_results
-from llm_fact_checker.fever import prepare_dataset, read_jsonl, write_jsonl
-from llm_fact_checker.ollama import (
-    SYSTEM_PROMPT,
-    OllamaClient,
-    infer_cases,
-)
+from llm_fact_checker.fever import prepare_dataset
+from llm_fact_checker.ollama import OllamaClient, infer_cases
+from llm_fact_checker.prompts import SYSTEM_PROMPT
 from llm_fact_checker.robustness import (
     prepare_robustness_files,
     run_robustness_experiment,
@@ -35,15 +32,6 @@ VITAMINC_RAW_PATH = Path("data/vitaminc/raw/vitaminc/test.jsonl")
 VITAMINC_PROCESSED_PATH = Path("data/vitaminc/processed/vitaminc_sensitivity_100_pairs.jsonl")
 VITAMINC_RESULTS_DIR = Path("results/vitaminc/llama3.2_3b/sensitivity")
 MODEL = "llama3.2:3b"
-
-
-def _git_commit() -> str | None:
-    try:
-        return subprocess.run(
-            ["git", "rev-parse", "HEAD"], check=True, capture_output=True, text=True
-        ).stdout.strip()
-    except (FileNotFoundError, subprocess.CalledProcessError):
-        return None
 
 
 def _results_dir(limit: int | None, requested: Path | None) -> Path:
@@ -96,7 +84,7 @@ def run_inference(
             "llm_fact_checker": "0.0.1",
             "http_client": "urllib (standard library)",
         },
-        "git_commit": _git_commit(),
+        "git_commit": git_commit(),
     }
     (results_dir / "run_config.json").write_text(
         json.dumps(config, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"

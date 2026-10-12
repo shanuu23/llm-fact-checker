@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-import json
 from pathlib import Path
 import random
 import sys
 from typing import Any
+
+from llm_fact_checker.common import read_jsonl, write_jsonl
 
 LABEL_MAP = {
     "SUPPORTS": "SUPPORTED",
@@ -15,23 +16,6 @@ LABEL_MAP = {
     "NOT ENOUGH INFO": "NOT ENOUGH INFORMATION",
 }
 TARGET_LABELS = ("SUPPORTS", "REFUTES")
-
-
-def read_jsonl(path: Path) -> Iterable[dict[str, Any]]:
-    with path.open(encoding="utf-8") as handle:
-        for line_number, line in enumerate(handle, 1):
-            if line.strip():
-                try:
-                    yield json.loads(line)
-                except json.JSONDecodeError as error:
-                    raise ValueError(f"Invalid JSON in {path} at line {line_number}") from error
-
-
-def write_jsonl(path: Path, records: Iterable[dict[str, Any]]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as handle:
-        for record in records:
-            handle.write(json.dumps(record, ensure_ascii=False) + "\n")
 
 
 def map_fever_label(label: str) -> str:
