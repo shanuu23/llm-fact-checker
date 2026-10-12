@@ -16,6 +16,9 @@ LABEL_MAP = {
     "NOT ENOUGH INFO": "NOT ENOUGH INFORMATION",
 }
 TARGET_LABELS = ("SUPPORTS", "REFUTES")
+DEV_PATH = Path("data/fever/raw/shared_task_dev.jsonl")
+WIKI_DIR = Path("data/fever/raw/wiki-pages/wiki-pages")
+PREPARED_PATH = Path("data/fever/processed/fever_baseline_150.jsonl")
 
 
 def map_fever_label(label: str) -> str:

@@ -13,7 +13,7 @@ import shutil
 import tempfile
 import unittest
 
-from llm_fact_checker import consistency, robustness, vitaminc
+from llm_fact_checker.experiments import consistency, robustness, sensitivity
 from llm_fact_checker.evaluation import calculate_metrics, evaluate_results
 from llm_fact_checker.prompts import SYSTEM_PROMPT, build_user_prompt
 from llm_fact_checker.common import read_jsonl
@@ -138,8 +138,8 @@ class VitaminCGoldenTests(unittest.TestCase):
     def setUp(self):
         pairs = list(read_jsonl(PAIRS))
         predictions = list(read_jsonl(VITAMINC / "predictions" / "predictions.jsonl"))
-        self.rows = vitaminc.build_pair_rows(pairs, predictions)
-        self.metrics = vitaminc.calculate_sensitivity_metrics(self.rows)
+        self.rows = sensitivity.build_pair_rows(pairs, predictions)
+        self.metrics = sensitivity.calculate_sensitivity_metrics(self.rows)
 
     def test_metrics_match_committed_file(self):
         self.assertEqual(
@@ -149,7 +149,7 @@ class VitaminCGoldenTests(unittest.TestCase):
     def test_report_matches_committed_file(self):
         config = load_json(VITAMINC / "run_config.json")
         self.assertEqual(
-            vitaminc._report(self.metrics, config),
+            sensitivity._report(self.metrics, config),
             (VITAMINC / "report.md").read_text(encoding="utf-8"),
         )
 

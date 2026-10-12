@@ -6,7 +6,7 @@ import tempfile
 import unittest
 
 from llm_fact_checker.evaluation import calculate_metrics
-from llm_fact_checker.fever import (
+from llm_fact_checker.data_prep.fever import (
     candidate_order,
     map_fever_label,
     scan_wikipedia,

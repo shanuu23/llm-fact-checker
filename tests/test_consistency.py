@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from llm_fact_checker.consistency import (
+from llm_fact_checker.experiments.consistency import (
     calculate_consistency_metrics,
     case_consistency,
 )

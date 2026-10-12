@@ -2,13 +2,15 @@ from __future__ import annotations
 
 import unittest
 
-from llm_fact_checker.vitaminc import (
-    calculate_sensitivity_metrics,
-    classify_pair,
+from llm_fact_checker.data_prep.vitaminc import (
     identify_contrastive_pairs,
     map_vitaminc_label,
     select_pairs,
     validate_pairs,
+)
+from llm_fact_checker.experiments.sensitivity import (
+    calculate_sensitivity_metrics,
+    classify_pair,
 )
 
 SUPPORTED = "SUPPORTED"

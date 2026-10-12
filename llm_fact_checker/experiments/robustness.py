@@ -17,7 +17,7 @@ from llm_fact_checker.common import (
     write_csv,
     write_jsonl,
 )
-from llm_fact_checker.consistency import (
+from llm_fact_checker.experiments.consistency import (
     EXPECTED_DATASET_SHA256,
     validate_prepared_dataset,
 )
