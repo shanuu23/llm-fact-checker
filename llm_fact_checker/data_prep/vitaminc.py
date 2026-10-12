@@ -13,6 +13,7 @@ from llm_fact_checker.common import (
     read_jsonl,
     write_jsonl,
 )
+from llm_fact_checker.data_prep import map_label
 
 EXPECTED_TEST_SHA256 = "7f799e076dec184e31533d46704fef2022d08ef68a0db2c44f138d2b4e552f36"
 # Two byte-different exports of the same test set are accepted. After `_normalise_row` they
@@ -36,21 +37,9 @@ _ROW_FIELD_ORDER = (
 EXPECTED_TEST_ROWS = 55_197
 EXPECTED_LABEL_COUNTS = {"SUPPORTS": 27_664, "REFUTES": 20_265, "NOT ENOUGH INFO": 7_268}
 REQUIRED_FIELDS = {"unique_id", "case_id", "label", "claim", "evidence", "page", "revision_type"}
-LABEL_MAP = {
-    "SUPPORTS": "SUPPORTED",
-    "REFUTES": "REFUTED",
-    "NOT ENOUGH INFO": "NOT ENOUGH INFORMATION",
-}
 SEED = 42
 VITAMINC_RAW_PATH = Path("data/vitaminc/raw/vitaminc/test.jsonl")
 VITAMINC_PROCESSED_PATH = Path("data/vitaminc/processed/vitaminc_sensitivity_100_pairs.jsonl")
-
-
-def map_vitaminc_label(label: str) -> str:
-    try:
-        return LABEL_MAP[label]
-    except KeyError as error:
-        raise ValueError(f"Unsupported VitaminC label: {label!r}") from error
 
 
 def _normalise_row(row: dict[str, Any]) -> dict[str, Any]:
@@ -109,7 +98,7 @@ def _pair_side(row: dict[str, Any]) -> dict[str, Any]:
         "claim": row["claim"],
         "evidence": row["evidence"],
         "original_label": row["label"],
-        "canonical_label": map_vitaminc_label(row["label"]),
+        "canonical_label": map_label(row["label"], "VitaminC"),
         "source_metadata": {
             key: value for key, value in row.items() if key not in {"claim", "evidence", "label"}
         },

@@ -20,12 +20,11 @@ from llm_fact_checker.common import (
 from llm_fact_checker.evaluation import calculate_metrics
 from llm_fact_checker.models import DEFAULT_MODEL
 from llm_fact_checker.ollama import OllamaClient, infer_cases
-from llm_fact_checker.prompts import SYSTEM_PROMPT
+from llm_fact_checker.prompts import LABELS, SYSTEM_PROMPT
 
 EXPECTED_DATASET_SHA256 = "6bc7cf910cb0b31186e5fc397ebc7cefab2de1ee65d29ae601e369d8758344cb"
 TEMPERATURE = 0.2
 RUN_SEEDS = (101, 202, 303, 404, 505)
-PREDICTION_LABELS = ("SUPPORTED", "REFUTED", "NOT ENOUGH INFORMATION")
 
 
 def validate_prepared_dataset(path: Path) -> tuple[list[dict[str, Any]], str]:
@@ -47,8 +46,8 @@ def validate_prepared_dataset(path: Path) -> tuple[list[dict[str, Any]], str]:
 def case_consistency(predictions: list[str | None], gold_label: str) -> dict[str, Any]:
     if len(predictions) != 5:
         raise ValueError(f"Expected five predictions, found {len(predictions)}")
-    complete = all(prediction in PREDICTION_LABELS for prediction in predictions)
-    counts = Counter(prediction for prediction in predictions if prediction in PREDICTION_LABELS)
+    complete = all(prediction in LABELS for prediction in predictions)
+    counts = Counter(prediction for prediction in predictions if prediction in LABELS)
     modal_count = max(counts.values(), default=0)
     modes = sorted(label for label, count in counts.items() if count == modal_count)
     tie = complete and len(modes) > 1

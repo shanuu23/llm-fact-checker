@@ -6,9 +6,9 @@ import tempfile
 import unittest
 
 from llm_fact_checker.evaluation import calculate_metrics
+from llm_fact_checker.data_prep import map_label
 from llm_fact_checker.data_prep.fever import (
     candidate_order,
-    map_fever_label,
     scan_wikipedia,
     select_evidence_set,
 )
@@ -26,11 +26,11 @@ def fever_record(fever_id: int, label: str, claim: str) -> dict:
 
 class BaselineTests(unittest.TestCase):
     def test_label_mapping(self):
-        self.assertEqual(map_fever_label("SUPPORTS"), "SUPPORTED")
-        self.assertEqual(map_fever_label("REFUTES"), "REFUTED")
-        self.assertEqual(map_fever_label("NOT ENOUGH INFO"), "NOT ENOUGH INFORMATION")
+        self.assertEqual(map_label("SUPPORTS", "FEVER"), "SUPPORTED")
+        self.assertEqual(map_label("REFUTES", "FEVER"), "REFUTED")
+        self.assertEqual(map_label("NOT ENOUGH INFO", "FEVER"), "NOT ENOUGH INFORMATION")
         with self.assertRaises(ValueError):
-            map_fever_label("UNKNOWN")
+            map_label("UNKNOWN", "FEVER")
 
     def test_deterministic_sampling_order_and_claim_deduplication(self):
         records = [fever_record(index, "SUPPORTS", f"Claim {index}") for index in range(10)]

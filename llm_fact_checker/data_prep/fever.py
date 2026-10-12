@@ -9,23 +9,12 @@ import sys
 from typing import Any
 
 from llm_fact_checker.common import read_jsonl, write_jsonl
+from llm_fact_checker.data_prep import map_label
 
-LABEL_MAP = {
-    "SUPPORTS": "SUPPORTED",
-    "REFUTES": "REFUTED",
-    "NOT ENOUGH INFO": "NOT ENOUGH INFORMATION",
-}
 TARGET_LABELS = ("SUPPORTS", "REFUTES")
 DEV_PATH = Path("data/fever/raw/shared_task_dev.jsonl")
 WIKI_DIR = Path("data/fever/raw/wiki-pages/wiki-pages")
 PREPARED_PATH = Path("data/fever/processed/fever_baseline_150.jsonl")
-
-
-def map_fever_label(label: str) -> str:
-    try:
-        return LABEL_MAP[label]
-    except KeyError as error:
-        raise ValueError(f"Unknown FEVER label: {label!r}") from error
 
 
 def select_evidence_set(evidence_sets: list[list[list[Any]]]) -> list[dict[str, Any]] | None:
@@ -70,7 +59,7 @@ def candidate_order(
                     "claim": record["claim"],
                     "claim_key": claim_key,
                     "original_fever_label": label,
-                    "gold_label": map_fever_label(label),
+                    "gold_label": map_label(label, "FEVER"),
                     "selected_evidence_set": evidence_set,
                 }
             )
@@ -138,10 +127,8 @@ def _references(record: dict[str, Any]) -> set[tuple[str, int]]:
 
 def _attach_evidence(
     record: dict[str, Any], resolved: dict[tuple[str, int], str]
-) -> dict[str, Any] | None:
-    references = _references(record)
-    if not references <= resolved.keys():
-        return None
+) -> dict[str, Any]:
+    """Add the sentence text; every reference is resolved by the time this is called."""
     result = dict(record)
     result["evidence"] = [
         {
@@ -198,16 +185,16 @@ def prepare_dataset(
                 selected[label].append(orders[label][next_index[label]])
                 next_index[label] += 1
 
-    prepared = [
-        _attach_evidence(record, resolved) for label in TARGET_LABELS for record in selected[label]
-    ]
-    if any(record is None for record in prepared):
-        raise AssertionError("Prepared dataset contains unresolved evidence")
     final = sorted(
-        (record for record in prepared if record is not None), key=lambda item: item["fever_id"]
+        (
+            _attach_evidence(record, resolved)
+            for label in TARGET_LABELS
+            for record in selected[label]
+        ),
+        key=lambda item: item["fever_id"],
     )
     counts = {
-        label: sum(item["gold_label"] == LABEL_MAP[label] for item in final)
+        label: sum(item["gold_label"] == map_label(label, "FEVER") for item in final)
         for label in TARGET_LABELS
     }
     if len(final) != per_label * 2 or counts != {label: per_label for label in TARGET_LABELS}:

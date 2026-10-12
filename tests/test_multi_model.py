@@ -7,13 +7,16 @@ run orchestration without a model, and without touching the committed results.
 from __future__ import annotations
 
 import contextlib
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import io
 import json
 from pathlib import Path
 import tempfile
-import threading
 import unittest
+
+try:
+    from tests.fake_ollama import FakeOllama
+except ModuleNotFoundError:  # run with tests/ itself on sys.path
+    from fake_ollama import FakeOllama
 
 from llm_fact_checker.cli import _results_dir, build_parser, experiment_dir
 from llm_fact_checker.common import file_sha256, read_jsonl
@@ -28,60 +31,6 @@ FEVER_SAMPLE = ROOT / "data" / "fever" / "processed" / "fever_baseline_150.jsonl
 FEVER_PREPARED = ROOT / "data" / "fever" / "prepared"
 VITAMINC_PAIRS = ROOT / "data" / "vitaminc" / "processed" / "vitaminc_sensitivity_100_pairs.jsonl"
 VITAMINC_RAW = ROOT / "data" / "vitaminc" / "raw" / "vitaminc" / "test.jsonl"
-LABELS = ("SUPPORTED", "REFUTED", "NOT ENOUGH INFORMATION")
-
-
-class FakeOllama:
-    """A minimal Ollama server: /api/version, /api/tags and /api/chat."""
-
-    def __init__(self, installed: tuple[str, ...] = ("fake-model:1b",)):
-        self.installed = installed
-        self.chat_requests: list[dict] = []
-        outer = self
-
-        class Handler(BaseHTTPRequestHandler):
-            def log_message(self, *args):  # keep test output quiet
-                pass
-
-            def _send(self, payload: dict) -> None:
-                body = json.dumps(payload).encode()
-                self.send_response(200)
-                self.send_header("Content-Type", "application/json")
-                self.send_header("Content-Length", str(len(body)))
-                self.end_headers()
-                self.wfile.write(body)
-
-            def do_GET(self):
-                if self.path == "/api/version":
-                    self._send({"version": "0.0.0-fake"})
-                elif self.path == "/api/tags":
-                    models = [{"name": n, "digest": f"digest-of-{n}"} for n in outer.installed]
-                    self._send({"models": models})
-                else:
-                    self.send_error(404)
-
-            def do_POST(self):
-                length = int(self.headers["Content-Length"])
-                payload = json.loads(self.rfile.read(length))
-                outer.chat_requests.append(payload)
-                user = payload["messages"][-1]["content"]
-                label = LABELS[sum(map(ord, user)) % 3]
-                self._send({"message": {"content": label}, "done_reason": "stop"})
-
-        self.server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
-        self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
-
-    @property
-    def url(self) -> str:
-        return f"http://127.0.0.1:{self.server.server_address[1]}"
-
-    def __enter__(self) -> FakeOllama:
-        self.thread.start()
-        return self
-
-    def __exit__(self, *exc) -> None:
-        self.server.shutdown()
-        self.server.server_close()
 
 
 def quiet():

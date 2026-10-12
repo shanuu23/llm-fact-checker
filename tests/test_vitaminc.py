@@ -5,13 +5,13 @@ import tempfile
 import unittest
 
 from llm_fact_checker.common import file_sha256, write_jsonl
+from llm_fact_checker.data_prep import map_label
 from llm_fact_checker.data_prep.vitaminc import (
     ACCEPTED_TEST_SHA256,
     EXPECTED_TEST_SHA256,
     _normalise_row,
     identify_contrastive_pairs,
     load_vitaminc_test,
-    map_vitaminc_label,
     select_pairs,
     validate_pairs,
 )
@@ -70,11 +70,11 @@ def metric_row(support: str | None, refute: str | None) -> dict:
 
 class VitaminCTests(unittest.TestCase):
     def test_label_mapping(self):
-        self.assertEqual(map_vitaminc_label("SUPPORTS"), SUPPORTED)
-        self.assertEqual(map_vitaminc_label("REFUTES"), REFUTED)
-        self.assertEqual(map_vitaminc_label("NOT ENOUGH INFO"), NEI)
+        self.assertEqual(map_label("SUPPORTS", "VitaminC"), SUPPORTED)
+        self.assertEqual(map_label("REFUTES", "VitaminC"), REFUTED)
+        self.assertEqual(map_label("NOT ENOUGH INFO", "VitaminC"), NEI)
         with self.assertRaises(ValueError):
-            map_vitaminc_label("UNKNOWN")
+            map_label("UNKNOWN", "VitaminC")
 
     def test_legitimate_contrastive_pair_identification(self):
         rows = [
