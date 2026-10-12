@@ -2,18 +2,23 @@
 
 from __future__ import annotations
 
+import http.client
 import json
 import sys
 import time
 from typing import Any
-from urllib.error import HTTPError, URLError
+from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 from llm_fact_checker.prompts import SYSTEM_PROMPT, build_user_prompt, parse_prediction
 
 
 class OllamaResponseError(Exception):
-    """Raised when Ollama returns a successful but malformed response."""
+    """Raised when Ollama answers, but the reply is not usable (no message, or not JSON)."""
+
+
+class OllamaRequestError(ValueError):
+    """Raised when Ollama rejects a request (HTTP 4xx). Retrying will not help."""
 
 
 class OllamaClient:
@@ -34,11 +39,14 @@ class OllamaClient:
                 return json.load(response)
         except HTTPError as error:
             if 400 <= error.code < 500:
-                raise ValueError(
+                raise OllamaRequestError(
                     f"Ollama rejected the request ({path}): HTTP {error.code}"
                 ) from error
             raise RuntimeError(f"Ollama request failed ({path}): {error}") from error
-        except (URLError, TimeoutError) as error:
+        except json.JSONDecodeError as error:
+            raise OllamaResponseError(f"Ollama returned invalid JSON ({path})") from error
+        except (OSError, http.client.HTTPException) as error:
+            # URLError, timeouts, and connections dropped mid-response are all transient
             raise RuntimeError(f"Ollama request failed ({path}): {error}") from error
 
     def check(self, model: str) -> dict[str, Any]:
@@ -136,7 +144,7 @@ def infer_cases(
                 temperature=temperature,
             )
             parsed = parse_prediction(raw_output)
-        except (RuntimeError, OllamaResponseError) as caught:
+        except (RuntimeError, OllamaResponseError, OllamaRequestError) as caught:
             error = str(caught)
         results.append(
             {
