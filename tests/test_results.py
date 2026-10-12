@@ -210,7 +210,12 @@ class CommittedPilotResultsTests(unittest.TestCase):
     """Pin the loader against the real committed Llama 3.2 3B results."""
 
     def setUp(self):
-        self.runs = select(discover_runs(), model="llama3.2_3b")
+        # whole-dataset runs (*_full) sit beside the pilot runs; these tests pin the pilot ones
+        self.runs = [
+            run
+            for run in select(discover_runs(), model="llama3.2_3b")
+            if not run.experiment.endswith("_full")
+        ]
         self.by_kind = {run.kind: run for run in self.runs}
 
     def test_finds_exactly_the_four_experiments_and_no_smoke_runs(self):
@@ -247,6 +252,15 @@ class CommittedPilotResultsTests(unittest.TestCase):
         sensitivity = self.by_kind["sensitivity"].headline()
         self.assertAlmostEqual(sensitivity["correct_sensitivity"], 0.27)
         self.assertAlmostEqual(sensitivity["flip_rate"], 0.72)
+
+    def test_whole_dataset_runs_are_separate_runs_with_their_own_dataset_hash(self):
+        runs = select(discover_runs(), model="llama3.2_3b", kind="baseline")
+        by_name = {run.experiment: run for run in runs}
+        pilot = by_name["baseline"].provenance()["dataset_sha256"]
+        for name, run in by_name.items():
+            if name.endswith("_full"):
+                self.assertNotEqual(run.provenance()["dataset_sha256"], pilot)
+                self.assertGreater(run.headline()["cases"], 150)
 
     def test_provenance_identifies_the_model_build(self):
         for run in self.runs:
