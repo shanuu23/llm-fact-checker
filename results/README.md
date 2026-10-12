@@ -85,15 +85,31 @@ match.
 
 ## Reading results in code
 
-Use the committed files directly:
+`llm_fact_checker.results` is a read-only loader (standard library only; it never writes and never
+calls a model). Use it instead of re-implementing paths and file names:
 
 ```python
-import json
-from pathlib import Path
+from llm_fact_checker.results import discover_runs, select
 
-metrics = json.loads(Path("results/fever/llama3.2_3b/baseline/metrics.json").read_text())
-print(metrics["overall_accuracy"])
+runs = discover_runs()                          # every experiment under results/, smoke runs excluded
+for run in select(runs, kind="baseline"):       # or filter by dataset= / model=
+    print(run.model, run.headline()["accuracy"])
+
+run = select(runs, model="llama3.2_3b", kind="robustness")[0]
+run.metrics()       # the full metrics JSON as a dict
+run.config()        # run_config.json
+run.provenance()    # model tag and digest, seeds, dataset hash, git commit, timestamp
+run.cases()         # per-case rows as dicts: pandas.DataFrame(run.cases()) if pandas is installed
 ```
 
-A shared loader that discovers every `<dataset>/<model>/<experiment>` folder is planned for the
-comparison page and the Streamlit app.
+`headline()` returns a small set of comparable numbers with the same names for every model:
+
+| Kind | Keys |
+|---|---|
+| `baseline` | `cases`, `accuracy`, `supported_accuracy`, `refuted_accuracy`, `nei_rate`, `invalid_format_rate` |
+| `consistency` | `cases`, `exact_consistency`, `mean_modal_agreement`, `mean_accuracy`, `stable_wrong_rate`, `unstable_rate` |
+| `robustness` | `cases`, `control_accuracy`, `reorder_eligible`, `reorder_invariance`, `distractor_invariance`, `distractor_accuracy`, `distractor_accuracy_delta` |
+| `sensitivity` | `pairs`, `correct_sensitivity`, `flip_rate`, `support_accuracy`, `refute_accuracy`, `nei_pair_rate` |
+
+Per-case CSV values are typed for the columns above (counts as `int`, rates as `float`, flags as
+`bool`, an empty cell as `None`); other columns, such as claim text, stay strings.

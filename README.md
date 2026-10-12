@@ -92,6 +92,7 @@ llm_fact_checker/
 ├── prompts.py        the frozen prompt, label set and strict output parser
 ├── ollama.py         Ollama HTTP client and inference loop
 ├── evaluation.py     baseline metrics and report
+├── results.py        read-only loader for results/ (used by comparisons and the app)
 ├── data_prep/        fever.py, vitaminc.py: sampling and evidence extraction
 └── experiments/      baseline.py, consistency.py, robustness.py, sensitivity.py
 data/                 raw (ignored) and processed samples, HASHES.txt

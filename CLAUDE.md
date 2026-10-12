@@ -28,6 +28,7 @@ llm_fact_checker/
   cli.py          argparse only          prompts.py     FROZEN prompt, labels, parser
   common.py       shared helpers         ollama.py      HTTP client + inference loop
   evaluation.py   baseline metrics       data_prep/     fever.py, vitaminc.py
+  results.py      read-only results loader
   experiments/    baseline, consistency, robustness, sensitivity
 data/             raw (gitignored), processed samples (tracked), HASHES.txt
 results/          <dataset>/<model_slug>/<experiment>/, committed
@@ -82,5 +83,7 @@ Pending, in order:
    the pilot hash. Plan: accept both. Do not change `EXPECTED_TEST_SHA256` until the team agrees.
 4. **Baseline hash gate.** `run` neither checks nor records the sample hash (consistency and
    robustness do).
-5. **Comparison and a Streamlit app** that reads `results/` only and never runs inference. A shared
-   results loader comes first.
+5. **Comparison and a Streamlit app** that reads `results/` only and never runs inference. The
+   read-only loader `llm_fact_checker/results.py` exists (`discover_runs`, `select`,
+   `ResultRun.headline/metrics/config/provenance/cases`); build the comparison and app on it
+   rather than reading result files directly.

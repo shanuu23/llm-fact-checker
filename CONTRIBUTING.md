@@ -83,5 +83,5 @@ same one.
 | Metrics, confidence intervals, scorecard | `evaluation.py`, new modules | TBD |
 | Model runs: qwen2.5:7b | `results/*/qwen2.5_7b/` | TBD |
 | Model runs: gemma3:4b | `results/*/gemma3_4b/` | TBD |
-| Results loader and Streamlit app | `results.py`, `app/` | TBD |
+| Comparison page and Streamlit app (built on `results.py`) | `app/`, new `compare.py` | TBD |
 | Report, poster, recommendations | `docs/` | TBD |
