@@ -21,10 +21,10 @@ from llm_fact_checker.experiments.consistency import (
     EXPECTED_DATASET_SHA256,
     validate_prepared_dataset,
 )
+from llm_fact_checker.models import DEFAULT_MODEL
 from llm_fact_checker.ollama import OllamaClient, infer_cases
 from llm_fact_checker.prompts import ALLOWED_LABELS, SYSTEM_PROMPT
 
-MODEL = "llama3.2:3b"
 TEMPERATURE = 0
 SEED = 42
 VARIANTS = ("control", "reorder", "distractor")
@@ -513,9 +513,11 @@ def run_robustness_experiment(
     limit: int | None = None,
     overwrite: bool = False,
     base_url: str = "http://localhost:11434",
+    model: str = DEFAULT_MODEL,
+    prepared_dir: Path | None = None,
 ) -> dict[str, Any]:
     source, dataset_hash = validate_prepared_dataset(prepared_path)
-    prepared_dir = robustness_dir / "prepared"
+    prepared_dir = prepared_dir if prepared_dir is not None else robustness_dir / "prepared"
     control = list(read_jsonl(prepared_dir / "control.jsonl"))
     reordered = list(read_jsonl(prepared_dir / "reordered_evidence.jsonl"))
     distractors = list(read_jsonl(prepared_dir / "distractor_evidence.jsonl"))
@@ -543,12 +545,12 @@ def run_robustness_experiment(
         raise FileExistsError(f"Refusing to overwrite robustness results: {existing}")
 
     client = OllamaClient(base_url=base_url)
-    ollama_metadata = client.check(MODEL)
+    ollama_metadata = client.check(model)
     predictions_dir.mkdir(parents=True, exist_ok=True)
-    control_predictions = infer_cases(client, MODEL, control_cases, SEED, TEMPERATURE, "Control")
-    reorder_predictions = infer_cases(client, MODEL, reorder_cases, SEED, TEMPERATURE, "Reorder")
+    control_predictions = infer_cases(client, model, control_cases, SEED, TEMPERATURE, "Control")
+    reorder_predictions = infer_cases(client, model, reorder_cases, SEED, TEMPERATURE, "Reorder")
     distractor_predictions = infer_cases(
-        client, MODEL, distractor_cases, SEED, TEMPERATURE, "Distractor"
+        client, model, distractor_cases, SEED, TEMPERATURE, "Distractor"
     )
     write_jsonl(output_paths[0], control_predictions)
     write_jsonl(output_paths[1], reorder_predictions)
@@ -573,7 +575,7 @@ def run_robustness_experiment(
         "full_dataset_class_balance": dict(Counter(row["gold_label"] for row in source)),
         "sample_size": len(control_cases),
         "reorder_eligible_cases": len(reorder_cases),
-        "ollama_model": MODEL,
+        "ollama_model": model,
         "temperature": TEMPERATURE,
         "model_seed": SEED,
         "prompt_template": {

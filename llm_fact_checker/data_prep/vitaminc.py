@@ -255,11 +255,7 @@ def prepare_vitaminc_pairs(
     prepared_dir: Path,
     overwrite: bool = False,
 ) -> dict[str, Any]:
-    output_paths = [
-        processed_path,
-        prepared_dir / "selected_pairs.jsonl",
-        prepared_dir / "pair_audit.md",
-    ]
+    output_paths = [processed_path, prepared_dir / "pair_audit.md"]
     existing = [path for path in output_paths if path.exists()]
     if existing and not overwrite:
         raise FileExistsError(f"Refusing to overwrite VitaminC prepared files: {existing}")
@@ -269,7 +265,7 @@ def prepare_vitaminc_pairs(
     validate_pairs(selected, expected_count=100)
     validate_pairs_against_candidates(selected, candidates)
     write_jsonl(processed_path, selected)
-    write_jsonl(prepared_dir / "selected_pairs.jsonl", selected)
+    prepared_dir.mkdir(parents=True, exist_ok=True)
     (prepared_dir / "pair_audit.md").write_text(_audit_markdown(selected), encoding="utf-8")
     return {
         **source_summary,

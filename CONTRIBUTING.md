@@ -41,6 +41,18 @@ description.
 The golden tests in `tests/test_golden_results.py` fail if the prompt, a metric, or a report
 changes, so you will find out immediately.
 
+## Adding a model
+
+1. `ollama pull <tag>` and check the exact tag appears in `ollama list`.
+2. Smoke test: `uv run factcheck run --model <tag> --limit 3`.
+3. Run the experiments with `--model <tag>` (see the README, "Run another model").
+4. Commit only `results/*/<model_slug>/` (the slug is the tag with `:` replaced by `_`).
+5. Open a PR named `<your-name>/add-<model_slug>`; say in the description which experiments
+   you ran and note anything unusual (for example a high invalid-format rate).
+
+Nothing else changes: the prompt, samples and seeds are shared, so your numbers sit next to
+everyone else's. One owner per model avoids two people overwriting the same folder.
+
 ## Results policy
 
 See [results/README.md](results/README.md). In short: never hand-edit results, commit only your own
@@ -79,7 +91,6 @@ same one.
 
 | Workstream | Files | Owner |
 |---|---|---|
-| Multi-model support (`--model`, per-model results paths) | `cli.py`, `experiments/` | TBD |
 | Full-dataset run and resumable runner | `data_prep/`, `experiments/` | TBD |
 | Metrics, confidence intervals, scorecard | `evaluation.py`, new modules | TBD |
 | Model runs: qwen2.5:7b | `results/*/qwen2.5_7b/` | TBD |

@@ -12,10 +12,9 @@ from typing import Any
 from llm_fact_checker.common import git_commit, read_jsonl, write_jsonl
 from llm_fact_checker.data_prep.fever import DEV_PATH
 from llm_fact_checker.evaluation import evaluate_results
+from llm_fact_checker.models import DEFAULT_MODEL
 from llm_fact_checker.ollama import OllamaClient, infer_cases
 from llm_fact_checker.prompts import SYSTEM_PROMPT
-
-MODEL = "llama3.2:3b"
 
 
 def run_inference(
@@ -24,6 +23,7 @@ def run_inference(
     limit: int | None = None,
     overwrite: bool = False,
     base_url: str = "http://localhost:11434",
+    model: str = DEFAULT_MODEL,
 ) -> dict[str, Any]:
     predictions_path = results_dir / "predictions.jsonl"
     if predictions_path.exists() and not overwrite:
@@ -35,8 +35,8 @@ def run_inference(
         raise ValueError(f"Prepared dataset is empty: {prepared_path}")
     cases = dataset if limit is None else dataset[:limit]
     client = OllamaClient(base_url=base_url)
-    ollama_metadata = client.check(MODEL)
-    results = infer_cases(client, MODEL, cases, seed=42, temperature=0)
+    ollama_metadata = client.check(model)
+    results = infer_cases(client, model, cases, seed=42, temperature=0)
     results_dir.mkdir(parents=True, exist_ok=True)
     write_jsonl(predictions_path, results)
     counts = Counter(case["gold_label"] for case in cases)
@@ -47,7 +47,7 @@ def run_inference(
         "sample_size": len(cases),
         "class_balance": dict(counts),
         "sampling_seed": 42,
-        "ollama_model": MODEL,
+        "ollama_model": model,
         "temperature": 0,
         "model_seed": 42,
         "prompt_template": {

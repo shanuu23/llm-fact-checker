@@ -18,11 +18,11 @@ from llm_fact_checker.common import (
     write_jsonl,
 )
 from llm_fact_checker.evaluation import calculate_metrics
+from llm_fact_checker.models import DEFAULT_MODEL
 from llm_fact_checker.ollama import OllamaClient, infer_cases
 from llm_fact_checker.prompts import SYSTEM_PROMPT
 
 EXPECTED_DATASET_SHA256 = "6bc7cf910cb0b31186e5fc397ebc7cefab2de1ee65d29ae601e369d8758344cb"
-MODEL = "llama3.2:3b"
 TEMPERATURE = 0.2
 RUN_SEEDS = (101, 202, 303, 404, 505)
 PREDICTION_LABELS = ("SUPPORTED", "REFUTED", "NOT ENOUGH INFORMATION")
@@ -247,7 +247,7 @@ def _report(metrics: dict[str, Any], config: dict[str, Any]) -> str:
 
 ## Purpose
 
-This experiment measures how consistently `llama3.2:3b` returns the same verdict when given the exact same claim and gold evidence five times. Consistency does not imply correctness.
+This experiment measures how consistently `{config["ollama_model"]}` returns the same verdict when given the exact same claim and gold evidence five times. Consistency does not imply correctness.
 
 ## Dataset and model
 
@@ -334,6 +334,7 @@ def run_consistency_experiment(
     limit: int | None = None,
     overwrite: bool = False,
     base_url: str = "http://localhost:11434",
+    model: str = DEFAULT_MODEL,
 ) -> dict[str, Any]:
     dataset, dataset_hash = validate_prepared_dataset(prepared_path)
     cases = dataset if limit is None else dataset[:limit]
@@ -341,7 +342,7 @@ def run_consistency_experiment(
         raise FileExistsError(f"Refusing to overwrite {results_dir}; pass --overwrite explicitly")
 
     client = OllamaClient(base_url=base_url)
-    ollama_metadata = client.check(MODEL)
+    ollama_metadata = client.check(model)
     results_dir.mkdir(parents=True, exist_ok=True)
     runs_dir = results_dir / "runs"
     runs_dir.mkdir(exist_ok=True)
@@ -353,7 +354,7 @@ def run_consistency_experiment(
         "full_dataset_size": len(dataset),
         "full_dataset_class_balance": dict(Counter(row["gold_label"] for row in dataset)),
         "sample_size": len(cases),
-        "ollama_model": MODEL,
+        "ollama_model": model,
         "temperature": TEMPERATURE,
         "run_seeds": list(RUN_SEEDS),
         "prompt_template": {
@@ -379,7 +380,7 @@ def run_consistency_experiment(
     for run_number, seed in enumerate(RUN_SEEDS, 1):
         predictions = infer_cases(
             client,
-            MODEL,
+            model,
             cases,
             seed=seed,
             temperature=TEMPERATURE,

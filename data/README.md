@@ -7,11 +7,17 @@ data/
 │   ├── raw/                                downloaded separately, NOT in git
 │   │   ├── shared_task_dev.jsonl
 │   │   └── wiki-pages/wiki-pages/wiki-001.jsonl … wiki-109.jsonl
-│   └── processed/fever_baseline_150.jsonl  the frozen sample, in git
+│   ├── processed/fever_baseline_150.jsonl  the frozen sample, in git
+│   └── prepared/                           perturbed inputs + distractor_audit.md, in git
 └── vitaminc/
     ├── raw/vitaminc/test.jsonl             downloaded separately, NOT in git
-    └── processed/vitaminc_sensitivity_100_pairs.jsonl   the frozen sample, in git
+    ├── processed/vitaminc_sensitivity_100_pairs.jsonl   the frozen sample, in git
+    └── prepared/pair_audit.md              human-review audit of the pairs, in git
 ```
+
+`prepared/` holds files derived from the frozen samples (the reordered and distractor evidence the
+robustness experiment feeds to every model, and the audits a human reviewed). They do not depend on
+a model, so every model's run reads the same files.
 
 The two `processed/` files are the inputs to every experiment. `data/*/raw/` is gitignored because
 the Wikipedia dump is several GB.
