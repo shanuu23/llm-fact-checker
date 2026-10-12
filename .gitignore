@@ -1,8 +1,9 @@
-# Raw data (large source files are downloaded separately)
-/data/raw/
-/data/fever/raw/
-/data
-/data/vitaminc/raw/
+# Raw datasets are downloaded separately (several GB). Processed samples are tracked.
+data/*/raw/
+
+# Personal Claude Code settings
+.claude/settings.local.json
+
 # Mac OS-specific storage files
 .DS_Store
 
