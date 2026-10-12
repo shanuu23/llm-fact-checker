@@ -37,6 +37,19 @@ SUPPORTS row and one REFUTES row with different evidence, the same page, revisio
 revision identifier. The one ambiguous contradictory group is excluded. Claims are unique across
 the selected pairs.
 
+## Whole-dataset run and flagged records
+
+The baseline can also run on the whole FEVER dev set (13,332 SUPPORTS and REFUTES claims),
+following the FEVER data audit. Two results are reported:
+
+- **Main result**: every claim, including the 68 the audit flagged as possibly inconsistent.
+- **Second result**: the same run without the flagged claims (13,264).
+
+The flags (`conflicting_duplicate_label`, `normalized_claim_conflict`) are possible label
+inconsistencies, not proven errors, and no label is ever changed. A large gap between the two
+results would suggest label noise is moving the number; a small gap means it is not. NOT ENOUGH
+INFO claims remain out of scope because FEVER provides them with no gold evidence.
+
 ## Experiments and metrics
 
 ### 1. Correctness (baseline)

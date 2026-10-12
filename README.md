@@ -112,6 +112,51 @@ follow "return the label only" will show a high invalid-format rate; that is a r
 Re-score a model's saved baseline predictions with
 `uv run factcheck evaluate --model qwen2.5:7b`.
 
+## Run the whole FEVER dev set
+
+The 150-case sample is the frozen comparison set. The baseline can also be run on every
+SUPPORTS/REFUTES claim in the FEVER dev file, as decided in the data audit
+(`notebooks/01_data_audit_fever.ipynb`):
+
+```bash
+uv run factcheck prepare --all          # 13 s; writes data/fever/full/fever_dev_full.jsonl
+uv run factcheck run --model llama3.2:3b --limit 3 \
+    --prepared data/fever/full/fever_dev_full.jsonl --results-dir /tmp/smoke      # smoke test
+caffeinate -i uv run factcheck run --model llama3.2:3b \
+    --prepared data/fever/full/fever_dev_full.jsonl \
+    --results-dir results/fever/llama3.2_3b/baseline_full
+```
+
+- **What is in the file:** all 13,332 claims (6,666 SUPPORTED + 6,666 REFUTED). Nothing is
+  de-duplicated and nothing is removed because it was flagged. Accented Wikipedia titles are
+  matched in NFC form, so all evidence resolves. The 68 claims the audit flagged as possibly
+  inconsistent carry a `flags` field.
+- **Two results:** `metrics.json` is the main result on all 13,332 claims;
+  `metrics_excluding_flagged.json` and a section of `report.md` give the second result without the
+  flagged claims (13,264), as the audit decided.
+- **If the run is interrupted** (sleep, closed lid, Ctrl-C): every answer is saved as it arrives.
+  Run the same command with `--resume`; it keeps what was saved, retries any failed cases and
+  asks the model only for the missing ones.
+- **Time:** about 35 minutes for a 3B model on an Apple-silicon laptop (0.16 s per call); other
+  machines and larger models differ. `predictions.jsonl` is about 8 MB: commit the metrics and
+  report and share the predictions by link.
+
+### Everything on the whole set, unattended
+
+Robustness and consistency also run on the whole set, with the same flagged-records second result.
+One script runs all five steps in order (build the file, build the perturbed inputs, baseline,
+robustness, consistency):
+
+```bash
+caffeinate -i scripts/run_whole_fever.sh llama3.2:3b 2>&1 | tee whole_run.log
+```
+
+It is safe to stop and start again: every step saves each answer as it arrives, resumes where it
+left off, and is skipped once finished. Results go to `results/fever/<model_slug>/baseline_full/`,
+`robustness_full/` and `consistency_5run_full/`. About 108,000 model calls in total: roughly 3 to
+4 hours for a 3B model at 0.16 s per call. The individual commands (`factcheck run`, `robustness`,
+`consistency`, each with `--prepared`, `--results-dir` and `--resume`) are inside the script.
+
 ## Repository layout
 
 ```text

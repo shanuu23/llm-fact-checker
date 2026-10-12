@@ -1,5 +1,14 @@
 # Raw datasets are downloaded separately (several GB). Processed samples are tracked.
 data/*/raw/
+# The whole-dataset file is derived (`factcheck prepare --all`), about 8 MB.
+data/fever/full/
+
+# Whole-dataset runs (*_full): commit the metrics, reports and configs, not the multi-megabyte
+# per-case predictions. Share those by link instead.
+results/*/*/*_full/predictions.jsonl
+results/*/*/*_full/predictions.partial.jsonl
+results/*/*/*_full/predictions/
+results/*/*/*_full/runs/
 
 # Personal Claude Code settings
 .claude/settings.local.json
