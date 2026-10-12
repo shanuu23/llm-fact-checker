@@ -49,9 +49,15 @@ uv run python -m llm_fact_checker.baseline <command>   # original form, still su
 
 ## Data
 
-The two fixed samples are committed under `data/*/processed/`. The raw datasets are several GB and
-are downloaded separately; see [data/README.md](data/README.md) for sources, layout and hashes. You
-only need the raw data to re-create a sample, not to run the experiments.
+The two fixed samples are committed under `data/*/processed/`. The raw datasets are downloaded
+separately (FEVER's Wikipedia dump is several GB); see [data/README.md](data/README.md) for sources,
+layout and hashes. Which raw data you need depends on what you run:
+
+| You want to | Raw data needed |
+|---|---|
+| Run the FEVER baseline, consistency or robustness | None (the 150-claim sample is committed) |
+| Run the VitaminC sensitivity experiment | **VitaminC `test.jsonl`** (about 29 MB): the run re-validates the pairs against it |
+| Re-create the FEVER sample (`prepare`) | FEVER dev file + Wikipedia dump |
 
 ## Run the experiments
 

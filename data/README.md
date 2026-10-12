@@ -13,9 +13,14 @@ data/
     └── processed/vitaminc_sensitivity_100_pairs.jsonl   the frozen sample, in git
 ```
 
-The two `processed/` files are the inputs to every experiment. You only need `raw/` to re-create
-them or to build a different sample. `data/*/raw/` is gitignored because the Wikipedia dump is
-several GB.
+The two `processed/` files are the inputs to every experiment. `data/*/raw/` is gitignored because
+the Wikipedia dump is several GB.
+
+| You want to | Raw data needed |
+|---|---|
+| Run the FEVER baseline, consistency or robustness | None: they read only the committed 150-claim sample |
+| Run the VitaminC sensitivity experiment | **`vitaminc/raw/vitaminc/test.jsonl`**: the run re-validates the committed pairs against it and stops if the file is missing or its hash differs |
+| Re-create or change a sample (`prepare`, `vitaminc-prepare`) | FEVER dev file and Wikipedia dump, or the VitaminC test file |
 
 ## Frozen samples
 
@@ -67,7 +72,8 @@ by the code.
 
 ## Raw VitaminC
 
-Only `test.jsonl` is used (55,197 rows). It is published by the authors
+Only `test.jsonl` is used (55,197 rows, about 29 MB). **Anyone running the VitaminC sensitivity
+experiment needs it**, not just people re-creating the sample. It is published by the authors
 (GitHub `TalSchuster/VitaminC`) and on Hugging Face as `tals/vitaminc`:
 
 ```bash
