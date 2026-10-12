@@ -15,6 +15,24 @@ from llm_fact_checker.common import (
 )
 
 EXPECTED_TEST_SHA256 = "7f799e076dec184e31533d46704fef2022d08ef68a0db2c44f138d2b4e552f36"
+# Two byte-different exports of the same test set are accepted. After `_normalise_row` they
+# give identical rows, the same 20,232 valid pairs, and byte-identical selected pairs.
+ACCEPTED_TEST_SHA256 = {
+    EXPECTED_TEST_SHA256: "original release used for the pilot",
+    "7ad1808dbc30c62e0a1427a53022d0dfaff668a1fde3c4b612a2d266edd753ad": "Hugging Face export (tals/vitaminc)",
+}
+# Row fields in the order of the original release; anything else is appended after.
+_ROW_FIELD_ORDER = (
+    "unique_id",
+    "case_id",
+    "wiki_revision_id",
+    "FEVER_id",
+    "label",
+    "claim",
+    "evidence",
+    "page",
+    "revision_type",
+)
 EXPECTED_TEST_ROWS = 55_197
 EXPECTED_LABEL_COUNTS = {"SUPPORTS": 27_664, "REFUTES": 20_265, "NOT ENOUGH INFO": 7_268}
 REQUIRED_FIELDS = {"unique_id", "case_id", "label", "claim", "evidence", "page", "revision_type"}
@@ -35,13 +53,35 @@ def map_vitaminc_label(label: str) -> str:
         raise ValueError(f"Unsupported VitaminC label: {label!r}") from error
 
 
+def _normalise_row(row: dict[str, Any]) -> dict[str, Any]:
+    """Give every accepted export the shape of the original release.
+
+    The Hugging Face export adds a ``big_bench_canary`` field to every row, always includes
+    both ``wiki_revision_id`` and ``FEVER_id`` (one of them an empty string), and orders keys
+    differently. Dropping the canary and the empty id and restoring the key order makes the
+    two exports indistinguishable to pairing, validation and the committed samples.
+    """
+    cleaned = {
+        key: value
+        for key, value in row.items()
+        if key != "big_bench_canary"
+        and not (key in ("wiki_revision_id", "FEVER_id") and value == "")
+    }
+    ordered = {key: cleaned[key] for key in _ROW_FIELD_ORDER if key in cleaned}
+    ordered.update({key: value for key, value in cleaned.items() if key not in ordered})
+    return ordered
+
+
 def load_vitaminc_test(path: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     digest = file_sha256(path)
-    if digest != EXPECTED_TEST_SHA256:
-        raise ValueError(
-            f"VitaminC test SHA-256 mismatch: expected {EXPECTED_TEST_SHA256}, found {digest}"
+    if digest not in ACCEPTED_TEST_SHA256:
+        accepted = ", ".join(
+            f"{value} ({key[:8]}…)" for key, value in ACCEPTED_TEST_SHA256.items()
         )
-    rows = list(read_jsonl(path))
+        raise ValueError(
+            f"VitaminC test SHA-256 {digest} is not a known export. Accepted: {accepted}"
+        )
+    rows = [_normalise_row(row) for row in read_jsonl(path)]
     if len(rows) != EXPECTED_TEST_ROWS:
         raise ValueError(f"Expected {EXPECTED_TEST_ROWS} VitaminC test rows, found {len(rows)}")
     missing = [
