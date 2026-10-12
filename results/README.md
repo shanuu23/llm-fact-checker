@@ -18,8 +18,10 @@ results/<dataset>/<model_slug>/<experiment>/
 Folders named `smoke*` (for example `smoke_3`, `consistency_5run_smoke_3`, `robustness/smoke`) are
 3-case development checks, not results. Do not cite them.
 
-> The model slug is currently written by a constant in `llm_fact_checker/cli.py` and is
-> `llama3.2_3b` for every run. Running another model correctly is the next planned change.
+The folder is derived from `--model`, so each model gets its own tree and nothing is shared
+between models. The perturbed inputs and audit files that robustness and sensitivity read are
+derived from the frozen samples, not from a model, so they live in `data/fever/prepared/` and
+`data/vitaminc/prepared/` rather than here.
 
 ## Files per experiment
 
@@ -48,7 +50,6 @@ machine-readable files below.
 
 | File | Contents |
 |---|---|
-| `prepared/` | the perturbed inputs (`control`, `reordered_evidence`, `distractor_evidence`) and `distractor_audit.md` for human review |
 | `predictions/{control,reorder,distractor}_predictions.jsonl` | predictions per variant |
 | `robustness_by_case.csv` | per claim: control, reorder and distractor predictions, whether each changed, outcome class |
 | `robustness_metrics.json` | per variant: invariance, paired accuracy and delta, outcomes, label transitions, NEI analysis, technical validity |
@@ -57,7 +58,6 @@ machine-readable files below.
 
 | File | Contents |
 |---|---|
-| `prepared/` | `selected_pairs.jsonl` and `pair_audit.md` for human review |
 | `predictions/predictions.jsonl` | 200 rows; `pair_id` and `side` (`support` / `refute`) identify each |
 | `sensitivity_by_pair.csv` | per pair: both predictions, `prediction_changed`, `correct_sensitivity`, `outcome` |
 | `sensitivity_metrics.json` | correct-flip rate, flip rate, pair outcomes, per-side accuracy, NEI analysis, technical validity |

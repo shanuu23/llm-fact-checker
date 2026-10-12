@@ -7,11 +7,17 @@ data/
 │   ├── raw/                                downloaded separately, NOT in git
 │   │   ├── shared_task_dev.jsonl
 │   │   └── wiki-pages/wiki-pages/wiki-001.jsonl … wiki-109.jsonl
-│   └── processed/fever_baseline_150.jsonl  the frozen sample, in git
+│   ├── processed/fever_baseline_150.jsonl  the frozen sample, in git
+│   └── prepared/                           perturbed inputs + distractor_audit.md, in git
 └── vitaminc/
     ├── raw/vitaminc/test.jsonl             downloaded separately, NOT in git
-    └── processed/vitaminc_sensitivity_100_pairs.jsonl   the frozen sample, in git
+    ├── processed/vitaminc_sensitivity_100_pairs.jsonl   the frozen sample, in git
+    └── prepared/pair_audit.md              human-review audit of the pairs, in git
 ```
+
+`prepared/` holds files derived from the frozen samples (the reordered and distractor evidence the
+robustness experiment feeds to every model, and the audits a human reviewed). They do not depend on
+a model, so every model's run reads the same files.
 
 The two `processed/` files are the inputs to every experiment. `data/*/raw/` is gitignored because
 the Wikipedia dump is several GB.
@@ -86,17 +92,17 @@ Two byte-different exports of the same data exist:
 
 | Source | SHA-256 | Notes |
 |---|---|---|
-| Original used for the pilot | `7f799e076dec184e31533d46704fef2022d08ef68a0db2c44f138d2b4e552f36` | what the code currently accepts |
-| Hugging Face export | `7ad1808dbc30c62e0a1427a53022d0dfaff668a1fde3c4b612a2d266edd753ad` | adds a `big_bench_canary` field to every row |
+| Original used for the pilot | `7f799e076dec184e31533d46704fef2022d08ef68a0db2c44f138d2b4e552f36` | the release the pilot ran on |
+| Hugging Face export | `7ad1808dbc30c62e0a1427a53022d0dfaff668a1fde3c4b612a2d266edd753ad` | adds a `big_bench_canary` field and an empty-string id to every row |
 
-The Hugging Face file contains identical claims, evidence and labels: it yields the same 20,232
-valid pairs and re-selects the same 100 pairs. **The VitaminC loader currently checks for the
-pilot hash only, so it rejects the Hugging Face file** until the code is changed to accept both.
-This is a pending, deliberate change; do not edit the expected hash by hand.
+**Both are accepted.** The loader drops the canary and the empty id and restores the original key
+order before anything else sees a row, so the Hugging Face file yields the same 20,232 valid pairs
+and re-selects the committed 100 pairs byte for byte (verified, and covered by a test whenever the
+raw file is present). Any other hash is rejected with the list of accepted ones.
 
 ## Why the hashes matter
 
 The consistency and robustness experiments refuse to run unless the FEVER sample matches its
 expected hash, and the VitaminC experiment does the same for the raw test file. The baseline run
-does not check or record the sample hash yet (a known gap). A mismatch means the data is not the
-data the published numbers came from.
+records the sample hash in `run_config.json` but does not enforce it. In every case the recorded
+hash is what lets a comparison confirm that two models were run on the same cases.

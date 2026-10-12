@@ -62,7 +62,8 @@ layout and hashes. Which raw data you need depends on what you run:
 ## Run the experiments
 
 Every command refuses to overwrite existing results unless `--overwrite` is passed, and smoke tests
-(`--limit`, `*-smoke`) write to their own folders.
+(`--limit`, `*-smoke`) write to their own folders. Every command that calls a model takes
+`--model` (default `llama3.2:3b`); see [Run another model](#run-another-model).
 
 ```bash
 # FEVER baseline
@@ -75,19 +76,41 @@ uv run factcheck evaluate                       # re-score saved predictions, no
 uv run factcheck consistency --limit 3
 uv run factcheck consistency
 
-# Evidence robustness: generate perturbations, audit them by eye, then run
-uv run factcheck robustness-prepare
+# Evidence robustness (the perturbed inputs are committed under data/fever/prepared/)
 uv run factcheck robustness-smoke
 uv run factcheck robustness
 
-# VitaminC sensitivity (200 requests)
-uv run factcheck vitaminc-prepare
+# VitaminC sensitivity (200 requests; needs data/vitaminc/raw/vitaminc/test.jsonl)
 uv run factcheck vitaminc-smoke
 uv run factcheck vitaminc-sensitivity
 ```
 
-Inspect `results/.../prepared/distractor_audit.md` and `pair_audit.md` before running the full
-robustness and sensitivity experiments.
+`robustness-prepare` and `vitaminc-prepare` regenerate the perturbed inputs and pair audit from the
+frozen samples. They do not depend on a model, so their output is shared and committed under
+`data/fever/prepared/` and `data/vitaminc/prepared/`. Read `distractor_audit.md` and
+`pair_audit.md` there if you change how perturbations or pairs are built.
+
+## Run another model
+
+Results go to `results/<dataset>/<model_slug>/<experiment>/`, where the slug is the tag with `:`
+replaced by `_` (`qwen2.5:7b` becomes `qwen2.5_7b`), so another model never touches the Llama
+results. The prompt, samples and seeds are the same for every model, which is what makes the
+numbers comparable.
+
+```bash
+ollama pull qwen2.5:7b                         # the exact tag must appear in `ollama list`
+uv run factcheck run --model qwen2.5:7b --limit 3         # smoke test first
+uv run factcheck run --model qwen2.5:7b                   # baseline
+uv run factcheck consistency --model qwen2.5:7b
+uv run factcheck robustness --model qwen2.5:7b
+uv run factcheck vitaminc-sensitivity --model qwen2.5:7b
+git add results/*/qwen2.5_7b                              # commit your own model's folders only
+```
+
+Keep to models that fit your laptop (about 9B parameters or less on 16 GB). A model that does not
+follow "return the label only" will show a high invalid-format rate; that is a result, not a bug.
+Re-score a model's saved baseline predictions with
+`uv run factcheck evaluate --model qwen2.5:7b`.
 
 ## Repository layout
 
@@ -96,12 +119,13 @@ llm_fact_checker/
 ├── cli.py            command-line interface (argparse only)
 ├── common.py         JSONL/CSV helpers, SHA-256, git commit, formatting
 ├── prompts.py        the frozen prompt, label set and strict output parser
+├── models.py         default model and the model-tag to folder-name slug
 ├── ollama.py         Ollama HTTP client and inference loop
 ├── evaluation.py     baseline metrics and report
 ├── results.py        read-only loader for results/ (used by comparisons and the app)
 ├── data_prep/        fever.py, vitaminc.py: sampling and evidence extraction
 └── experiments/      baseline.py, consistency.py, robustness.py, sensitivity.py
-data/                 raw (ignored) and processed samples, HASHES.txt
+data/                 raw (ignored), processed samples, shared prepared/audit files, HASHES.txt
 results/              <dataset>/<model>/<experiment>/ outputs, committed
 notebooks/            data audits and analysis
 docs/                 methodology
