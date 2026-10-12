@@ -12,7 +12,8 @@ make test                # must pass before you open a PR
 ```
 
 You need [uv](https://docs.astral.sh/uv/) and a local [Ollama](https://ollama.com/) with the model
-you plan to run. Raw datasets are optional; see [data/README.md](data/README.md).
+you plan to run. Raw FEVER data is optional, but running the VitaminC sensitivity experiment needs
+`test.jsonl`; see [data/README.md](data/README.md) for what each command requires.
 
 ## Branches and pull requests
 

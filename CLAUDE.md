@@ -62,6 +62,8 @@ tests/            unit tests + tests/test_golden_results.py
   `llama3.2:latest`, alias it: `ollama cp llama3.2:latest llama3.2:3b` (same weights, no download).
 - The Wikipedia dump path is doubled on purpose: `data/fever/raw/wiki-pages/wiki-pages/`.
 - The FEVER sample has no gold NEI cases, so any NEI answer counts as wrong there.
+- `vitaminc-sensitivity` needs the raw `data/vitaminc/raw/vitaminc/test.jsonl` (it re-validates the
+  committed pairs against it). The FEVER experiments run from the committed sample alone.
 - `VIRTUAL_ENV` warnings from uv are harmless; the project uses its own `.venv`.
 
 ## Current state and pending work
