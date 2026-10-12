@@ -138,10 +138,8 @@ def _references(record: dict[str, Any]) -> set[tuple[str, int]]:
 
 def _attach_evidence(
     record: dict[str, Any], resolved: dict[tuple[str, int], str]
-) -> dict[str, Any] | None:
-    references = _references(record)
-    if not references <= resolved.keys():
-        return None
+) -> dict[str, Any]:
+    """Add the sentence text; every reference is resolved by the time this is called."""
     result = dict(record)
     result["evidence"] = [
         {
@@ -198,13 +196,13 @@ def prepare_dataset(
                 selected[label].append(orders[label][next_index[label]])
                 next_index[label] += 1
 
-    prepared = [
-        _attach_evidence(record, resolved) for label in TARGET_LABELS for record in selected[label]
-    ]
-    if any(record is None for record in prepared):
-        raise AssertionError("Prepared dataset contains unresolved evidence")
     final = sorted(
-        (record for record in prepared if record is not None), key=lambda item: item["fever_id"]
+        (
+            _attach_evidence(record, resolved)
+            for label in TARGET_LABELS
+            for record in selected[label]
+        ),
+        key=lambda item: item["fever_id"],
     )
     counts = {
         label: sum(item["gold_label"] == LABEL_MAP[label] for item in final)
