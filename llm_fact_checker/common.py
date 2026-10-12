@@ -6,6 +6,7 @@ from collections.abc import Iterable, Sequence
 import csv
 import hashlib
 import json
+import os
 from pathlib import Path
 import subprocess
 from typing import Any
@@ -22,10 +23,32 @@ def read_jsonl(path: Path) -> Iterable[dict[str, Any]]:
 
 
 def write_jsonl(path: Path, records: Iterable[dict[str, Any]]) -> None:
+    """Write records so that a crash cannot leave a half-written file at ``path``.
+
+    The rows go to a temporary file that replaces ``path`` only once complete.
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as handle:
-        for record in records:
-            handle.write(json.dumps(record, ensure_ascii=False) + "\n")
+    temporary = path.with_name(path.name + ".tmp")
+    try:
+        with temporary.open("w", encoding="utf-8") as handle:
+            for record in records:
+                handle.write(json.dumps(record, ensure_ascii=False) + "\n")
+        os.replace(temporary, path)
+    except BaseException:
+        temporary.unlink(missing_ok=True)
+        raise
+
+
+def write_text_atomic(path: Path, text: str) -> None:
+    """Write a text file so that a crash cannot leave it half-written."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + ".tmp")
+    try:
+        temporary.write_text(text, encoding="utf-8")
+        os.replace(temporary, path)
+    except BaseException:
+        temporary.unlink(missing_ok=True)
+        raise
 
 
 def write_csv(

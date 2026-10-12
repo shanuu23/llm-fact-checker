@@ -35,7 +35,24 @@ machine-readable files below.
 | `predictions.jsonl` | one row per case: `fever_id`, `claim`, `evidence`, `gold_label`, `raw_model_output`, `parsed_prediction`, `correct`, `valid_format`, `inference_latency_seconds`, `inference_error`, `ollama_response_metadata` |
 | `metrics.json` | `total_cases`, `number_correct`, `overall_accuracy`, `class_accuracy`, `prediction_counts`, `invalid_format_*`, `inference_failure_count`, `confusion_matrix` |
 | `confusion_matrix.csv` | gold label by predicted label (`SUPPORTED`, `REFUTED`, `NOT ENOUGH INFORMATION`, `INVALID`) |
+| `metrics_excluding_flagged.json` | only for whole-dataset runs: the same metrics without audit-flagged claims, plus `excluded_flagged_cases` and `flag_counts` |
+| `predictions.partial.jsonl` | only while a run is in progress or was interrupted; `--resume` continues from it and it is deleted when the run completes |
 | `errors.csv` | incorrect cases only: `fever_id, claim, gold_label, parsed_prediction, valid_format, inference_error, raw_model_output` |
+
+Whole-dataset runs are stored next to the 150-case ones as `fever/<model>/baseline_full/`,
+`robustness_full/` and `consistency_5run_full/` (see the README, "Run the whole FEVER dev set").
+Each `run_config.json` records the dataset hash, so a comparison can tell them apart from the
+150-case runs. Their large per-case files (`predictions.jsonl`, `predictions/`, `runs/`) are
+git-ignored; the metrics, reports and configs are committed.
+
+Whole-set runs also write the second result without the audit-flagged claims:
+`metrics_excluding_flagged.json` (baseline), `robustness_metrics_excluding_flagged.json` and
+`consistency_metrics_excluding_flagged.json`.
+
+**Crash safety.** Every result file is written atomically (a crash leaves the old file or the
+complete new one, never half), answers are saved as they arrive in `*.partial.jsonl`, and the
+metrics file is written last because its existence is what marks a run as finished. `--resume`
+relies on all three.
 
 ### `fever/<model>/consistency_5run/`
 

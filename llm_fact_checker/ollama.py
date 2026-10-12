@@ -2,14 +2,17 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 import http.client
 import json
+from pathlib import Path
 import sys
 import time
 from typing import Any
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
+from llm_fact_checker.common import write_jsonl
 from llm_fact_checker.prompts import SYSTEM_PROMPT, build_user_prompt, parse_prediction
 
 
@@ -122,8 +125,13 @@ def infer_cases(
     progress_prefix: str = "Inference",
     id_field: str = "fever_id",
     id_label: str = "FEVER",
+    on_result: Callable[[dict[str, Any]], None] | None = None,
 ) -> list[dict[str, Any]]:
-    """Run cases sequentially and preserve every response or failure."""
+    """Run cases sequentially and preserve every response or failure.
+
+    ``on_result`` is called with each row as soon as it exists, so a caller can save progress
+    instead of waiting for the whole run.
+    """
     results = []
     for index, case in enumerate(cases, 1):
         print(
@@ -146,19 +154,92 @@ def infer_cases(
             parsed = parse_prediction(raw_output)
         except (RuntimeError, OllamaResponseError, OllamaRequestError) as caught:
             error = str(caught)
-        results.append(
-            {
-                id_field: case[id_field],
-                "claim": case["claim"],
-                "evidence": case["evidence"],
-                "gold_label": case["gold_label"],
-                "raw_model_output": raw_output,
-                "parsed_prediction": parsed,
-                "correct": parsed == case["gold_label"],
-                "valid_format": parsed is not None,
-                "inference_latency_seconds": latency,
-                "inference_error": error,
-                "ollama_response_metadata": response_metadata,
-            }
-        )
+        row = {
+            id_field: case[id_field],
+            "claim": case["claim"],
+            "evidence": case["evidence"],
+            "gold_label": case["gold_label"],
+            "raw_model_output": raw_output,
+            "parsed_prediction": parsed,
+            "correct": parsed == case["gold_label"],
+            "valid_format": parsed is not None,
+            "inference_latency_seconds": latency,
+            "inference_error": error,
+            "ollama_response_metadata": response_metadata,
+        }
+        if "flags" in case:  # audit flags travel with the case so results can be split by them
+            row["flags"] = case["flags"]
+        results.append(row)
+        if on_result is not None:
+            on_result(row)
     return results
+
+
+def infer_cases_resumable(
+    client: OllamaClient,
+    model: str,
+    cases: list[dict[str, Any]],
+    seed: int,
+    temperature: float,
+    partial_path: Path,
+    *,
+    resume: bool,
+    progress_prefix: str = "Inference",
+    id_field: str = "fever_id",
+    id_label: str = "FEVER",
+) -> list[dict[str, Any]]:
+    """Like ``infer_cases``, but every row is appended to ``partial_path`` as it arrives.
+
+    With ``resume`` the rows already saved are kept, cases that failed are asked again, and only
+    the missing cases are sent to the model. Without it an earlier partial file is discarded.
+    Rows come back in the order of ``cases``. The caller deletes ``partial_path`` once it has
+    written its final file.
+    """
+    saved: dict[Any, dict[str, Any]] = {}
+    if partial_path.exists():
+        if resume:
+            lines = partial_path.read_text(encoding="utf-8").splitlines()
+            for number, line in enumerate(lines, 1):
+                if not line.strip():
+                    continue
+                try:
+                    row = json.loads(line)
+                except json.JSONDecodeError:
+                    if number == len(lines):
+                        break  # the write was cut off by the crash; that case is asked again
+                    raise ValueError(f"Invalid JSON in {partial_path} at line {number}") from None
+                saved[row[id_field]] = row  # a later row for the same case wins
+            write_jsonl(partial_path, saved.values())  # drop a cut-off line before appending
+        else:
+            partial_path.unlink()
+    todo = [
+        case
+        for case in cases
+        if case[id_field] not in saved or saved[case[id_field]]["inference_error"]
+    ]
+    if saved:
+        print(
+            f"{progress_prefix}: resuming, {len(cases) - len(todo)} of {len(cases)} "
+            "cases already answered",
+            file=sys.stderr,
+        )
+    partial_path.parent.mkdir(parents=True, exist_ok=True)
+    with partial_path.open("a", encoding="utf-8") as sink:
+
+        def save(row: dict[str, Any]) -> None:
+            sink.write(json.dumps(row, ensure_ascii=False) + "\n")
+            sink.flush()
+
+        new_rows = infer_cases(
+            client,
+            model,
+            todo,
+            seed,
+            temperature,
+            progress_prefix=progress_prefix,
+            id_field=id_field,
+            id_label=id_label,
+            on_result=save,
+        )
+    saved.update({row[id_field]: row for row in new_rows})
+    return [saved[case[id_field]] for case in cases]

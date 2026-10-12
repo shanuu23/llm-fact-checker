@@ -8,7 +8,9 @@ data/
 │   │   ├── shared_task_dev.jsonl
 │   │   └── wiki-pages/wiki-pages/wiki-001.jsonl … wiki-109.jsonl
 │   ├── processed/fever_baseline_150.jsonl  the frozen sample, in git
-│   └── prepared/                           perturbed inputs + distractor_audit.md, in git
+│   ├── prepared/                           perturbed inputs + distractor_audit.md, in git
+│   └── full/                               NOT in git: fever_dev_full.jsonl (`prepare --all`)
+│                                           and prepared/ (perturbed inputs for the whole set)
 └── vitaminc/
     ├── raw/vitaminc/test.jsonl             downloaded separately, NOT in git
     ├── processed/vitaminc_sensitivity_100_pairs.jsonl   the frozen sample, in git
@@ -43,6 +45,30 @@ reports a failure if you have not downloaded the raw data; the other lines are i
 ```bash
 shasum -a 256 -c data/HASHES.txt
 ```
+
+## The whole FEVER dev set
+
+`factcheck prepare --all` writes `data/fever/full/fever_dev_full.jsonl` (about 7.5 MB, derived and
+not committed). It follows the FEVER data audit's eligibility decision:
+
+| | Frozen 150-case sample | Whole set (`--all`) |
+|---|---|---|
+| Cases | 150 (75 + 75) | 13,332 (6,666 + 6,666) |
+| Repeated claim text | removed (lowest ID kept) | kept |
+| Claims flagged by the audit | not marked | kept and marked in `flags` |
+| Accented page titles | matched exactly | matched in NFC form |
+| Rebuild reproduces committed file | yes (`6bc7cf91…`) | n/a (derived) |
+
+The 68 flagged claims (21 SUPPORTED, 47 REFUTED) are the audit's possible label inconsistencies:
+the exact claim text appears with a different label (`conflicting_duplicate_label`), or claims that
+differ only in case, spacing or Unicode form carry different labels
+(`normalized_claim_conflict`). They are not removed and no label is changed.
+
+**A note on the frozen sample.** Its builder matches page titles exactly, so one candidate,
+FEVER 95159 ("Ricardo Montalbán was Mexican politician."), was skipped because of an accent
+mismatch and replaced by the next candidate in the shuffled order (186995). The replacement is
+deterministic and the sample is frozen, so results stay comparable; matching accents is therefore
+opt-in and used only for the whole set.
 
 ## Raw FEVER
 

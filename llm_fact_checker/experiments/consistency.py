@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 import platform
 import statistics
+import sys
 from typing import Any
 
 from llm_fact_checker.common import (
@@ -16,10 +17,12 @@ from llm_fact_checker.common import (
     read_jsonl,
     write_csv,
     write_jsonl,
+    write_text_atomic,
 )
+from llm_fact_checker.data_prep.fever import PREPARED_PATH
 from llm_fact_checker.evaluation import calculate_metrics
 from llm_fact_checker.models import DEFAULT_MODEL
-from llm_fact_checker.ollama import OllamaClient, infer_cases
+from llm_fact_checker.ollama import OllamaClient, infer_cases_resumable
 from llm_fact_checker.prompts import LABELS, SYSTEM_PROMPT
 
 EXPECTED_DATASET_SHA256 = "6bc7cf910cb0b31186e5fc397ebc7cefab2de1ee65d29ae601e369d8758344cb"
@@ -27,19 +30,36 @@ TEMPERATURE = 0.2
 RUN_SEEDS = (101, 202, 303, 404, 505)
 
 
-def validate_prepared_dataset(path: Path) -> tuple[list[dict[str, Any]], str]:
+def validate_prepared_dataset(
+    path: Path, frozen_path: Path = PREPARED_PATH
+) -> tuple[list[dict[str, Any]], str]:
+    """Load a prepared FEVER file and check it can be scored.
+
+    The frozen 150-case sample is protected: the file at ``frozen_path`` must match the pilot's
+    hash, and any file with that hash must have exactly 150 cases (75/75). Any other file, for
+    example the whole dev set, only has to be a well-formed set of cases; its hash is returned
+    so results can be tied to it.
+    """
     actual_hash = file_sha256(path)
-    if actual_hash != EXPECTED_DATASET_SHA256:
+    if path.resolve() == frozen_path.resolve() and actual_hash != EXPECTED_DATASET_SHA256:
         raise ValueError(
             f"Prepared dataset SHA-256 mismatch: expected {EXPECTED_DATASET_SHA256}, "
             f"found {actual_hash}. Refusing to run the consistency experiment."
         )
     records = list(read_jsonl(path))
-    counts = Counter(record["gold_label"] for record in records)
-    if len(records) != 150 or counts != {"SUPPORTED": 75, "REFUTED": 75}:
-        raise ValueError(f"Prepared dataset must contain 150 cases (75/75); found {dict(counts)}")
-    if len({record["fever_id"] for record in records}) != 150:
+    if not records:
+        raise ValueError(f"Prepared dataset is empty: {path}")
+    if len({record["fever_id"] for record in records}) != len(records):
         raise ValueError("Prepared dataset contains duplicate FEVER IDs")
+    unscorable = {record["gold_label"] for record in records} - {"SUPPORTED", "REFUTED"}
+    if unscorable:
+        raise ValueError(f"Prepared dataset has labels this experiment cannot score: {unscorable}")
+    if actual_hash == EXPECTED_DATASET_SHA256:
+        counts = Counter(record["gold_label"] for record in records)
+        if len(records) != 150 or counts != {"SUPPORTED": 75, "REFUTED": 75}:
+            raise ValueError(
+                f"Prepared dataset must contain 150 cases (75/75); found {dict(counts)}"
+            )
     return records, actual_hash
 
 
@@ -242,6 +262,10 @@ def _report(metrics: dict[str, Any], config: dict[str, Any]) -> str:
         f"{row['fever_accuracy']:.3%} |"
         for row in metrics["run_accuracy"]
     )
+    frozen = config["prepared_dataset_sha256"] == config["expected_dataset_sha256"]
+    balance = " / ".join(
+        f"{count} {label}" for label, count in config["full_dataset_class_balance"].items()
+    )
     return f"""# FEVER five-run consistency experiment
 
 ## Purpose
@@ -251,8 +275,8 @@ This experiment measures how consistently `{config["ollama_model"]}` returns the
 ## Dataset and model
 
 - Prepared dataset: `{config["prepared_dataset_path"]}`
-- Verified SHA-256: `{config["prepared_dataset_sha256"]}`
-- Cases: {config["sample_size"]} from the unchanged 75 SUPPORTED / 75 REFUTED dataset
+- {"Verified" if frozen else "Dataset"} SHA-256: `{config["prepared_dataset_sha256"]}`
+- Cases: {config["sample_size"]} from the {"unchanged" if frozen else "prepared"} {balance} dataset
 - Model: `{config["ollama_model"]}`
 - Execution: sequential requests through the local Ollama HTTP API
 
@@ -327,6 +351,30 @@ This experiment tests repeated-run stability only. It does not test prompt robus
 """
 
 
+def _flagged_section(metrics: dict[str, Any], excluded: dict[str, Any]) -> str:
+    def row(label: str, key: str, fmt: str) -> str:
+        values = []
+        for block in (metrics, excluded):
+            value = block[key]
+            values.append("N/A" if value is None else format(value, fmt))
+        return f"| {label} | {values[0]} | {values[1]} |"
+
+    return f"""
+## Result excluding flagged records
+
+The FEVER data audit flagged {excluded["excluded_flagged_cases"]} of these claims as possibly
+inconsistent. The main result above keeps them; this section removes them, as the audit decided.
+Flags are possible label inconsistencies, not proven errors.
+
+| | All cases | Excluding flagged |
+|---|---:|---:|
+| Cases | {metrics["total_cases"]} | {excluded["total_cases"]} |
+{row("Exact 5/5 consistency", "exact_consistency_rate", ".3%")}
+{row("Mean modal agreement", "mean_modal_agreement", ".3%")}
+| Mean FEVER accuracy across runs | {metrics["accuracy_summary"]["mean"]:.3%} | {excluded["accuracy_summary"]["mean"]:.3%} |
+"""
+
+
 def run_consistency_experiment(
     prepared_path: Path,
     results_dir: Path,
@@ -334,11 +382,24 @@ def run_consistency_experiment(
     overwrite: bool = False,
     base_url: str = "http://localhost:11434",
     model: str = DEFAULT_MODEL,
+    resume: bool = False,
 ) -> dict[str, Any]:
+    """Run the five-run experiment.
+
+    Answers are saved as they arrive and each finished run is kept, so ``resume=True`` carries on
+    an interrupted experiment (and does nothing if it already finished).
+    """
     dataset, dataset_hash = validate_prepared_dataset(prepared_path)
     cases = dataset if limit is None else dataset[:limit]
-    if results_dir.exists() and any(results_dir.rglob("*")) and not overwrite:
-        raise FileExistsError(f"Refusing to overwrite {results_dir}; pass --overwrite explicitly")
+    metrics_path = results_dir / "consistency_metrics.json"
+    if resume and metrics_path.exists():
+        print(f"Already complete, nothing to do: {results_dir}", file=sys.stderr)
+        return json.loads(metrics_path.read_text(encoding="utf-8"))
+    if results_dir.exists() and any(results_dir.rglob("*")) and not (overwrite or resume):
+        raise FileExistsError(
+            f"Refusing to overwrite {results_dir}; pass --resume to continue an interrupted "
+            "run or --overwrite to replace it"
+        )
 
     client = OllamaClient(base_url=base_url)
     ollama_metadata = client.check(model)
@@ -377,24 +438,45 @@ def run_consistency_experiment(
     runs = []
     run_metrics = []
     for run_number, seed in enumerate(RUN_SEEDS, 1):
-        predictions = infer_cases(
-            client,
-            model,
-            cases,
-            seed=seed,
-            temperature=TEMPERATURE,
-            progress_prefix=f"Run {run_number}/5",
-        )
+        run_path = runs_dir / f"run_{run_number:02d}_predictions.jsonl"
+        finished = list(read_jsonl(run_path)) if resume and run_path.exists() else None
+        if finished is not None and len(finished) == len(cases):
+            predictions = finished  # this run finished before the interruption
+        else:
+            partial_path = runs_dir / f"run_{run_number:02d}_predictions.partial.jsonl"
+            predictions = infer_cases_resumable(
+                client,
+                model,
+                cases,
+                seed,
+                TEMPERATURE,
+                partial_path,
+                resume=resume,
+                progress_prefix=f"Run {run_number}/5",
+            )
+            write_jsonl(run_path, predictions)
+            partial_path.unlink(missing_ok=True)
         runs.append(predictions)
         run_metrics.append(calculate_metrics(predictions))
-        write_jsonl(runs_dir / f"run_{run_number:02d}_predictions.jsonl", predictions)
 
     case_rows = build_case_rows(runs)
     metrics = calculate_consistency_metrics(case_rows, runs, run_metrics)
     _write_case_csv(results_dir / "consistency_by_case.csv", case_rows)
     _write_run_accuracy(results_dir / "run_accuracy.csv", metrics)
-    (results_dir / "consistency_metrics.json").write_text(
-        json.dumps(metrics, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-    )
-    (results_dir / "report.md").write_text(_report(metrics, config), encoding="utf-8")
+    report = _report(metrics, config)
+    flagged_ids = {row["fever_id"] for row in runs[0] if row.get("flags")}
+    excluded_path = results_dir / "consistency_metrics_excluding_flagged.json"
+    if flagged_ids:
+        kept = [[row for row in run if row["fever_id"] not in flagged_ids] for run in runs]
+        excluded = calculate_consistency_metrics(
+            build_case_rows(kept), kept, [calculate_metrics(run) for run in kept]
+        )
+        excluded["excluded_flagged_cases"] = len(flagged_ids)
+        write_text_atomic(excluded_path, json.dumps(excluded, indent=2, ensure_ascii=False) + "\n")
+        report += _flagged_section(metrics, excluded)
+    elif excluded_path.exists():
+        excluded_path.unlink()
+    write_text_atomic(results_dir / "report.md", report)
+    # last: its existence is what marks the experiment as finished
+    write_text_atomic(metrics_path, json.dumps(metrics, indent=2, ensure_ascii=False) + "\n")
     return metrics

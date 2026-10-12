@@ -1,4 +1,4 @@
-# FEVER gold-evidence baseline: Llama 3.2 3B
+# FEVER gold-evidence baseline: llama3.2:3b
 
 ## Purpose
 

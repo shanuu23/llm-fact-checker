@@ -7,7 +7,13 @@ from collections import Counter
 import json
 from pathlib import Path
 
-from llm_fact_checker.data_prep.fever import DEV_PATH, PREPARED_PATH, WIKI_DIR, prepare_dataset
+from llm_fact_checker.data_prep.fever import (
+    DEV_PATH,
+    FULL_PATH,
+    PREPARED_PATH,
+    WIKI_DIR,
+    prepare_dataset,
+)
 from llm_fact_checker.data_prep.vitaminc import (
     VITAMINC_PROCESSED_PATH,
     VITAMINC_RAW_PATH,
@@ -44,9 +50,14 @@ def _results_dir(limit: int | None, requested: Path | None, model: str = DEFAULT
 
 
 def _prepare(args: argparse.Namespace) -> None:
-    prepared = prepare_dataset(args.dev_path, args.wiki_dir, args.output, seed=42)
+    whole = getattr(args, "all", False)
+    output = args.output or (FULL_PATH if whole else PREPARED_PATH)
+    prepared = prepare_dataset(args.dev_path, args.wiki_dir, output, seed=42, whole=whole)
     counts = Counter(item["gold_label"] for item in prepared)
-    print(f"Prepared {len(prepared)} cases: {dict(counts)}")
+    print(f"Prepared {len(prepared)} cases: {dict(counts)} -> {output}")
+    if whole:
+        flagged = sum(bool(item["flags"]) for item in prepared)
+        print(f"{flagged} cases carry an audit flag (kept in the file; reported separately)")
     for item in prepared[:3]:
         print(json.dumps(item, ensure_ascii=False, indent=2))
 
@@ -61,6 +72,7 @@ def _run(args: argparse.Namespace) -> None:
         args.overwrite,
         args.ollama_url,
         model=args.model,
+        resume=getattr(args, "resume", False),
     )
     print(json.dumps(metrics, indent=2))
     print(f"Results written to {results_dir}")
@@ -83,6 +95,7 @@ def _consistency(args: argparse.Namespace) -> None:
         overwrite=args.overwrite,
         base_url=args.ollama_url,
         model=args.model,
+        resume=args.resume,
     )
     print(json.dumps(metrics, indent=2))
     print(f"Consistency results written to {results_dir}")
@@ -104,6 +117,7 @@ def _robustness(args: argparse.Namespace) -> None:
         base_url=args.ollama_url,
         model=args.model,
         prepared_dir=args.prepared_dir,
+        resume=args.resume,
     )
     print(json.dumps(metrics, indent=2))
     destination = robustness_dir if args.limit is None else robustness_dir / "smoke"
@@ -155,10 +169,20 @@ def _add_model(parser: argparse.ArgumentParser) -> None:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m llm_fact_checker", description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
-    prepare = subparsers.add_parser("prepare", help="prepare the balanced FEVER dataset")
+    prepare = subparsers.add_parser("prepare", help="prepare the FEVER sample or the whole set")
     prepare.add_argument("--dev-path", type=Path, default=DEV_PATH)
     prepare.add_argument("--wiki-dir", type=Path, default=WIKI_DIR)
-    prepare.add_argument("--output", type=Path, default=PREPARED_PATH)
+    prepare.add_argument(
+        "--all",
+        action="store_true",
+        help="every SUPPORTS/REFUTES claim (13,332), nothing de-duplicated, audit-flagged claims "
+        "marked, accented titles matched; writes data/fever/full/fever_dev_full.jsonl",
+    )
+    prepare.add_argument(
+        "--output",
+        type=Path,
+        help=f"default: {PREPARED_PATH} for the sample, {FULL_PATH} with --all",
+    )
     prepare.set_defaults(function=_prepare)
 
     run = subparsers.add_parser("run", help="run inference and evaluate results")
@@ -168,6 +192,11 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--limit", type=int)
     run.add_argument("--ollama-url", default=OLLAMA_URL)
     run.add_argument("--overwrite", action="store_true")
+    run.add_argument(
+        "--resume",
+        action="store_true",
+        help="continue an interrupted run: keep saved answers, retry failures, run the rest",
+    )
     run.set_defaults(function=_run)
 
     evaluate = subparsers.add_parser("evaluate", help="regenerate metrics and report")
@@ -188,6 +217,12 @@ def build_parser() -> argparse.ArgumentParser:
     consistency.add_argument("--limit", type=int)
     consistency.add_argument("--ollama-url", default=OLLAMA_URL)
     consistency.add_argument("--overwrite", action="store_true")
+    consistency.add_argument(
+        "--resume",
+        action="store_true",
+        help="continue an interrupted run: keep saved answers, retry failures, run the rest; "
+        "does nothing if the experiment already finished",
+    )
     consistency.set_defaults(function=_consistency)
 
     robustness_prepare = subparsers.add_parser(
@@ -209,6 +244,12 @@ def build_parser() -> argparse.ArgumentParser:
         robustness.add_argument("--prepared-dir", type=Path, default=FEVER_PREPARED_DIR)
         robustness.add_argument("--ollama-url", default=OLLAMA_URL)
         robustness.add_argument("--overwrite", action="store_true")
+        robustness.add_argument(
+            "--resume",
+            action="store_true",
+            help="continue an interrupted run: keep saved answers, retry failures, run the rest; "
+            "does nothing if the experiment already finished",
+        )
         robustness.set_defaults(function=_robustness, limit=limit)
 
     vitaminc_prepare = subparsers.add_parser(

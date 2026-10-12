@@ -55,6 +55,9 @@ tests/            unit tests + tests/test_golden_results.py
   is empty after `factcheck evaluate`.
 - Tests use tiny synthetic fixtures and never call Ollama or read the Wikipedia dump.
 - Use `git mv` for moves so history follows files.
+- Result files are written atomically (`common.write_jsonl`, `write_text_atomic`) and the metrics
+  file is written LAST, because `--resume` treats its existence as "this run is finished". Keep
+  that order when adding outputs.
 
 ## Gotchas
 
@@ -62,6 +65,9 @@ tests/            unit tests + tests/test_golden_results.py
   `llama3.2:latest`, alias it: `ollama cp llama3.2:latest llama3.2:3b` (same weights, no download).
 - The Wikipedia dump path is doubled on purpose: `data/fever/raw/wiki-pages/wiki-pages/`.
 - The FEVER sample has no gold NEI cases, so any NEI answer counts as wrong there.
+- NFC page-title matching is opt-in (`scan_wikipedia(match_nfc=True)`, used by `prepare --all`):
+  turning it on for the frozen sample would change it (candidate FEVER 95159 would replace
+  186995) and break its hash.
 - `vitaminc-sensitivity` needs the raw `data/vitaminc/raw/vitaminc/test.jsonl` (it re-validates the
   committed pairs against it). The FEVER experiments run from the committed sample alone.
 - `VIRTUAL_ENV` warnings from uv are harmless; the project uses its own `.venv`.
@@ -75,11 +81,13 @@ Pending, in order:
 1. **Run the other models** (`qwen2.5:7b`, `gemma3:4b`). Multi-model support is in place: every
    model-calling command takes `--model` and writes to `results/<dataset>/<model_slug>/...`.
    Perturbed inputs and audits are model-independent and live in `data/*/prepared/`.
-2. **Full-dataset run** (optional extension, not a replacement for the frozen sample): all 13,332
-   SUPPORTS/REFUTES FEVER dev claims, needing a resumable runner (predictions are currently written
-   only after a run completes), NFC-normalised Wikipedia page matching (the audit found 32
-   accented titles that fail without it), and a separate results folder. About 3 hours per model
-   for the baseline at ~0.75 s per call.
+2. **Full-dataset run**: done for the FEVER baseline. `factcheck prepare --all` builds all 13,332
+   claims (no de-duplication, audit flags in `flags`, NFC title matching) and `factcheck run
+   --prepared data/fever/full/fever_dev_full.jsonl --results-dir …/baseline_full [--resume]` runs
+   it, saving each answer as it arrives and writing `metrics_excluding_flagged.json` alongside
+   `metrics.json`. Consistency and robustness run on it too (`scripts/run_whole_fever.sh <model>`
+   runs all steps unattended and resumes). Still frozen-sample only: VitaminC sensitivity (100
+   pairs hard-coded).
 3. **Sample size is still hard-coded** to 150 claims / 100 pairs in `consistency.py`,
    `robustness.py`, `sensitivity.py` and `data_prep/fever.py` (`per_label`). A larger sample needs
    those checks generalised.

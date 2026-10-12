@@ -8,10 +8,12 @@ import json
 from pathlib import Path
 from typing import Any
 
-from llm_fact_checker.common import read_jsonl
+from llm_fact_checker.common import read_jsonl, write_text_atomic
 from llm_fact_checker.prompts import LABELS, SYSTEM_PROMPT
 
 GOLD_LABELS = ("SUPPORTED", "REFUTED")
+# A whole-dataset run has thousands of errors; the table lists this many, errors.csv has all.
+MAX_LISTED_ERRORS = 200
 PREDICTION_LABELS = (*LABELS, "INVALID")
 
 
@@ -103,11 +105,16 @@ def _report(
             f"| {item['fever_id']} | {item['gold_label']} | "
             f"{item.get('parsed_prediction') or 'INVALID'} | "
             f"{str(item['claim']).replace('|', chr(92) + '|')} |"
-            for item in incorrect
+            for item in incorrect[:MAX_LISTED_ERRORS]
         )
         or "| — | — | — | None |"
     )
-    return f"""# FEVER gold-evidence baseline: Llama 3.2 3B
+    if len(incorrect) > MAX_LISTED_ERRORS:
+        incorrect_rows += (
+            f"\n\n*{len(incorrect) - MAX_LISTED_ERRORS} more incorrect cases are not listed here; "
+            "all are in `errors.csv`.*"
+        )
+    return f"""# FEVER gold-evidence baseline: {config["ollama_model"]}
 
 ## Purpose
 
@@ -168,14 +175,53 @@ The gold sample contains no NOT ENOUGH INFO cases, so this run does not measure 
 """
 
 
+def _flagged_section(metrics: dict[str, Any], excluded: dict[str, Any]) -> str:
+    def accuracy(block: dict[str, Any]) -> str:
+        return "N/A" if not block["total_cases"] else f"{block['overall_accuracy']:.3f}"
+
+    def class_accuracy(block: dict[str, Any], label: str) -> str:
+        value = block["class_accuracy"][label]
+        return "N/A" if value is None else f"{value:.3f}"
+
+    flag_text = ", ".join(f"{name}: {count}" for name, count in excluded["flag_counts"].items())
+    return f"""
+## Result excluding flagged records
+
+The FEVER data audit flagged {excluded["excluded_flagged_cases"]} of these claims as possibly
+inconsistent ({flag_text}). The main result above keeps them. This section removes them, as the
+audit decided. Flags are possible label inconsistencies, not proven errors, and no label was
+changed.
+
+| | All cases | Excluding flagged |
+|---|---:|---:|
+| Cases | {metrics["total_cases"]} | {excluded["total_cases"]} |
+| Correct | {metrics["number_correct"]} | {excluded["number_correct"]} |
+| Overall accuracy | {accuracy(metrics)} | {accuracy(excluded)} |
+| SUPPORTED accuracy | {class_accuracy(metrics, "SUPPORTED")} | {class_accuracy(excluded, "SUPPORTED")} |
+| REFUTED accuracy | {class_accuracy(metrics, "REFUTED")} | {class_accuracy(excluded, "REFUTED")} |
+"""
+
+
 def evaluate_results(results_dir: Path) -> dict[str, Any]:
     predictions = list(read_jsonl(results_dir / "predictions.jsonl"))
     config = json.loads((results_dir / "run_config.json").read_text(encoding="utf-8"))
     metrics = calculate_metrics(predictions)
-    (results_dir / "metrics.json").write_text(
-        json.dumps(metrics, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-    )
     _write_confusion(results_dir / "confusion_matrix.csv", metrics["confusion_matrix"])
     _write_errors(results_dir / "errors.csv", predictions)
-    (results_dir / "report.md").write_text(_report(metrics, predictions, config), encoding="utf-8")
+    report = _report(metrics, predictions, config)
+    flagged = [item for item in predictions if item.get("flags")]
+    excluded_path = results_dir / "metrics_excluding_flagged.json"
+    if flagged:
+        excluded = calculate_metrics([item for item in predictions if not item.get("flags")])
+        excluded["excluded_flagged_cases"] = len(flagged)
+        excluded["flag_counts"] = dict(Counter(f for item in flagged for f in item["flags"]))
+        write_text_atomic(excluded_path, json.dumps(excluded, indent=2, ensure_ascii=False) + "\n")
+        report += _flagged_section(metrics, excluded)
+    elif excluded_path.exists():
+        excluded_path.unlink()  # a re-score of unflagged predictions must not leave a stale file
+    write_text_atomic(results_dir / "report.md", report)
+    # last: other code treats this file's existence as "this run is complete"
+    write_text_atomic(
+        results_dir / "metrics.json", json.dumps(metrics, indent=2, ensure_ascii=False) + "\n"
+    )
     return metrics
