@@ -9,10 +9,10 @@ from pathlib import Path
 from typing import Any
 
 from llm_fact_checker.common import read_jsonl
-from llm_fact_checker.prompts import SYSTEM_PROMPT
+from llm_fact_checker.prompts import LABELS, SYSTEM_PROMPT
 
 GOLD_LABELS = ("SUPPORTED", "REFUTED")
-PREDICTION_LABELS = ("SUPPORTED", "REFUTED", "NOT ENOUGH INFORMATION", "INVALID")
+PREDICTION_LABELS = (*LABELS, "INVALID")
 
 
 def calculate_metrics(predictions: list[dict[str, Any]]) -> dict[str, Any]:

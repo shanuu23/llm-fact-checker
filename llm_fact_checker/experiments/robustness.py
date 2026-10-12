@@ -23,7 +23,7 @@ from llm_fact_checker.experiments.consistency import (
 )
 from llm_fact_checker.models import DEFAULT_MODEL
 from llm_fact_checker.ollama import OllamaClient, infer_cases
-from llm_fact_checker.prompts import ALLOWED_LABELS, SYSTEM_PROMPT
+from llm_fact_checker.prompts import ALLOWED_LABELS, LABELS, SYSTEM_PROMPT
 
 TEMPERATURE = 0
 SEED = 42
@@ -35,7 +35,6 @@ OUTCOMES = (
     "STAYED_WRONG",
     "INCOMPLETE",
 )
-PREDICTION_LABELS = ("SUPPORTED", "REFUTED", "NOT ENOUGH INFORMATION")
 STOPWORDS = {
     "a",
     "an",
@@ -330,9 +329,7 @@ def invariance_metrics(pairs: list[tuple[str | None, str | None, str]]) -> dict[
 def transition_counts(
     pairs: list[tuple[str | None, str | None, str]],
 ) -> dict[str, int]:
-    counts = {
-        f"{source} -> {target}": 0 for source in PREDICTION_LABELS for target in PREDICTION_LABELS
-    }
+    counts = {f"{source} -> {target}": 0 for source in LABELS for target in LABELS}
     for control, perturbed, _ in pairs:
         if control in ALLOWED_LABELS and perturbed in ALLOWED_LABELS:
             counts[f"{control} -> {perturbed}"] += 1
