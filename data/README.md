@@ -104,5 +104,5 @@ raw file is present). Any other hash is rejected with the list of accepted ones.
 
 The consistency and robustness experiments refuse to run unless the FEVER sample matches its
 expected hash, and the VitaminC experiment does the same for the raw test file. The baseline run
-does not check or record the sample hash yet (a known gap). A mismatch means the data is not the
-data the published numbers came from.
+records the sample hash in `run_config.json` but does not enforce it. In every case the recorded
+hash is what lets a comparison confirm that two models were run on the same cases.

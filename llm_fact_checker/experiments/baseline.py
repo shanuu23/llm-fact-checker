@@ -9,7 +9,7 @@ from pathlib import Path
 import platform
 from typing import Any
 
-from llm_fact_checker.common import git_commit, read_jsonl, write_jsonl
+from llm_fact_checker.common import file_sha256, git_commit, read_jsonl, write_jsonl
 from llm_fact_checker.data_prep.fever import DEV_PATH
 from llm_fact_checker.evaluation import evaluate_results
 from llm_fact_checker.models import DEFAULT_MODEL
@@ -44,6 +44,7 @@ def run_inference(
         "dataset_name": "FEVER shared_task_dev gold-evidence baseline",
         "raw_dataset_path": str(DEV_PATH),
         "prepared_dataset_path": str(prepared_path),
+        "prepared_dataset_sha256": file_sha256(prepared_path),
         "sample_size": len(cases),
         "class_balance": dict(counts),
         "sampling_seed": 42,

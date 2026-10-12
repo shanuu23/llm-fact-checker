@@ -83,8 +83,8 @@ Pending, in order:
 3. **Sample size is still hard-coded** to 150 claims / 100 pairs in `consistency.py`,
    `robustness.py`, `sensitivity.py` and `data_prep/fever.py` (`per_label`). A larger sample needs
    those checks generalised.
-4. **Baseline hash gate.** `run` neither checks nor records the sample hash (consistency and
-   robustness do).
+4. **Baseline hash gate.** `run` now records the sample hash in `run_config.json` (as consistency
+   and robustness do) but, unlike them, does not refuse to run on a different sample.
 5. **Comparison and a Streamlit app** that reads `results/` only and never runs inference. The
    read-only loader `llm_fact_checker/results.py` exists (`discover_runs`, `select`,
    `ResultRun.headline/metrics/config/provenance/cases`); build the comparison and app on it

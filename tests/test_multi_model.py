@@ -16,7 +16,7 @@ import threading
 import unittest
 
 from llm_fact_checker.cli import _results_dir, build_parser, experiment_dir
-from llm_fact_checker.common import read_jsonl
+from llm_fact_checker.common import file_sha256, read_jsonl
 from llm_fact_checker.experiments.baseline import run_inference
 from llm_fact_checker.experiments.consistency import run_consistency_experiment
 from llm_fact_checker.experiments.robustness import run_robustness_experiment
@@ -181,6 +181,7 @@ class EndToEndWithFakeModelTests(unittest.TestCase):
         config = json.loads((self.out / "baseline" / "run_config.json").read_text())
         self.assertEqual(config["ollama_model"], self.MODEL)
         self.assertEqual(config["ollama_model_metadata"]["digest"], "digest-of-fake-model:1b")
+        self.assertEqual(config["prepared_dataset_sha256"], file_sha256(FEVER_SAMPLE))
         self.assertEqual({r["model"] for r in server.chat_requests}, {self.MODEL})
         self.assertTrue(all(r["options"]["temperature"] == 0 for r in server.chat_requests))
 
