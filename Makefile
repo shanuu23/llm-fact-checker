@@ -1,83 +1,24 @@
-#################################################################################
-# GLOBALS                                                                       #
-#################################################################################
+.PHONY: setup test lint format clean
 
-PROJECT_NAME = llm-fact-checker
-PYTHON_VERSION = 3.12.13
-PYTHON_INTERPRETER = python
-
-#################################################################################
-# COMMANDS                                                                      #
-#################################################################################
-
-
-## Install Python dependencies
-.PHONY: requirements
-requirements:
+## Install dependencies
+setup:
 	uv sync
-	
 
+## Run the test suite (no Ollama needed)
+test:
+	uv run python -m unittest discover -s tests -v
 
-
-## Delete all compiled Python files
-.PHONY: clean
-clean:
-	find . -type f -name "*.py[co]" -delete
-	find . -type d -name "__pycache__" -delete
-
-
-## Lint using ruff (use `make format` to do formatting)
-.PHONY: lint
+## Check formatting and lint
 lint:
-	ruff format --check
-	ruff check
+	uv run ruff format --check
+	uv run ruff check
 
-## Format source code with ruff
-.PHONY: format
+## Apply formatting and lint fixes
 format:
-	ruff check --fix
-	ruff format
+	uv run ruff check --fix
+	uv run ruff format
 
-
-
-
-
-## Set up Python interpreter environment
-.PHONY: create_environment
-create_environment:
-	uv venv --python $(PYTHON_VERSION)
-	@echo ">>> New uv virtual environment created. Activate with:"
-	@echo ">>> Windows: .\\\\.venv\\\\Scripts\\\\activate"
-	@echo ">>> Unix/macOS: source ./.venv/bin/activate"
-	
-
-
-
-#################################################################################
-# PROJECT RULES                                                                 #
-#################################################################################
-
-
-## Make dataset
-.PHONY: data
-data: requirements
-	$(PYTHON_INTERPRETER) llm_fact_checker/dataset.py
-
-
-#################################################################################
-# Self Documenting Commands                                                     #
-#################################################################################
-
-.DEFAULT_GOAL := help
-
-define PRINT_HELP_PYSCRIPT
-import re, sys; \
-lines = '\n'.join([line for line in sys.stdin]); \
-matches = re.findall(r'\n## (.*)\n[\s\S]+?\n([a-zA-Z_-]+):', lines); \
-print('Available rules:\n'); \
-print('\n'.join(['{:25}{}'.format(*reversed(match)) for match in matches]))
-endef
-export PRINT_HELP_PYSCRIPT
-
-help:
-	@$(PYTHON_INTERPRETER) -c "${PRINT_HELP_PYSCRIPT}" < $(MAKEFILE_LIST)
+## Delete compiled Python files
+clean:
+	find . -type f -name "*.py[co]" -not -path "./.venv/*" -delete
+	find . -type d -name "__pycache__" -not -path "./.venv/*" -delete

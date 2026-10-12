@@ -8,8 +8,8 @@ import json
 from pathlib import Path
 from typing import Any
 
-from llm_fact_checker.fever import read_jsonl
-from llm_fact_checker.ollama import SYSTEM_PROMPT
+from llm_fact_checker.common import read_jsonl
+from llm_fact_checker.prompts import SYSTEM_PROMPT
 
 GOLD_LABELS = ("SUPPORTED", "REFUTED")
 PREDICTION_LABELS = ("SUPPORTED", "REFUTED", "NOT ENOUGH INFORMATION", "INVALID")

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from llm_fact_checker.robustness import (
+from llm_fact_checker.experiments.robustness import (
     _distractor_pool,
     calculate_pair_metrics,
     choose_distractor,

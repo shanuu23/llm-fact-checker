@@ -5,32 +5,36 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "llm_fact_checker"
 version = "0.0.1"
-description = "llm factchecker"
+description = "Reliability tests for evidence-grounded LLM fact-checkers: correctness, stability, robustness and sensitivity"
 authors = [
   { name = "Group10" },
 ]
-
 readme = "README.md"
 classifiers = [
     "Programming Language :: Python :: 3",
-    
 ]
-dependencies = [
+requires-python = ">=3.12"
+# The experiment pipeline uses only the standard library (the Ollama client is urllib).
+dependencies = []
+
+[project.scripts]
+factcheck = "llm_fact_checker.cli:main"
+
+[dependency-groups]
+dev = [
+    "ruff",
+]
+notebooks = [
     "jupyterlab==4.6.1",
-    "loguru",
     "matplotlib>=3.11.2",
-    "mkdocs",
     "numpy>=2.5.3",
     "pandas==2.2.2",
-    "pip",
-    "python-dotenv",
-    "ruff",
     "scikit-learn==1.6.1",
-    "tqdm",
-    "typer",
 ]
-requires-python = "==3.12.13"
 
+[tool.uv]
+# A plain `uv sync` installs everything the team needs: dev tools and notebook libraries.
+default-groups = ["dev", "notebooks"]
 
 [tool.ruff]
 line-length = 99
@@ -43,4 +47,3 @@ extend-select = ["I"]  # Add import sorting
 [tool.ruff.lint.isort]
 known-first-party = ["llm_fact_checker"]
 force-sort-within-sections = true
-

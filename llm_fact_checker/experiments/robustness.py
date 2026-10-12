@@ -3,26 +3,26 @@
 from __future__ import annotations
 
 from collections import Counter
-import csv
 from datetime import UTC, datetime
 import json
 from pathlib import Path
 import platform
 import re
-import subprocess
 from typing import Any
 
-from llm_fact_checker.consistency import (
+from llm_fact_checker.common import (
+    git_commit,
+    percentage,
+    read_jsonl,
+    write_csv,
+    write_jsonl,
+)
+from llm_fact_checker.experiments.consistency import (
     EXPECTED_DATASET_SHA256,
     validate_prepared_dataset,
 )
-from llm_fact_checker.fever import read_jsonl, write_jsonl
-from llm_fact_checker.ollama import (
-    ALLOWED_LABELS,
-    SYSTEM_PROMPT,
-    OllamaClient,
-    infer_cases,
-)
+from llm_fact_checker.ollama import OllamaClient, infer_cases
+from llm_fact_checker.prompts import ALLOWED_LABELS, SYSTEM_PROMPT
 
 MODEL = "llama3.2:3b"
 TEMPERATURE = 0
@@ -476,25 +476,7 @@ def _case_rows(
 
 
 def _write_case_csv(path: Path, rows: list[dict[str, Any]]) -> None:
-    with path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
-        writer.writeheader()
-        writer.writerows(rows)
-
-
-def _git_commit() -> str | None:
-    try:
-        return subprocess.run(
-            ["git", "rev-parse", "HEAD"], check=True, capture_output=True, text=True
-        ).stdout.strip()
-    except (FileNotFoundError, subprocess.CalledProcessError):
-        return None
-
-
-def _percentage(value: float | None, signed: bool = False) -> str:
-    if value is None:
-        return "N/A"
-    return f"{value:+.3%}" if signed else f"{value:.3%}"
+    write_csv(path, rows)
 
 
 def _report(metrics: dict[str, Any], config: dict[str, Any]) -> str:
@@ -516,10 +498,10 @@ This experiment compares a deterministic control with two meaning-preserving evi
 
 | Variant | Complete pairs | Invariance | Paired control accuracy | Perturbed accuracy | Delta |
 |---|---:|---:|---:|---:|---:|
-| Reorder | {reorder["complete_pair_count"]} | {_percentage(reorder["invariance_rate"])} | {_percentage(reorder["control_accuracy"])} | {_percentage(reorder["perturbed_accuracy"])} | {_percentage(reorder["accuracy_delta"], signed=True)} |
-| Distractor | {distractor["complete_pair_count"]} | {_percentage(distractor["invariance_rate"])} | {_percentage(distractor["control_accuracy"])} | {_percentage(distractor["perturbed_accuracy"])} | {_percentage(distractor["accuracy_delta"], signed=True)} |
+| Reorder | {reorder["complete_pair_count"]} | {percentage(reorder["invariance_rate"])} | {percentage(reorder["control_accuracy"])} | {percentage(reorder["perturbed_accuracy"])} | {percentage(reorder["accuracy_delta"], signed=True)} |
+| Distractor | {distractor["complete_pair_count"]} | {percentage(distractor["invariance_rate"])} | {percentage(distractor["control_accuracy"])} | {percentage(distractor["perturbed_accuracy"])} | {percentage(distractor["accuracy_delta"], signed=True)} |
 
-Control FEVER accuracy across all {metrics["case_count"]} cases: {_percentage(metrics["control"]["accuracy"])}.
+Control FEVER accuracy across all {metrics["case_count"]} cases: {percentage(metrics["control"]["accuracy"])}.
 
 Detailed outcome, transition, NEI, and technical-validity counts are in `robustness_metrics.json` and `robustness_by_case.csv`.
 """
@@ -602,7 +584,7 @@ def run_robustness_experiment(
         "python_version": platform.python_version(),
         "ollama_version": ollama_metadata["version"],
         "ollama_model_metadata": ollama_metadata["model"],
-        "git_commit": _git_commit(),
+        "git_commit": git_commit(),
     }
     (results_dir / "robustness_metrics.json").write_text(
         json.dumps(metrics, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"

@@ -6,13 +6,13 @@ import tempfile
 import unittest
 
 from llm_fact_checker.evaluation import calculate_metrics
-from llm_fact_checker.fever import (
+from llm_fact_checker.data_prep.fever import (
     candidate_order,
     map_fever_label,
     scan_wikipedia,
     select_evidence_set,
 )
-from llm_fact_checker.ollama import parse_prediction
+from llm_fact_checker.prompts import parse_prediction
 
 
 def fever_record(fever_id: int, label: str, claim: str) -> dict:

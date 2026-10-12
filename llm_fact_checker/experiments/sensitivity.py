@@ -2,30 +2,29 @@
 
 from __future__ import annotations
 
-from collections import Counter, defaultdict
-from collections.abc import Iterable
-import csv
+from collections import Counter
 from datetime import UTC, datetime
 import json
 from pathlib import Path
 import platform
-import random
-import subprocess
 from typing import Any
 
-from llm_fact_checker.consistency import file_sha256
-from llm_fact_checker.fever import read_jsonl, write_jsonl
-from llm_fact_checker.ollama import ALLOWED_LABELS, SYSTEM_PROMPT, OllamaClient, infer_cases
+from llm_fact_checker.common import (
+    git_commit,
+    percentage,
+    read_jsonl,
+    write_csv,
+    write_jsonl,
+)
+from llm_fact_checker.data_prep.vitaminc import (
+    identify_contrastive_pairs,
+    load_vitaminc_test,
+    validate_pairs,
+    validate_pairs_against_candidates,
+)
+from llm_fact_checker.ollama import OllamaClient, infer_cases
+from llm_fact_checker.prompts import ALLOWED_LABELS, SYSTEM_PROMPT
 
-EXPECTED_TEST_SHA256 = "7f799e076dec184e31533d46704fef2022d08ef68a0db2c44f138d2b4e552f36"
-EXPECTED_TEST_ROWS = 55_197
-EXPECTED_LABEL_COUNTS = {"SUPPORTS": 27_664, "REFUTES": 20_265, "NOT ENOUGH INFO": 7_268}
-REQUIRED_FIELDS = {"unique_id", "case_id", "label", "claim", "evidence", "page", "revision_type"}
-LABEL_MAP = {
-    "SUPPORTS": "SUPPORTED",
-    "REFUTES": "REFUTED",
-    "NOT ENOUGH INFO": "NOT ENOUGH INFORMATION",
-}
 PAIR_OUTCOMES = (
     "CORRECT_FLIP",
     "NO_CHANGE_CORRECT_ON_SUPPORT",
@@ -37,219 +36,6 @@ PAIR_OUTCOMES = (
 MODEL = "llama3.2:3b"
 TEMPERATURE = 0
 SEED = 42
-
-
-def map_vitaminc_label(label: str) -> str:
-    try:
-        return LABEL_MAP[label]
-    except KeyError as error:
-        raise ValueError(f"Unsupported VitaminC label: {label!r}") from error
-
-
-def load_vitaminc_test(path: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    digest = file_sha256(path)
-    if digest != EXPECTED_TEST_SHA256:
-        raise ValueError(
-            f"VitaminC test SHA-256 mismatch: expected {EXPECTED_TEST_SHA256}, found {digest}"
-        )
-    rows = list(read_jsonl(path))
-    if len(rows) != EXPECTED_TEST_ROWS:
-        raise ValueError(f"Expected {EXPECTED_TEST_ROWS} VitaminC test rows, found {len(rows)}")
-    missing = [
-        row.get("unique_id", index)
-        for index, row in enumerate(rows)
-        if not REQUIRED_FIELDS <= row.keys()
-    ]
-    if missing:
-        raise ValueError(f"VitaminC rows missing required fields: {missing[:5]}")
-    labels = Counter(row["label"] for row in rows)
-    if dict(labels) != EXPECTED_LABEL_COUNTS:
-        raise ValueError(f"Unexpected VitaminC label counts: {dict(labels)}")
-    return rows, {
-        "sha256": digest,
-        "row_count": len(rows),
-        "field_names": sorted({key for row in rows for key in row}),
-        "field_presence": dict(sorted(Counter(key for row in rows for key in row).items())),
-        "label_counts": dict(labels),
-        "revision_type_counts": dict(Counter(row["revision_type"] for row in rows)),
-    }
-
-
-def _pair_side(row: dict[str, Any]) -> dict[str, Any]:
-    return {
-        "claim": row["claim"],
-        "evidence": row["evidence"],
-        "original_label": row["label"],
-        "canonical_label": map_vitaminc_label(row["label"]),
-        "source_metadata": {
-            key: value for key, value in row.items() if key not in {"claim", "evidence", "label"}
-        },
-    }
-
-
-def _source_anchor(row: dict[str, Any]) -> tuple[str, Any]:
-    key = "wiki_revision_id" if "wiki_revision_id" in row else "FEVER_id"
-    return key, row[key]
-
-
-def identify_contrastive_pairs(rows: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Link only rows sharing explicit case_id and exact claim text."""
-    groups: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
-    for row in rows:
-        groups[(row["case_id"], row["claim"])].append(row)
-
-    pairs = []
-    for (case_id, claim), group in groups.items():
-        supports = [row for row in group if row["label"] == "SUPPORTS"]
-        refutes = [row for row in group if row["label"] == "REFUTES"]
-        if len(supports) != 1 or len(refutes) != 1:
-            continue
-        support, refute = supports[0], refutes[0]
-        if support["evidence"] == refute["evidence"]:
-            continue
-        if (
-            support["page"] != refute["page"]
-            or support["revision_type"] != refute["revision_type"]
-            or _source_anchor(support) != _source_anchor(refute)
-        ):
-            continue
-        pair_id = f"{support['unique_id']}__{refute['unique_id']}"
-        pairs.append(
-            {
-                "pair_id": pair_id,
-                "claim": claim,
-                "support": _pair_side(support),
-                "refute": _pair_side(refute),
-                "source_metadata": {
-                    "case_id": case_id,
-                    "pairing_key": ["case_id", "claim"],
-                    "support_unique_id": support["unique_id"],
-                    "refute_unique_id": refute["unique_id"],
-                },
-            }
-        )
-    return sorted(pairs, key=lambda pair: pair["pair_id"])
-
-
-def select_pairs(
-    candidates: list[dict[str, Any]], count: int = 100, seed: int = SEED
-) -> list[dict[str, Any]]:
-    unique_claim_candidates = []
-    seen_claims = set()
-    for pair in sorted(candidates, key=lambda item: item["pair_id"]):
-        if pair["claim"] in seen_claims:
-            continue
-        seen_claims.add(pair["claim"])
-        unique_claim_candidates.append(pair)
-    if len(unique_claim_candidates) < count:
-        raise ValueError(
-            f"Need {count} unique-claim contrastive pairs, found {len(unique_claim_candidates)}"
-        )
-    selected = random.Random(seed).sample(unique_claim_candidates, count)
-    return sorted(selected, key=lambda pair: pair["pair_id"])
-
-
-def validate_pairs(pairs: list[dict[str, Any]], expected_count: int | None = None) -> None:
-    if expected_count is not None and len(pairs) != expected_count:
-        raise ValueError(f"Expected {expected_count} pairs, found {len(pairs)}")
-    if len({pair["pair_id"] for pair in pairs}) != len(pairs):
-        raise ValueError("Duplicate VitaminC pair IDs")
-    if len({pair["claim"] for pair in pairs}) != len(pairs):
-        raise ValueError("Duplicate claims in selected VitaminC pairs")
-    for pair in pairs:
-        support, refute = pair["support"], pair["refute"]
-        if support["claim"] != pair["claim"] or refute["claim"] != pair["claim"]:
-            raise ValueError(f"Pair {pair['pair_id']} does not use the exact same claim")
-        if support["original_label"] != "SUPPORTS" or refute["original_label"] != "REFUTES":
-            raise ValueError(f"Pair {pair['pair_id']} does not have SUPPORTS/REFUTES labels")
-        if support["canonical_label"] != "SUPPORTED" or refute["canonical_label"] != "REFUTED":
-            raise ValueError(f"Pair {pair['pair_id']} has invalid canonical labels")
-        if support["evidence"] == refute["evidence"]:
-            raise ValueError(f"Pair {pair['pair_id']} has identical evidence")
-        if support["source_metadata"]["case_id"] != refute["source_metadata"]["case_id"]:
-            raise ValueError(f"Pair {pair['pair_id']} crosses case IDs")
-        if support["source_metadata"]["page"] != refute["source_metadata"]["page"]:
-            raise ValueError(f"Pair {pair['pair_id']} crosses pages")
-        if (
-            support["source_metadata"]["revision_type"]
-            != refute["source_metadata"]["revision_type"]
-        ):
-            raise ValueError(f"Pair {pair['pair_id']} crosses revision types")
-        if _source_anchor(support["source_metadata"]) != _source_anchor(refute["source_metadata"]):
-            raise ValueError(f"Pair {pair['pair_id']} crosses source revisions")
-
-
-def validate_pairs_against_candidates(
-    selected: list[dict[str, Any]], candidates: list[dict[str, Any]]
-) -> None:
-    candidate_by_id = {pair["pair_id"]: pair for pair in candidates}
-    for pair in selected:
-        if candidate_by_id.get(pair["pair_id"]) != pair:
-            raise ValueError(f"Selected pair is not an unchanged candidate: {pair['pair_id']}")
-
-
-def _audit_markdown(pairs: list[dict[str, Any]], count: int = 20) -> str:
-    sections = [
-        "# VitaminC sensitivity pair audit",
-        "",
-        "Pairs share the same `case_id` and exact claim. Each has one unchanged VitaminC SUPPORTS row and one unchanged REFUTES row with different evidence.",
-    ]
-    for pair in pairs[:count]:
-        sections.extend(
-            [
-                "",
-                f"## PAIR ID: {pair['pair_id']}",
-                "",
-                "**Claim:**",
-                "",
-                pair["claim"],
-                "",
-                "**Evidence A:**",
-                "",
-                pair["support"]["evidence"],
-                "",
-                "**Gold: SUPPORTED**",
-                "",
-                "**Evidence B:**",
-                "",
-                pair["refute"]["evidence"],
-                "",
-                "**Gold: REFUTED**",
-            ]
-        )
-    return "\n".join(sections) + "\n"
-
-
-def prepare_vitaminc_pairs(
-    raw_path: Path,
-    processed_path: Path,
-    prepared_dir: Path,
-    overwrite: bool = False,
-) -> dict[str, Any]:
-    output_paths = [
-        processed_path,
-        prepared_dir / "selected_pairs.jsonl",
-        prepared_dir / "pair_audit.md",
-    ]
-    existing = [path for path in output_paths if path.exists()]
-    if existing and not overwrite:
-        raise FileExistsError(f"Refusing to overwrite VitaminC prepared files: {existing}")
-    rows, source_summary = load_vitaminc_test(raw_path)
-    candidates = identify_contrastive_pairs(rows)
-    selected = select_pairs(candidates)
-    validate_pairs(selected, expected_count=100)
-    validate_pairs_against_candidates(selected, candidates)
-    write_jsonl(processed_path, selected)
-    write_jsonl(prepared_dir / "selected_pairs.jsonl", selected)
-    (prepared_dir / "pair_audit.md").write_text(_audit_markdown(selected), encoding="utf-8")
-    return {
-        **source_summary,
-        "pairing_method": "exact case_id plus exact claim; exactly one SUPPORTS and one REFUTES row; different evidence",
-        "valid_contrastive_pairs": len(candidates),
-        "unique_claim_candidate_pairs": len({pair["claim"] for pair in candidates}),
-        "selected_pairs": len(selected),
-        "selection_seed": SEED,
-    }
 
 
 def classify_pair(support_prediction: str | None, refute_prediction: str | None) -> str:
@@ -384,23 +170,7 @@ def calculate_sensitivity_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def _write_pair_csv(path: Path, rows: list[dict[str, Any]]) -> None:
-    with path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
-        writer.writeheader()
-        writer.writerows(rows)
-
-
-def _git_commit() -> str | None:
-    try:
-        return subprocess.run(
-            ["git", "rev-parse", "HEAD"], check=True, capture_output=True, text=True
-        ).stdout.strip()
-    except (FileNotFoundError, subprocess.CalledProcessError):
-        return None
-
-
-def _percentage(value: float | None) -> str:
-    return "N/A" if value is None else f"{value:.3%}"
+    write_csv(path, rows)
 
 
 def _report(metrics: dict[str, Any], config: dict[str, Any]) -> str:
@@ -420,8 +190,8 @@ This experiment tests whether `{config["ollama_model"]}` changes its verdict cor
 
 ## Primary result
 
-- Correct sensitivity: {metrics["correct_sensitivity_count"]}/{metrics["total_pairs"]} ({_percentage(metrics["correct_sensitivity_rate"])})
-- Verdict flips: {metrics["flip_count"]}/{metrics["complete_pairs"]} ({_percentage(metrics["flip_rate"])})
+- Correct sensitivity: {metrics["correct_sensitivity_count"]}/{metrics["total_pairs"]} ({percentage(metrics["correct_sensitivity_rate"])})
+- Verdict flips: {metrics["flip_count"]}/{metrics["complete_pairs"]} ({percentage(metrics["flip_rate"])})
 - Correct flips: {metrics["correct_flip_count"]}
 - Incorrect flips: {metrics["incorrect_flip_count"]}
 
@@ -436,9 +206,9 @@ This experiment tests whether `{config["ollama_model"]}` changes its verdict cor
 
 ## Individual accuracy
 
-- SUPPORT side: {accuracy["support_correct"]}/{metrics["total_pairs"]} ({_percentage(accuracy["support_accuracy"])})
-- REFUTE side: {accuracy["refute_correct"]}/{metrics["total_pairs"]} ({_percentage(accuracy["refute_accuracy"])})
-- Overall rows: {accuracy["overall_correct"]}/{accuracy["overall_rows"]} ({_percentage(accuracy["overall_accuracy"])})
+- SUPPORT side: {accuracy["support_correct"]}/{metrics["total_pairs"]} ({percentage(accuracy["support_accuracy"])})
+- REFUTE side: {accuracy["refute_correct"]}/{metrics["total_pairs"]} ({percentage(accuracy["refute_accuracy"])})
+- Overall rows: {accuracy["overall_correct"]}/{accuracy["overall_rows"]} ({percentage(accuracy["overall_accuracy"])})
 
 ## NEI behavior
 
@@ -525,7 +295,7 @@ def run_vitaminc_sensitivity(
         "python_version": platform.python_version(),
         "ollama_version": ollama_metadata["version"],
         "ollama_model_metadata": ollama_metadata["model"],
-        "git_commit": _git_commit(),
+        "git_commit": git_commit(),
     }
     (results_dir / "sensitivity_metrics.json").write_text(
         json.dumps(metrics, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"

@@ -1,1 +1,1 @@
-from llm_fact_checker import config  # noqa: F401
+"""Evidence-grounded LLM fact-checker evaluation pipeline."""
