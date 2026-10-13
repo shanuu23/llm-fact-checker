@@ -79,6 +79,13 @@ relies on all three.
 | `sensitivity_by_pair.csv` | per pair: both predictions, `prediction_changed`, `correct_sensitivity`, `outcome` |
 | `sensitivity_metrics.json` | correct-flip rate, flip rate, pair outcomes, per-side accuracy, NEI analysis, technical validity |
 
+### `vitaminc/<model>/sensitivity_full/`
+
+The same experiment on every valid contrastive pair of the test set (20,232 pairs, 40,464
+requests; `factcheck vitaminc-sensitivity --all`). Same files and schema as `sensitivity/`, with
+20,232 rows in `sensitivity_by_pair.csv`. `run_config.json` has `pair_selection: "whole"`. The
+`predictions/` folder (about 40,000 rows) is git-ignored; commit the metrics, report, CSV and config.
+
 ### `run_config.json` (every experiment)
 
 Prompt (system and user template), model tag, temperature, seed(s), dataset path and hash, Ollama
