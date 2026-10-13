@@ -1,0 +1,51 @@
+{
+  "experiment": "VitaminC contrastive sensitivity",
+  "raw_test_path": "data/vitaminc/raw/vitaminc/test.jsonl",
+  "raw_test_sha256": "7ad1808dbc30c62e0a1427a53022d0dfaff668a1fde3c4b612a2d266edd753ad",
+  "raw_test_rows": 55197,
+  "raw_label_counts": {
+    "NOT ENOUGH INFO": 7268,
+    "REFUTES": 20265,
+    "SUPPORTS": 27664
+  },
+  "processed_pairs_path": "data/vitaminc/processed/vitaminc_sensitivity_100_pairs.jsonl",
+  "pair_selection": "whole",
+  "full_pair_count": 20232,
+  "unique_claims": 18352,
+  "sample_size_pairs": 20232,
+  "pairing_method": "exact case_id plus exact claim; exactly one SUPPORTS and one REFUTES row; different evidence",
+  "ollama_model": "llama3.2:1b",
+  "temperature": 0,
+  "model_seed": 42,
+  "prompt_template": {
+    "system": "You are an evidence-grounded fact verifier.\n\nDetermine whether the provided evidence supports, refutes, or does not provide enough information to determine the claim.\n\nUse only the supplied evidence. Do not rely on outside knowledge.\n\nReturn exactly one of:\n\nSUPPORTED\nREFUTED\nNOT ENOUGH INFORMATION\n\nReturn the label only. Do not provide an explanation.",
+    "user": "Claim:\n<claim>\n\nEvidence:\n<numbered evidence>"
+  },
+  "run_timestamp_utc": "2026-10-13T13:22:52.113392+00:00",
+  "python_version": "3.12.13",
+  "ollama_version": "0.34.0",
+  "ollama_model_metadata": {
+    "name": "llama3.2:1b",
+    "model": "llama3.2:1b",
+    "modified_at": "2026-10-13T20:04:40.109011623+11:00",
+    "size": 1321098329,
+    "digest": "baf6a787fdffd633537aa2eb51cfd54cb93ff08e28040095462bb63daf552878",
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "llama",
+      "families": [
+        "llama"
+      ],
+      "parameter_size": "1.2B",
+      "quantization_level": "Q8_0",
+      "context_length": 131072,
+      "embedding_length": 2048
+    },
+    "capabilities": [
+      "completion",
+      "tools"
+    ]
+  },
+  "git_commit": "df7a2b54330da3f42f176f9a89b1dbadd4b818fb"
+}

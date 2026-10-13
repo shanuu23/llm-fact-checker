@@ -1,0 +1,99 @@
+{
+  "case_count": 13264,
+  "control": {
+    "correct": 6447,
+    "accuracy": 0.4860524728588661
+  },
+  "reorder": {
+    "eligible_pair_count": 1194,
+    "complete_pair_count": 1193,
+    "invariant_count": 1132,
+    "invariance_rate": 0.9488683989941324,
+    "prediction_changed_count": 61,
+    "control_correct": 645,
+    "control_accuracy": 0.5402010050251256,
+    "perturbed_correct": 646,
+    "perturbed_accuracy": 0.541038525963149,
+    "accuracy_delta": 0.0008375209380234727,
+    "outcomes": {
+      "STAYED_CORRECT": 631,
+      "HARMFUL_FLIP": 14,
+      "BENEFICIAL_FLIP": 15,
+      "STAYED_WRONG": 533,
+      "INCOMPLETE": 1
+    },
+    "transitions": {
+      "SUPPORTED -> SUPPORTED": 1078,
+      "SUPPORTED -> REFUTED": 1,
+      "SUPPORTED -> NOT ENOUGH INFORMATION": 26,
+      "REFUTED -> SUPPORTED": 4,
+      "REFUTED -> REFUTED": 0,
+      "REFUTED -> NOT ENOUGH INFORMATION": 0,
+      "NOT ENOUGH INFORMATION -> SUPPORTED": 30,
+      "NOT ENOUGH INFORMATION -> REFUTED": 0,
+      "NOT ENOUGH INFORMATION -> NOT ENOUGH INFORMATION": 54
+    },
+    "nei_analysis": {
+      "control_nei_count": 84,
+      "perturbed_nei_count": 80,
+      "non_nei_to_nei": 26,
+      "nei_to_non_nei": 30,
+      "nei_to_nei": 54
+    }
+  },
+  "distractor": {
+    "eligible_pair_count": 13264,
+    "complete_pair_count": 13263,
+    "invariant_count": 11159,
+    "invariance_rate": 0.8413631908316369,
+    "prediction_changed_count": 2104,
+    "control_correct": 6447,
+    "control_accuracy": 0.4860524728588661,
+    "perturbed_correct": 6027,
+    "perturbed_accuracy": 0.45438781664656214,
+    "accuracy_delta": -0.031664656212303965,
+    "outcomes": {
+      "STAYED_CORRECT": 5828,
+      "HARMFUL_FLIP": 619,
+      "BENEFICIAL_FLIP": 199,
+      "STAYED_WRONG": 6617,
+      "INCOMPLETE": 1
+    },
+    "transitions": {
+      "SUPPORTED -> SUPPORTED": 10520,
+      "SUPPORTED -> REFUTED": 20,
+      "SUPPORTED -> NOT ENOUGH INFORMATION": 1145,
+      "REFUTED -> SUPPORTED": 113,
+      "REFUTED -> REFUTED": 3,
+      "REFUTED -> NOT ENOUGH INFORMATION": 45,
+      "NOT ENOUGH INFORMATION -> SUPPORTED": 777,
+      "NOT ENOUGH INFORMATION -> REFUTED": 4,
+      "NOT ENOUGH INFORMATION -> NOT ENOUGH INFORMATION": 636
+    },
+    "nei_analysis": {
+      "control_nei_count": 1417,
+      "perturbed_nei_count": 1826,
+      "non_nei_to_nei": 1190,
+      "nei_to_non_nei": 781,
+      "nei_to_nei": 636
+    }
+  },
+  "technical_validity": {
+    "control": {
+      "requests": 13264,
+      "inference_failures": 0,
+      "invalid_formats": 1
+    },
+    "reorder": {
+      "requests": 1194,
+      "inference_failures": 0,
+      "invalid_formats": 1
+    },
+    "distractor": {
+      "requests": 13264,
+      "inference_failures": 0,
+      "invalid_formats": 0
+    }
+  },
+  "excluded_flagged_cases": 68
+}
