@@ -1,5 +1,7 @@
 # Raw datasets are downloaded separately (several GB). Processed samples are tracked.
 data/*/raw/
+# Regenerable full VitaminC indexes are local (the pilot sample remains tracked).
+data/vitaminc/processed/train_full/
 
 # Personal Claude Code settings
 .claude/settings.local.json

@@ -13,6 +13,12 @@ from llm_fact_checker.data_prep.vitaminc import (
     VITAMINC_RAW_PATH,
     prepare_vitaminc_pairs,
 )
+from llm_fact_checker.data_prep.vitaminc_train import (
+    FULL_EVAL_SELECTION,
+    PILOT_PAIRS,
+    prepare_full_eval_selection,
+    prepare_vitaminc_train,
+)
 from llm_fact_checker.evaluation import evaluate_results
 from llm_fact_checker.experiments.baseline import run_inference
 from llm_fact_checker.experiments.consistency import run_consistency_experiment
@@ -110,6 +116,17 @@ def _vitaminc_prepare(args: argparse.Namespace) -> None:
     print(f"Prepared VitaminC pairs written to {args.sensitivity_dir / 'prepared'}")
 
 
+def _vitaminc_train_prepare(args: argparse.Namespace) -> None:
+    summary = prepare_vitaminc_train(args.raw, args.output_dir)
+    print(json.dumps(summary, indent=2))
+    print(f"VitaminC train indexes written to {args.output_dir}")
+
+
+def _vitaminc_train_select(args: argparse.Namespace) -> None:
+    summary = prepare_full_eval_selection(args.pairs, args.pilot, args.output)
+    print(json.dumps(summary, indent=2))
+
+
 def _vitaminc_sensitivity(args: argparse.Namespace) -> None:
     metrics = run_vitaminc_sensitivity(
         args.raw,
@@ -195,6 +212,27 @@ def build_parser() -> argparse.ArgumentParser:
     vitaminc_prepare.add_argument("--sensitivity-dir", type=Path, default=VITAMINC_RESULTS_DIR)
     vitaminc_prepare.add_argument("--overwrite", action="store_true")
     vitaminc_prepare.set_defaults(function=_vitaminc_prepare)
+
+    vitaminc_train_prepare = subparsers.add_parser(
+        "vitaminc-train-prepare", help="index the audited full VitaminC train split"
+    )
+    vitaminc_train_prepare.add_argument(
+        "--raw", type=Path, default=Path("data/vitaminc/raw/vitaminc/train.jsonl")
+    )
+    vitaminc_train_prepare.add_argument(
+        "--output-dir", type=Path, default=Path("data/vitaminc/processed/train_full")
+    )
+    vitaminc_train_prepare.set_defaults(function=_vitaminc_train_prepare)
+
+    vitaminc_train_select = subparsers.add_parser(
+        "vitaminc-train-select", help="freeze the full VitaminC evaluation pair IDs"
+    )
+    vitaminc_train_select.add_argument(
+        "--pairs", type=Path, default=Path("data/vitaminc/processed/train_full/pairs.jsonl")
+    )
+    vitaminc_train_select.add_argument("--pilot", type=Path, default=PILOT_PAIRS)
+    vitaminc_train_select.add_argument("--output", type=Path, default=FULL_EVAL_SELECTION)
+    vitaminc_train_select.set_defaults(function=_vitaminc_train_select)
 
     vitaminc_smoke = subparsers.add_parser(
         "vitaminc-smoke", help="run the isolated three-pair VitaminC sensitivity smoke test"
