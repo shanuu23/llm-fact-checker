@@ -36,6 +36,10 @@ _ROW_FIELD_ORDER = (
 )
 EXPECTED_TEST_ROWS = 55_197
 EXPECTED_LABEL_COUNTS = {"SUPPORTS": 27_664, "REFUTES": 20_265, "NOT ENOUGH INFO": 7_268}
+# Every contrastive pair `identify_contrastive_pairs` finds in the test set. 18,352 distinct
+# claims: 1,051 claims appear in more than one pair (different cases), so the whole set is the
+# only selection that does not de-duplicate claims.
+EXPECTED_VALID_PAIRS = 20_232
 REQUIRED_FIELDS = {"unique_id", "case_id", "label", "claim", "evidence", "page", "revision_type"}
 SEED = 42
 VITAMINC_RAW_PATH = Path("data/vitaminc/raw/vitaminc/test.jsonl")
@@ -167,12 +171,19 @@ def select_pairs(
     return sorted(selected, key=lambda pair: pair["pair_id"])
 
 
-def validate_pairs(pairs: list[dict[str, Any]], expected_count: int | None = None) -> None:
+def validate_pairs(
+    pairs: list[dict[str, Any]],
+    expected_count: int | None = None,
+    *,
+    unique_claims: bool = True,
+) -> None:
+    """Check every pair. ``unique_claims=False`` is for the whole set, where a claim can occur
+    in several pairs (each with its own case); pair IDs must still be unique."""
     if expected_count is not None and len(pairs) != expected_count:
         raise ValueError(f"Expected {expected_count} pairs, found {len(pairs)}")
     if len({pair["pair_id"] for pair in pairs}) != len(pairs):
         raise ValueError("Duplicate VitaminC pair IDs")
-    if len({pair["claim"] for pair in pairs}) != len(pairs):
+    if unique_claims and len({pair["claim"] for pair in pairs}) != len(pairs):
         raise ValueError("Duplicate claims in selected VitaminC pairs")
     for pair in pairs:
         support, refute = pair["support"], pair["refute"]

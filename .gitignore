@@ -17,6 +17,8 @@ results/*/*/*_full/predictions.jsonl
 results/*/*/*_full/predictions.partial.jsonl
 results/*/*/*_full/predictions/
 results/*/*/*_full/runs/
+# A smoke test (--limit, *-smoke) of a whole-set run is a check, never a result.
+results/*/*/*_full/smoke/
 
 # Personal Claude Code settings
 .claude/settings.local.json

@@ -136,7 +136,8 @@ def _vitaminc_prepare(args: argparse.Namespace) -> None:
 
 
 def _vitaminc_sensitivity(args: argparse.Namespace) -> None:
-    sensitivity_dir = args.sensitivity_dir or experiment_dir("vitaminc", args.model, "sensitivity")
+    experiment = "sensitivity_full" if args.all else "sensitivity"
+    sensitivity_dir = args.sensitivity_dir or experiment_dir("vitaminc", args.model, experiment)
     metrics = run_vitaminc_sensitivity(
         args.raw,
         args.processed,
@@ -145,6 +146,8 @@ def _vitaminc_sensitivity(args: argparse.Namespace) -> None:
         overwrite=args.overwrite,
         base_url=args.ollama_url,
         model=args.model,
+        whole=args.all,
+        resume=args.resume,
     )
     print(json.dumps(metrics, indent=2))
     destination = sensitivity_dir if args.limit is None else sensitivity_dir / "smoke"
@@ -269,7 +272,7 @@ def build_parser() -> argparse.ArgumentParser:
         ),
         (
             "vitaminc-sensitivity",
-            "run the full audited 100-pair VitaminC experiment",
+            "run the VitaminC sensitivity experiment (100 frozen pairs; --all for every pair)",
             None,
         ),
     ):
@@ -280,6 +283,18 @@ def build_parser() -> argparse.ArgumentParser:
         sensitivity.add_argument("--sensitivity-dir", type=Path)
         sensitivity.add_argument("--ollama-url", default=OLLAMA_URL)
         sensitivity.add_argument("--overwrite", action="store_true")
+        sensitivity.add_argument(
+            "--all",
+            action="store_true",
+            help="every valid contrastive pair in the test set (20,232 pairs, 40,464 requests), "
+            "claims not de-duplicated; ignores --processed and writes to <model>/sensitivity_full",
+        )
+        sensitivity.add_argument(
+            "--resume",
+            action="store_true",
+            help="continue an interrupted run: keep saved answers, retry failures, run the rest; "
+            "does nothing if the experiment already finished",
+        )
         sensitivity.set_defaults(function=_vitaminc_sensitivity, limit=limit)
 
     all_steps = subparsers.add_parser("all", help="prepare, run all 150 cases, and evaluate")

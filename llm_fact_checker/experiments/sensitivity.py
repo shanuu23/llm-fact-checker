@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 import json
 from pathlib import Path
 import platform
+import sys
 from typing import Any
 
 from llm_fact_checker.common import (
@@ -15,15 +16,17 @@ from llm_fact_checker.common import (
     read_jsonl,
     write_csv,
     write_jsonl,
+    write_text_atomic,
 )
 from llm_fact_checker.data_prep.vitaminc import (
+    EXPECTED_VALID_PAIRS,
     identify_contrastive_pairs,
     load_vitaminc_test,
     validate_pairs,
     validate_pairs_against_candidates,
 )
 from llm_fact_checker.models import DEFAULT_MODEL
-from llm_fact_checker.ollama import OllamaClient, infer_cases
+from llm_fact_checker.ollama import OllamaClient, infer_cases_resumable
 from llm_fact_checker.prompts import ALLOWED_LABELS, SYSTEM_PROMPT
 
 PAIR_OUTCOMES = (
@@ -174,6 +177,12 @@ def _write_pair_csv(path: Path, rows: list[dict[str, Any]]) -> None:
 
 
 def _report(metrics: dict[str, Any], config: dict[str, Any]) -> str:
+    whole_note = ""
+    if config.get("pair_selection") == "whole":
+        whole_note = (
+            f" (every valid contrastive pair in the test set; {config['unique_claims']} distinct "
+            "claims, a claim that occurs in several pairs is kept in each)"
+        )
     accuracy = metrics["individual_accuracy"]
     nei = metrics["nei_analysis"]
     outcomes = metrics["pair_outcomes"]
@@ -184,7 +193,7 @@ This experiment tests whether `{config["ollama_model"]}` changes its verdict cor
 ## Setup
 
 - Test SHA-256: `{config["raw_test_sha256"]}`
-- Selected pairs: {metrics["total_pairs"]}
+- Selected pairs: {metrics["total_pairs"]}{whole_note}
 - Model temperature / seed: {config["temperature"]} / {config["model_seed"]}
 - Pairing: exact `case_id` plus exact claim, with one SUPPORTS and one REFUTES row
 
@@ -229,48 +238,79 @@ def run_vitaminc_sensitivity(
     overwrite: bool = False,
     base_url: str = "http://localhost:11434",
     model: str = DEFAULT_MODEL,
+    whole: bool = False,
+    resume: bool = False,
 ) -> dict[str, Any]:
+    """Run the contrastive sensitivity experiment.
+
+    By default on the 100 frozen pairs in ``processed_path``. With ``whole`` on every valid
+    contrastive pair of the test set (20,232), rebuilt from ``raw_path`` and not de-duplicated.
+    Each answer is saved as it arrives (``predictions/predictions.partial.jsonl``); ``resume``
+    keeps them, retries failures and runs only what is missing. The metrics file is written
+    last: its existence is what marks a run as finished.
+    """
     source_rows, source_summary = load_vitaminc_test(raw_path)
     candidates = identify_contrastive_pairs(source_rows)
-    pairs = list(read_jsonl(processed_path))
-    validate_pairs(pairs, expected_count=100)
-    validate_pairs_against_candidates(pairs, candidates)
+    if whole:
+        pairs = candidates  # every valid pair, already sorted by pair_id
+        validate_pairs(pairs, expected_count=EXPECTED_VALID_PAIRS, unique_claims=False)
+    else:
+        pairs = list(read_jsonl(processed_path))
+        validate_pairs(pairs, expected_count=100)
+        validate_pairs_against_candidates(pairs, candidates)
     selected = pairs if limit is None else pairs[:limit]
 
     results_dir = sensitivity_dir if limit is None else sensitivity_dir / "smoke"
     predictions_path = results_dir / "predictions" / "predictions.jsonl"
+    partial_path = results_dir / "predictions" / "predictions.partial.jsonl"
+    metrics_path = results_dir / "sensitivity_metrics.json"
+    if resume and predictions_path.exists() and metrics_path.exists():
+        print(f"Already complete, nothing to do: {results_dir}", file=sys.stderr)
+        return json.loads(metrics_path.read_text(encoding="utf-8"))
     output_paths = [
         predictions_path,
         results_dir / "sensitivity_by_pair.csv",
-        results_dir / "sensitivity_metrics.json",
+        metrics_path,
         results_dir / "run_config.json",
         results_dir / "report.md",
     ]
     existing = [path for path in output_paths if path.exists()]
-    if existing and not overwrite:
+    if existing and not (overwrite or resume):
         raise FileExistsError(f"Refusing to overwrite VitaminC sensitivity results: {existing}")
+    if partial_path.exists() and not (resume or overwrite):
+        raise FileExistsError(
+            f"{partial_path} holds an interrupted run; pass --resume to continue it "
+            "or --overwrite to discard it"
+        )
 
     client = OllamaClient(base_url=base_url)
     ollama_metadata = client.check(model)
     cases = _inference_cases(selected)
-    predictions = infer_cases(
-        client,
-        model,
-        cases,
-        seed=SEED,
-        temperature=TEMPERATURE,
-        progress_prefix="VitaminC",
-        id_field="prediction_id",
-        id_label="row",
-    )
-    for case, prediction in zip(cases, predictions, strict=True):
-        prediction["pair_id"] = case["pair_id"]
-        prediction["side"] = case["side"]
-    predictions_path.parent.mkdir(parents=True, exist_ok=True)
-    write_jsonl(predictions_path, predictions)
+    finished = list(read_jsonl(predictions_path)) if resume and predictions_path.exists() else None
+    if finished is not None and len(finished) == len(cases):
+        predictions = finished  # inference finished; only scoring is missing
+    else:
+        predictions = infer_cases_resumable(
+            client,
+            model,
+            cases,
+            SEED,
+            TEMPERATURE,
+            partial_path,
+            resume=resume,
+            progress_prefix="VitaminC",
+            id_field="prediction_id",
+            id_label="row",
+        )
+        for case, prediction in zip(cases, predictions, strict=True):
+            prediction["pair_id"] = case["pair_id"]
+            prediction["side"] = case["side"]
+        write_jsonl(predictions_path, predictions)
+        partial_path.unlink(missing_ok=True)
 
     pair_rows = build_pair_rows(selected, predictions)
     metrics = calculate_sensitivity_metrics(pair_rows)
+    results_dir.mkdir(parents=True, exist_ok=True)
     _write_pair_csv(results_dir / "sensitivity_by_pair.csv", pair_rows)
     config = {
         "experiment": "VitaminC contrastive sensitivity",
@@ -279,7 +319,9 @@ def run_vitaminc_sensitivity(
         "raw_test_rows": source_summary["row_count"],
         "raw_label_counts": source_summary["label_counts"],
         "processed_pairs_path": str(processed_path),
+        "pair_selection": "whole" if whole else "frozen sample",
         "full_pair_count": len(pairs),
+        "unique_claims": len({pair["claim"] for pair in selected}),
         "sample_size_pairs": len(selected),
         "pairing_method": "exact case_id plus exact claim; exactly one SUPPORTS and one REFUTES row; different evidence",
         "ollama_model": model,
@@ -295,11 +337,9 @@ def run_vitaminc_sensitivity(
         "ollama_model_metadata": ollama_metadata["model"],
         "git_commit": git_commit(),
     }
-    (results_dir / "sensitivity_metrics.json").write_text(
-        json.dumps(metrics, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    write_text_atomic(
+        results_dir / "run_config.json", json.dumps(config, indent=2, ensure_ascii=False) + "\n"
     )
-    (results_dir / "run_config.json").write_text(
-        json.dumps(config, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-    )
-    (results_dir / "report.md").write_text(_report(metrics, config), encoding="utf-8")
+    write_text_atomic(results_dir / "report.md", _report(metrics, config))
+    write_text_atomic(metrics_path, json.dumps(metrics, indent=2, ensure_ascii=False) + "\n")
     return metrics
