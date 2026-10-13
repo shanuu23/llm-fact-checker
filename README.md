@@ -289,9 +289,10 @@ caffeinate -i uv run factcheck vitaminc-sensitivity --all --resume --model llama
   the same command again; `--resume` keeps what was saved, retries failed requests and asks the
   model only for the rest. The metrics file is written last, so a run is "finished" only once it
   exists.
-- **Time (an estimate, not yet measured):** 40,464 requests. Llama 3.2 3B ran about 0.25 s per
-  call on a fanless MacBook Air for FEVER, so plan on roughly 3 hours here; VitaminC's evidence is
-  short, so it may be less. Larger models take longer.
+- **Time:** 40,464 requests. Measured for Llama 3.2 3B on a fanless MacBook Air: 0.24 s per call
+  on average, 2.7 hours of model time in total. A 6-call smoke test is faster (0.14 s per call)
+  because the laptop has not warmed up yet, so do not extrapolate from it. Larger models take
+  longer.
 - **Read it with the sample's result in mind:** the sensitivity rate over 20,232 pairs is a much
   tighter estimate than 27/100, and the two should agree within the sample's noise. If they do
   not, the 100 pairs were not representative; say so in the PR.
