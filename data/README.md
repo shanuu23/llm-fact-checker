@@ -9,8 +9,10 @@ data/
 │   │   └── wiki-pages/wiki-pages/wiki-001.jsonl … wiki-109.jsonl
 │   ├── processed/fever_baseline_150.jsonl  the frozen sample, in git
 │   ├── prepared/                           perturbed inputs + distractor_audit.md, in git
-│   └── full/                               NOT in git: fever_dev_full.jsonl (`prepare --all`)
-│                                           and prepared/ (perturbed inputs for the whole set)
+│   └── full/
+│       ├── fever_dev_full.jsonl            the whole dev set (13,332 claims), in git
+│       └── prepared/                       perturbed inputs for the whole set, NOT in git
+│                                           (rebuilt from the file above in about 12 s)
 └── vitaminc/
     ├── raw/vitaminc/test.jsonl             downloaded separately, NOT in git
     ├── processed/vitaminc_sensitivity_100_pairs.jsonl   the frozen sample, in git
@@ -48,8 +50,10 @@ shasum -a 256 -c data/HASHES.txt
 
 ## The whole FEVER dev set
 
-`factcheck prepare --all` writes `data/fever/full/fever_dev_full.jsonl` (about 7.5 MB, derived and
-not committed). It follows the FEVER data audit's eligibility decision:
+`data/fever/full/fever_dev_full.jsonl` (7.5 MB, about 1.3 MB in git) holds every SUPPORTS/REFUTES
+claim with its evidence text. **It is committed**, so running the whole-set experiments needs no raw
+FEVER data and no Wikipedia dump. `factcheck prepare --all` rebuilds it from the raw data and gives
+the same bytes. It follows the FEVER data audit's eligibility decision:
 
 | | Frozen 150-case sample | Whole set (`--all`) |
 |---|---|---|
@@ -57,7 +61,8 @@ not committed). It follows the FEVER data audit's eligibility decision:
 | Repeated claim text | removed (lowest ID kept) | kept |
 | Claims flagged by the audit | not marked | kept and marked in `flags` |
 | Accented page titles | matched exactly | matched in NFC form |
-| Rebuild reproduces committed file | yes (`6bc7cf91…`) | n/a (derived) |
+| Committed, sha256 | yes (`6bc7cf91…`) | yes (`46d03c13…`) |
+| Rebuild reproduces the committed file | yes | yes |
 
 The 68 flagged claims (21 SUPPORTED, 47 REFUTED) are the audit's possible label inconsistencies:
 the exact claim text appears with a different label (`conflicting_duplicate_label`), or claims that

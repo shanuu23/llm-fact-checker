@@ -81,7 +81,9 @@ Pending, in order:
 1. **Run the other models** (`qwen2.5:7b`, `gemma3:4b`). Multi-model support is in place: every
    model-calling command takes `--model` and writes to `results/<dataset>/<model_slug>/...`.
    Perturbed inputs and audits are model-independent and live in `data/*/prepared/`.
-2. **Full-dataset run**: done for the FEVER baseline. `factcheck prepare --all` builds all 13,332
+2. **Full-dataset run**: done for the FEVER baseline. `data/fever/full/fever_dev_full.jsonl` (all
+   13,332 claims) is committed, so no raw data is needed to run it; `factcheck prepare --all`
+   rebuilds it from raw data (same bytes) and builds all 13,332
    claims (no de-duplication, audit flags in `flags`, NFC title matching) and `factcheck run
    --prepared data/fever/full/fever_dev_full.jsonl --results-dir …/baseline_full [--resume]` runs
    it, saving each answer as it arrives and writing `metrics_excluding_flagged.json` alongside

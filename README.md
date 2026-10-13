@@ -119,7 +119,8 @@ SUPPORTS/REFUTES claim in the FEVER dev file, as decided in the data audit
 (`notebooks/01_data_audit_fever.ipynb`):
 
 ```bash
-uv run factcheck prepare --all          # 13 s; writes data/fever/full/fever_dev_full.jsonl
+# data/fever/full/fever_dev_full.jsonl is already in the repo. Only to rebuild it from raw data:
+# uv run factcheck prepare --all        # 13 s; needs data/fever/raw/ and the Wikipedia dump
 uv run factcheck run --model llama3.2:3b --limit 3 \
     --prepared data/fever/full/fever_dev_full.jsonl --results-dir /tmp/smoke      # smoke test
 caffeinate -i uv run factcheck run --model llama3.2:3b \

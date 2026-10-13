@@ -1,7 +1,9 @@
 # Raw datasets are downloaded separately (several GB). Processed samples are tracked.
 data/*/raw/
-# The whole-dataset file is derived (`factcheck prepare --all`), about 8 MB.
-data/fever/full/
+# data/fever/full/fever_dev_full.jsonl is committed (1.3 MB compressed) so nobody needs the 7.6 GB
+# Wikipedia dump to run the whole-set experiments. The perturbed inputs below are rebuilt from it
+# in about 12 s by `factcheck robustness-prepare` (29 MB), so they are not committed.
+data/fever/full/prepared/
 
 # Whole-dataset runs (*_full): commit the metrics, reports and configs, not the multi-megabyte
 # per-case predictions. Share those by link instead.
