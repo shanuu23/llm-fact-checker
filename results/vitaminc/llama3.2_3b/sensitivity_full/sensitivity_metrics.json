@@ -1,0 +1,39 @@
+{
+  "total_pairs": 20232,
+  "complete_pairs": 20232,
+  "incomplete_pairs": 0,
+  "correct_sensitivity_count": 6246,
+  "correct_sensitivity_rate": 0.3087188612099644,
+  "flip_count": 13174,
+  "flip_rate": 0.6511466982997232,
+  "correct_flip_count": 6246,
+  "incorrect_flip_count": 6928,
+  "pair_outcomes": {
+    "CORRECT_FLIP": 6246,
+    "NO_CHANGE_CORRECT_ON_SUPPORT": 1813,
+    "NO_CHANGE_CORRECT_ON_REFUTE": 3696,
+    "NEI_INVOLVED": 8198,
+    "WRONG_DIRECTION": 279,
+    "OTHER_ERROR": 0
+  },
+  "individual_accuracy": {
+    "support_correct": 11698,
+    "support_accuracy": 0.578192961644919,
+    "refute_correct": 10729,
+    "refute_accuracy": 0.5302985369711348,
+    "overall_correct": 22427,
+    "overall_rows": 40464,
+    "overall_accuracy": 0.5542457493080268
+  },
+  "nei_analysis": {
+    "nei_on_support": 2397,
+    "nei_on_refute": 7350,
+    "pairs_with_nei_either_side": 8198,
+    "pairs_with_nei_both_sides": 1549
+  },
+  "technical_validity": {
+    "expected_requests": 40464,
+    "inference_failures": 0,
+    "invalid_formats": 0
+  }
+}
