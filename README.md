@@ -137,9 +137,10 @@ caffeinate -i uv run factcheck run --model llama3.2:3b \
 - **If the run is interrupted** (sleep, closed lid, Ctrl-C): every answer is saved as it arrives.
   Run the same command with `--resume`; it keeps what was saved, retries any failed cases and
   asks the model only for the missing ones.
-- **Time:** about 35 minutes for a 3B model on an Apple-silicon laptop (0.16 s per call); other
-  machines and larger models differ. `predictions.jsonl` is about 8 MB: commit the metrics and
-  report and share the predictions by link.
+- **Time:** about an hour for a 3B model on a fanless Apple-silicon laptop (the Llama run took
+  about 0.25 s per call once the machine warmed up; the first minutes were 0.16 s). Other machines
+  and larger models differ. `predictions.jsonl` is about 9.5 MB: commit the metrics and report and
+  share the predictions by link.
 
 ### Everything on the whole set, unattended
 
@@ -153,9 +154,11 @@ caffeinate -i scripts/run_whole_fever.sh llama3.2:3b 2>&1 | tee whole_run.log
 
 It is safe to stop and start again: every step saves each answer as it arrives, resumes where it
 left off, and is skipped once finished. Results go to `results/fever/<model_slug>/baseline_full/`,
-`robustness_full/` and `consistency_5run_full/`. About 108,000 model calls in total: roughly 3 to
-4 hours for a 3B model at 0.16 s per call. The individual commands (`factcheck run`, `robustness`,
-`consistency`, each with `--prepared`, `--results-dir` and `--resume`) are inside the script.
+`robustness_full/` and `consistency_5run_full/`. About 108,000 model calls in total. Measured for
+Llama 3.2 3B on a MacBook Air: baseline about 1 h, then robustness and consistency together
+6.6 h (94,528 calls). Plan for 7 to 8 hours per 3B model. The individual commands
+(`factcheck run`, `robustness`, `consistency`, each with `--prepared`, `--results-dir` and
+`--resume`) are inside the script.
 
 ## Repository layout
 
