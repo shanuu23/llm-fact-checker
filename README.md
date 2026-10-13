@@ -58,7 +58,7 @@ layout and hashes. Which raw data you need depends on what you run:
 | You want to | Raw data needed |
 |---|---|
 | Run the FEVER baseline, consistency or robustness | None (the 150-claim sample is committed) |
-| Run the VitaminC sensitivity experiment | None: `test.jsonl` is committed (the run re-validates the pairs against it) |
+| Run the VitaminC sensitivity experiment, on the 100 pairs or on every pair | None: `test.jsonl` is committed (the run re-validates the pairs against it) |
 | Re-create the FEVER sample (`prepare`) | FEVER dev file + Wikipedia dump |
 
 ## Run the experiments
@@ -85,6 +85,10 @@ uv run factcheck robustness
 # VitaminC sensitivity (200 requests; reads the committed data/vitaminc/raw/vitaminc/test.jsonl)
 uv run factcheck vitaminc-smoke
 uv run factcheck vitaminc-sensitivity
+
+# The same on every valid pair of the test set (40,464 requests); see "Run the whole VitaminC
+# test set" below
+uv run factcheck vitaminc-sensitivity --all --resume
 ```
 
 `robustness-prepare` and `vitaminc-prepare` regenerate the perturbed inputs and pair audit from the
@@ -164,6 +168,13 @@ caffeinate -i scripts/run_whole_fever.sh $MODEL 2>&1 | tee /tmp/whole_$SLUG.log
 Keep the laptop **plugged in with the lid open** and do not switch branches or edit files while it
 runs. If it stops for any reason (sleep, Ctrl-C), run the **same command again**: every step
 resumes where it left off and finished steps are skipped.
+
+**Optionally, the whole VitaminC test set** (20,232 contrastive pairs, 40,464 requests; see
+[Run the whole VitaminC test set](#run-the-whole-vitaminc-test-set)):
+
+```bash
+caffeinate -i uv run factcheck vitaminc-sensitivity --all --resume --model $MODEL
+```
 
 ### 5. Check the results, then commit and open a PR
 
@@ -249,6 +260,41 @@ Llama 3.2 3B on a MacBook Air: baseline about 1 h, then robustness and consisten
 6.6 h (94,528 calls). Plan for 7 to 8 hours per 3B model. The individual commands
 (`factcheck run`, `robustness`, `consistency`, each with `--prepared`, `--results-dir` and
 `--resume`) are inside the script.
+
+## Run the whole VitaminC test set
+
+The frozen comparison uses 100 pairs. The sensitivity experiment can also run on **every valid
+contrastive pair** in VitaminC's test file: rows that share a `case_id` and an exact claim and
+have exactly one SUPPORTS and one REFUTES row with different evidence. That is 20,232 pairs, so
+40,464 requests. `data/vitaminc/raw/vitaminc/test.jsonl` is committed and the pairs are rebuilt
+from it on every run, so there is nothing to download or prepare.
+
+```bash
+# smoke test: the first 3 pairs of the whole set, written to its own smoke/ folder
+uv run factcheck vitaminc-smoke --all --model llama3.2:3b
+
+# the whole set
+caffeinate -i uv run factcheck vitaminc-sensitivity --all --resume --model llama3.2:3b \
+    2>&1 | tee vitaminc_whole.log
+```
+
+- **Where it goes:** `results/vitaminc/<model_slug>/sensitivity_full/`, next to the 100-pair
+  `sensitivity/` folder, which is untouched. The metrics, report, per-pair CSV and `run_config.json`
+  are committed; `predictions/` is git-ignored, like the other whole-set runs.
+- **What is in the set:** nothing is de-duplicated. 18,352 distinct claims occur in the 20,232
+  pairs; 1,051 claims appear in more than one pair, each from a different case with its own
+  evidence, and each pair is kept. `run_config.json` records `pair_selection: whole`,
+  `full_pair_count` and `unique_claims`. The 100-pair sample, by contrast, has one pair per claim.
+- **If it is interrupted** (sleep, closed lid, Ctrl-C): every answer is saved as it arrives. Run
+  the same command again; `--resume` keeps what was saved, retries failed requests and asks the
+  model only for the rest. The metrics file is written last, so a run is "finished" only once it
+  exists.
+- **Time (an estimate, not yet measured):** 40,464 requests. Llama 3.2 3B ran about 0.25 s per
+  call on a fanless MacBook Air for FEVER, so plan on roughly 3 hours here; VitaminC's evidence is
+  short, so it may be less. Larger models take longer.
+- **Read it with the sample's result in mind:** the sensitivity rate over 20,232 pairs is a much
+  tighter estimate than 27/100, and the two should agree within the sample's noise. If they do
+  not, the 100 pairs were not representative; say so in the PR.
 
 ## Repository layout
 

@@ -88,11 +88,13 @@ Pending, in order:
    --prepared data/fever/full/fever_dev_full.jsonl --results-dir …/baseline_full [--resume]` runs
    it, saving each answer as it arrives and writing `metrics_excluding_flagged.json` alongside
    `metrics.json`. Consistency and robustness run on it too (`scripts/run_whole_fever.sh <model>`
-   runs all steps unattended and resumes). Still frozen-sample only: VitaminC sensitivity (100
-   pairs hard-coded).
-3. **Sample size is still hard-coded** to 150 claims / 100 pairs in `consistency.py`,
-   `robustness.py`, `sensitivity.py` and `data_prep/fever.py` (`per_label`). A larger sample needs
-   those checks generalised.
+   runs all steps unattended and resumes). VitaminC sensitivity runs on every valid pair too:
+   `factcheck vitaminc-sensitivity --all --resume` (20,232 pairs, 40,464 requests, rebuilt from
+   the committed `test.jsonl`) writes `results/vitaminc/<slug>/sensitivity_full/`; without `--all`
+   it is still the 100 frozen pairs.
+3. **Sample sizes stay hard-coded** to 150 claims / 100 pairs in the frozen-sample paths
+   (`consistency.py`, `robustness.py`, `data_prep/fever.py` `per_label`, and `sensitivity.py`
+   without `--all`), on purpose: the samples are frozen. The whole-set paths bypass those checks.
 4. **Baseline hash gate.** `run` now records the sample hash in `run_config.json` (as consistency
    and robustness do) but, unlike them, does not refuse to run on a different sample.
 5. **Comparison and a Streamlit app** that reads `results/` only and never runs inference. The

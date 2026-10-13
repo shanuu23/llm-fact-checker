@@ -111,6 +111,11 @@ The **primary metric** is the correct-flip rate. Verdict flips (any change), ind
 per side and NEI behaviour are reported separately, because a model that flips often but wrongly
 should not score well.
 
+The frozen comparison uses 100 pairs, one per claim. The same experiment also runs on every valid
+pair in the test set (`vitaminc-sensitivity --all`: 20,232 pairs, 18,352 distinct claims). That run
+keeps a claim that occurs in several pairs in each of them, because each pair has its own case and
+evidence; only the sample de-duplicates claims.
+
 ## Interpreting results
 
 - The four dimensions are separate. Report them side by side; do not average them away.
