@@ -14,7 +14,7 @@ data/
 │       └── prepared/                       perturbed inputs for the whole set, NOT in git
 │                                           (rebuilt from the file above in about 12 s)
 └── vitaminc/
-    ├── raw/vitaminc/test.jsonl             downloaded separately, NOT in git
+    ├── raw/vitaminc/test.jsonl             the VitaminC test set (27 MB), in git (CC BY-SA 3.0)
     ├── processed/vitaminc_sensitivity_100_pairs.jsonl   the frozen sample, in git
     └── prepared/pair_audit.md              human-review audit of the pairs, in git
 ```
@@ -29,7 +29,7 @@ the Wikipedia dump is several GB.
 | You want to | Raw data needed |
 |---|---|
 | Run the FEVER baseline, consistency or robustness | None: they read only the committed 150-claim sample |
-| Run the VitaminC sensitivity experiment | **`vitaminc/raw/vitaminc/test.jsonl`**: the run re-validates the committed pairs against it and stops if the file is missing or its hash differs |
+| Run the VitaminC sensitivity experiment | `vitaminc/raw/vitaminc/test.jsonl`, **which is committed**: the run re-validates the committed pairs against it and stops if its hash is not an accepted one |
 | Re-create or change a sample (`prepare`, `vitaminc-prepare`) | FEVER dev file and Wikipedia dump, or the VitaminC test file |
 
 ## Frozen samples
@@ -109,15 +109,19 @@ by the code.
 
 ## Raw VitaminC
 
-Only `test.jsonl` is used (55,197 rows, about 29 MB). **Anyone running the VitaminC sensitivity
-experiment needs it**, not just people re-creating the sample. It is published by the authors
-(GitHub `TalSchuster/VitaminC`) and on Hugging Face as `tals/vitaminc`:
+Only `test.jsonl` is used (55,197 rows, 28.7 MB, about 2.3 MB in git). **It is committed**
+(the Hugging Face export, sha256 `7ad1808d…`), so the sensitivity experiment runs from a clean
+clone with no download. It is published by the authors (GitHub `TalSchuster/VitaminC`) and on
+Hugging Face as `tals/vitaminc`; to fetch it again:
 
 ```bash
 mkdir -p data/vitaminc/raw/vitaminc
 curl -L -o data/vitaminc/raw/vitaminc/test.jsonl \
   https://huggingface.co/datasets/tals/vitaminc/resolve/main/test.jsonl
 ```
+
+`.gitignore` keeps the rest of `data/vitaminc/raw/` (the train and dev files, if you download
+them) out of git.
 
 Two byte-different exports of the same data exist:
 
@@ -130,6 +134,22 @@ Two byte-different exports of the same data exist:
 order before anything else sees a row, so the Hugging Face file yields the same 20,232 valid pairs
 and re-selects the committed 100 pairs byte for byte (verified, and covered by a test whenever the
 raw file is present). Any other hash is rejected with the list of accepted ones.
+
+## Sources and licences
+
+Both datasets are derived from Wikipedia and are redistributed here under their authors' terms:
+
+- **FEVER**: Thorne, Vlachos, Christodoulopoulos and Mittal, *FEVER: a Large-scale Dataset for Fact
+  Extraction and VERification*, NAACL-HLT 2018. Claims, labels and Wikipedia evidence sentences;
+  see the License link on the FEVER dataset page (fever.ai).
+- **VitaminC**: Schuster, Fisch and Barzilay, *Get Your Vitamin C! Robust Fact Verification with
+  Contrastive Evidence*, NAACL 2021 (`tals/vitaminc`). Its `LICENSE` states that the annotations
+  incorporate material from Wikipedia, are made available under the licence terms of the
+  applicable Wikipedia article pages or otherwise CC BY-SA 3.0, and that the synthetic annotations
+  are based on FEVER.
+
+CC BY-SA 3.0 requires attribution and that derivatives carry the same licence, so keep this
+section if you copy the data files elsewhere.
 
 ## Why the hashes matter
 

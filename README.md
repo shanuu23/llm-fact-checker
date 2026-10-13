@@ -56,7 +56,7 @@ layout and hashes. Which raw data you need depends on what you run:
 | You want to | Raw data needed |
 |---|---|
 | Run the FEVER baseline, consistency or robustness | None (the 150-claim sample is committed) |
-| Run the VitaminC sensitivity experiment | **VitaminC `test.jsonl`** (about 29 MB): the run re-validates the pairs against it |
+| Run the VitaminC sensitivity experiment | None: `test.jsonl` is committed (the run re-validates the pairs against it) |
 | Re-create the FEVER sample (`prepare`) | FEVER dev file + Wikipedia dump |
 
 ## Run the experiments
@@ -80,7 +80,7 @@ uv run factcheck consistency
 uv run factcheck robustness-smoke
 uv run factcheck robustness
 
-# VitaminC sensitivity (200 requests; needs data/vitaminc/raw/vitaminc/test.jsonl)
+# VitaminC sensitivity (200 requests; reads the committed data/vitaminc/raw/vitaminc/test.jsonl)
 uv run factcheck vitaminc-smoke
 uv run factcheck vitaminc-sensitivity
 ```

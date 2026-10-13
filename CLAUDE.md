@@ -68,8 +68,8 @@ tests/            unit tests + tests/test_golden_results.py
 - NFC page-title matching is opt-in (`scan_wikipedia(match_nfc=True)`, used by `prepare --all`):
   turning it on for the frozen sample would change it (candidate FEVER 95159 would replace
   186995) and break its hash.
-- `vitaminc-sensitivity` needs the raw `data/vitaminc/raw/vitaminc/test.jsonl` (it re-validates the
-  committed pairs against it). The FEVER experiments run from the committed sample alone.
+- `vitaminc-sensitivity` re-validates the committed pairs against `data/vitaminc/raw/vitaminc/test.jsonl`,
+  which is committed (via `.gitignore` exceptions: the rest of `raw/` stays untracked).
 - `VIRTUAL_ENV` warnings from uv are harmless; the project uses its own `.venv`.
 
 ## Current state and pending work

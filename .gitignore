@@ -1,5 +1,11 @@
 # Raw datasets are downloaded separately (several GB). Processed samples are tracked.
-data/*/raw/
+data/fever/raw/
+# ... except VitaminC's test.jsonl (2.3 MB in git), the one raw file the sensitivity experiment
+# reads, so it runs from a clean clone. Everything else under raw/ stays untracked.
+data/vitaminc/raw/*
+!data/vitaminc/raw/vitaminc/
+data/vitaminc/raw/vitaminc/*
+!data/vitaminc/raw/vitaminc/test.jsonl
 # data/fever/full/fever_dev_full.jsonl is committed (1.3 MB compressed) so nobody needs the 7.6 GB
 # Wikipedia dump to run the whole-set experiments. The perturbed inputs below are rebuilt from it
 # in about 12 s by `factcheck robustness-prepare` (29 MB), so they are not committed.

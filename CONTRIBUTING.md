@@ -12,8 +12,9 @@ make test                # must pass before you open a PR
 ```
 
 You need [uv](https://docs.astral.sh/uv/) and a local [Ollama](https://ollama.com/) with the model
-you plan to run. Raw FEVER data is optional, but running the VitaminC sensitivity experiment needs
-`test.jsonl`; see [data/README.md](data/README.md) for what each command requires.
+you plan to run. No raw data is needed to run the experiments: the samples, the whole FEVER dev set and
+VitaminC's `test.jsonl` are committed. See [data/README.md](data/README.md) for what each command
+requires.
 
 ## Branches and pull requests
 
@@ -61,7 +62,8 @@ them.
 
 ## Data
 
-- Never commit `data/*/raw/`; it is gitignored.
+- Never commit anything else under `data/*/raw/` (the FEVER dev claims, the Wikipedia dump, other
+  VitaminC splits); only VitaminC's `test.jsonl` is allowed through `.gitignore`.
 - Do not add new files under `data/*/processed/` without agreeing on them, and record any new
   file's hash in `data/HASHES.txt`.
 
