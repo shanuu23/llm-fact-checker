@@ -1,7 +1,22 @@
 # Raw datasets are downloaded separately (several GB). Processed samples are tracked.
-data/*/raw/
-# Regenerable full VitaminC indexes are local (the pilot sample remains tracked).
-data/vitaminc/processed/train_full/
+data/fever/raw/
+# ... except VitaminC's test.jsonl (2.3 MB in git), the one raw file the sensitivity experiment
+# reads, so it runs from a clean clone. Everything else under raw/ stays untracked.
+data/vitaminc/raw/*
+!data/vitaminc/raw/vitaminc/
+data/vitaminc/raw/vitaminc/*
+!data/vitaminc/raw/vitaminc/test.jsonl
+# data/fever/full/fever_dev_full.jsonl is committed (1.3 MB compressed) so nobody needs the 7.6 GB
+# Wikipedia dump to run the whole-set experiments. The perturbed inputs below are rebuilt from it
+# in about 12 s by `factcheck robustness-prepare` (29 MB), so they are not committed.
+data/fever/full/prepared/
+
+# Whole-dataset runs (*_full): commit the metrics, reports and configs, not the multi-megabyte
+# per-case predictions. Share those by link instead.
+results/*/*/*_full/predictions.jsonl
+results/*/*/*_full/predictions.partial.jsonl
+results/*/*/*_full/predictions/
+results/*/*/*_full/runs/
 
 # Personal Claude Code settings
 .claude/settings.local.json

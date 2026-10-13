@@ -13,10 +13,10 @@ import shutil
 import tempfile
 import unittest
 
-from llm_fact_checker.common import read_jsonl
-from llm_fact_checker.evaluation import calculate_metrics, evaluate_results
 from llm_fact_checker.experiments import consistency, robustness, sensitivity
+from llm_fact_checker.evaluation import calculate_metrics, evaluate_results
 from llm_fact_checker.prompts import SYSTEM_PROMPT, build_user_prompt
+from llm_fact_checker.common import read_jsonl
 
 ROOT = Path(__file__).resolve().parents[1]
 FEVER = ROOT / "results" / "fever" / "llama3.2_3b"
@@ -42,12 +42,7 @@ class PromptGoldenTests(unittest.TestCase):
         self.assertGreaterEqual(len(configs), 4)
         for path in configs:
             with self.subTest(run=str(path.relative_to(ROOT))):
-                config = load_json(path)
-                recorded = (
-                    config["prompt_template"]["system"]
-                    if "prompt_template" in config
-                    else config["contract"]["system_prompt"]
-                )
+                recorded = load_json(path)["prompt_template"]["system"]
                 self.assertEqual(SYSTEM_PROMPT, recorded)
 
     def test_user_prompt_format(self):
