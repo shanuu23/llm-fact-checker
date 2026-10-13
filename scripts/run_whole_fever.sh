@@ -6,6 +6,9 @@
 # Safe to stop and start again: every step resumes where it left off, and a step that already
 # finished is skipped. Results go to results/fever/<model_slug>/{baseline,robustness,
 # consistency_5run}_full/. Set OLLAMA_URL to use a server other than the default.
+#
+# Needs only the committed data/fever/full/fever_dev_full.jsonl: the perturbed inputs are rebuilt
+# from it in about 12 s, so neither the raw FEVER data nor the Wikipedia dump is required.
 set -euo pipefail
 
 MODEL="${1:?usage: scripts/run_whole_fever.sh <ollama-model-tag>   e.g. llama3.2:3b}"

@@ -39,6 +39,8 @@ ollama list                   # must include the exact tag llama3.2:3b
 
 The experiments call the local Ollama HTTP API directly and never download a model.
 
+**Running a model for the team?** Follow [Run a new model](#run-a-new-model).
+
 The command-line interface can be started three equivalent ways:
 
 ```bash
@@ -56,14 +58,14 @@ layout and hashes. Which raw data you need depends on what you run:
 | You want to | Raw data needed |
 |---|---|
 | Run the FEVER baseline, consistency or robustness | None (the 150-claim sample is committed) |
-| Run the VitaminC sensitivity experiment | **VitaminC `test.jsonl`** (about 29 MB): the run re-validates the pairs against it |
+| Run the VitaminC sensitivity experiment | None: `test.jsonl` is committed (the run re-validates the pairs against it) |
 | Re-create the FEVER sample (`prepare`) | FEVER dev file + Wikipedia dump |
 
 ## Run the experiments
 
 Every command refuses to overwrite existing results unless `--overwrite` is passed, and smoke tests
 (`--limit`, `*-smoke`) write to their own folders. Every command that calls a model takes
-`--model` (default `llama3.2:3b`); see [Run another model](#run-another-model).
+`--model` (default `llama3.2:3b`); see [Run a new model](#run-a-new-model).
 
 ```bash
 # FEVER baseline
@@ -80,7 +82,7 @@ uv run factcheck consistency
 uv run factcheck robustness-smoke
 uv run factcheck robustness
 
-# VitaminC sensitivity (200 requests; needs data/vitaminc/raw/vitaminc/test.jsonl)
+# VitaminC sensitivity (200 requests; reads the committed data/vitaminc/raw/vitaminc/test.jsonl)
 uv run factcheck vitaminc-smoke
 uv run factcheck vitaminc-sensitivity
 ```
@@ -90,27 +92,114 @@ frozen samples. They do not depend on a model, so their output is shared and com
 `data/fever/prepared/` and `data/vitaminc/prepared/`. Read `distractor_audit.md` and
 `pair_audit.md` there if you change how perturbations or pairs are built.
 
-## Run another model
+## Run a new model
 
-Results go to `results/<dataset>/<model_slug>/<experiment>/`, where the slug is the tag with `:`
-replaced by `_` (`qwen2.5:7b` becomes `qwen2.5_7b`), so another model never touches the Llama
-results. The prompt, samples and seeds are the same for every model, which is what makes the
-numbers comparable.
+Everything you need is in the repo: the samples, the whole FEVER dev set and VitaminC's test file
+are committed, so there is **nothing to download except your model**. The prompt, the data and the
+seeds are identical for every model, which is what makes the numbers comparable, so do not change
+them. Results land in `results/<dataset>/<model_slug>/<experiment>/`, so your run never touches
+anyone else's.
+
+**Before you start:** [uv](https://docs.astral.sh/uv/), [Ollama](https://ollama.com/) installed and
+running, and a model that fits your laptop (about 9B parameters or less on 16 GB). Check
+[CONTRIBUTING.md](CONTRIBUTING.md) for who owns which model: one owner per model.
+
+### 1. Set up (once)
 
 ```bash
-ollama pull qwen2.5:7b                         # the exact tag must appear in `ollama list`
-uv run factcheck run --model qwen2.5:7b --limit 3         # smoke test first
-uv run factcheck run --model qwen2.5:7b                   # baseline
-uv run factcheck consistency --model qwen2.5:7b
-uv run factcheck robustness --model qwen2.5:7b
-uv run factcheck vitaminc-sensitivity --model qwen2.5:7b
-git add results/*/qwen2.5_7b                              # commit your own model's folders only
+git clone https://github.com/shanuu23/llm-fact-checker.git
+cd llm-fact-checker
+git switch -c <your-name>/add-qwen2.5_7b        # a branch for your model
+uv sync
+make test                                        # should end with OK
 ```
 
-Keep to models that fit your laptop (about 9B parameters or less on 16 GB). A model that does not
-follow "return the label only" will show a high invalid-format rate; that is a result, not a bug.
-Re-score a model's saved baseline predictions with
-`uv run factcheck evaluate --model qwen2.5:7b`.
+### 2. Get the model and name it
+
+```bash
+ollama pull qwen2.5:7b
+ollama list                                      # the tag must match what you pass to --model
+MODEL=qwen2.5:7b                                 # set these two in the terminal you will use
+SLUG=qwen2.5_7b                                  # the tag with ":" and "/" replaced by "_"
+```
+
+If `ollama list` shows only `<name>:latest` and you want a specific tag, alias it without
+downloading anything: `ollama cp <name>:latest <name>:<tag>`.
+
+### 3. Smoke test (about a minute)
+
+```bash
+uv run factcheck run --model $MODEL --limit 3
+cat results/fever/$SLUG/smoke_3/metrics.json     # want: inference_failure_count 0
+rm -rf results/fever/$SLUG/smoke_3               # a smoke run is not a result; never commit it
+```
+
+If this fails, fix it here before spending hours: see the table at the end.
+
+### 4. Run the experiments
+
+**First, the frozen samples** (150 FEVER claims, 100 VitaminC pairs). These are the numbers every
+model is compared on. About 1,400 model calls: roughly 6 minutes for a 3B model, probably 15 to
+30 for a 7B.
+
+```bash
+uv run factcheck run --model $MODEL                      # correctness
+uv run factcheck consistency --model $MODEL              # stability (5 runs)
+uv run factcheck robustness --model $MODEL               # reorder + distractor
+uv run factcheck vitaminc-sensitivity --model $MODEL     # sensitivity (100 pairs)
+```
+
+**Then the whole FEVER dev set** (13,332 claims), overnight. One script runs baseline, robustness
+and consistency in order:
+
+```bash
+caffeinate -i scripts/run_whole_fever.sh $MODEL 2>&1 | tee /tmp/whole_$SLUG.log
+```
+
+| Whole-set run | Time |
+|---|---|
+| Llama 3.2 3B on a fanless MacBook Air (measured) | about 1 h for the baseline, then 6.6 h for robustness and consistency |
+| A 7B model | slower, probably 2 to 3 times (not measured) |
+
+Keep the laptop **plugged in with the lid open** and do not switch branches or edit files while it
+runs. If it stops for any reason (sleep, Ctrl-C), run the **same command again**: every step
+resumes where it left off and finished steps are skipped.
+
+### 5. Check the results, then commit and open a PR
+
+```bash
+uv run python - <<EOF
+from llm_fact_checker.results import discover_runs, select
+for run in select(discover_runs(), model="$SLUG"):
+    print(run.label, run.headline())
+EOF
+
+git add results/fever/$SLUG results/vitaminc/$SLUG
+git status                          # only results/*/<slug>/ files should be listed
+git commit -m "Add $MODEL results"
+git push -u origin HEAD
+```
+
+Open a pull request and put in the description: the model tag (the digest is in each
+`run_config.json`), which experiments you ran, the four headline numbers (baseline accuracy,
+consistency 5/5 agreement, distractor invariance, correct-flip rate), and anything unusual, such as
+a high invalid-format rate. The large per-case files of whole-set runs are git-ignored on purpose.
+
+Re-score saved baseline predictions at any time, without the model, with
+`uv run factcheck evaluate --model $MODEL`.
+
+### If something goes wrong
+
+| You see | What it means and what to do |
+|---|---|
+| `Required Ollama model '…' is not installed` | The tag does not match `ollama list` exactly. Copy it from there, or alias it with `ollama cp` |
+| `Ollama is not reachable` | Start the Ollama app (or `ollama serve`) and run the command again |
+| `Refusing to overwrite …` | Results already exist there. Add `--resume` to continue an interrupted run; use `--overwrite` only if you mean to replace them |
+| The run stopped partway | Run the same command again with `--resume` (the whole-set script resumes by itself) |
+| High `invalid_format_count` | The model does not follow "return the label only". That is a result, not a bug: do not change the prompt, mention it in your PR |
+| `inference_failure_count` above 0 | Some requests were rejected or timed out. They are recorded per case, not lost; report the count in your PR |
+| Very slow, laptop hot | Expected for 7B and larger. Plug in, lid open, and start with the frozen samples only |
+| Out of memory | Use a smaller model or a more heavily quantised tag |
 
 ## Run the whole FEVER dev set
 
@@ -119,7 +208,8 @@ SUPPORTS/REFUTES claim in the FEVER dev file, as decided in the data audit
 (`notebooks/01_data_audit_fever.ipynb`):
 
 ```bash
-uv run factcheck prepare --all          # 13 s; writes data/fever/full/fever_dev_full.jsonl
+# data/fever/full/fever_dev_full.jsonl is already in the repo. Only to rebuild it from raw data:
+# uv run factcheck prepare --all        # 13 s; needs data/fever/raw/ and the Wikipedia dump
 uv run factcheck run --model llama3.2:3b --limit 3 \
     --prepared data/fever/full/fever_dev_full.jsonl --results-dir /tmp/smoke      # smoke test
 caffeinate -i uv run factcheck run --model llama3.2:3b \

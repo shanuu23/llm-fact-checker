@@ -20,7 +20,7 @@ except ModuleNotFoundError:  # run with tests/ itself on sys.path
     from fever_fixtures import fever_record, wiki_page, write_jsonl
 
 from llm_fact_checker import cli
-from llm_fact_checker.common import read_jsonl
+from llm_fact_checker.common import file_sha256, read_jsonl
 from llm_fact_checker.data_prep.fever import audit_flags, prepare_dataset
 from llm_fact_checker.evaluation import MAX_LISTED_ERRORS, evaluate_results
 from llm_fact_checker import ollama
@@ -174,6 +174,50 @@ class WholeSetPreparationTests(unittest.TestCase):
     def test_the_committed_sample_has_no_flags_field(self):
         first = next(iter(read_jsonl(SAMPLE)))
         self.assertNotIn("flags", first)
+
+
+WHOLE_SET = ROOT / "data" / "fever" / "full" / "fever_dev_full.jsonl"
+HASHES = ROOT / "data" / "HASHES.txt"
+
+
+@unittest.skipUnless(WHOLE_SET.exists(), "whole-dataset file not present")
+class CommittedWholeSetTests(unittest.TestCase):
+    """Pins the committed whole-set file to what the FEVER data audit established."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.rows = list(read_jsonl(WHOLE_SET))
+
+    def test_every_supports_and_refutes_claim_is_present_and_balanced(self):
+        labels = {}
+        for row in self.rows:
+            labels[row["gold_label"]] = labels.get(row["gold_label"], 0) + 1
+        self.assertEqual(labels, {"SUPPORTED": 6666, "REFUTED": 6666})
+        self.assertEqual(len({row["fever_id"] for row in self.rows}), 13332)
+
+    def test_every_case_carries_its_evidence_text(self):
+        for row in self.rows:
+            self.assertTrue(row["evidence"])
+            self.assertTrue(all(item["text"].strip() for item in row["evidence"]))
+
+    def test_the_audit_flags_match_the_notebook(self):
+        flagged = [row for row in self.rows if row["flags"]]
+        self.assertEqual(len(flagged), 68)
+        self.assertEqual(
+            {label: sum(r["gold_label"] == label for r in flagged) for label in ("SUPPORTED", "REFUTED")},
+            {"SUPPORTED": 21, "REFUTED": 47},
+        )
+        self.assertEqual(sum(len(r["evidence"]) >= 2 for r in self.rows), 1204)
+
+    def test_the_file_matches_the_recorded_hash(self):
+        recorded = {
+            line.split()[1]: line.split()[0]
+            for line in HASHES.read_text().splitlines()
+            if line.strip()
+        }
+        key = "data/fever/full/fever_dev_full.jsonl"
+        self.assertIn(key, recorded)
+        self.assertEqual(file_sha256(WHOLE_SET), recorded[key])
 
 
 def make_prepared(path: Path, flagged_ids: set[int], count: int = 6) -> list[dict]:

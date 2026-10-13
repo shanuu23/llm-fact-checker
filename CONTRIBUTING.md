@@ -12,8 +12,9 @@ make test                # must pass before you open a PR
 ```
 
 You need [uv](https://docs.astral.sh/uv/) and a local [Ollama](https://ollama.com/) with the model
-you plan to run. Raw FEVER data is optional, but running the VitaminC sensitivity experiment needs
-`test.jsonl`; see [data/README.md](data/README.md) for what each command requires.
+you plan to run. No raw data is needed to run the experiments: the samples, the whole FEVER dev set and
+VitaminC's `test.jsonl` are committed. See [data/README.md](data/README.md) for what each command
+requires.
 
 ## Branches and pull requests
 
@@ -43,12 +44,16 @@ changes, so you will find out immediately.
 
 ## Adding a model
 
+Follow the step-by-step guide in the README, **"Run a new model"**. In short:
+
 1. `ollama pull <tag>` and check the exact tag appears in `ollama list`.
-2. Smoke test: `uv run factcheck run --model <tag> --limit 3`.
-3. Run the experiments with `--model <tag>` (see the README, "Run another model").
+2. Smoke test: `uv run factcheck run --model <tag> --limit 3`, then delete the `smoke_3` folder.
+3. Run the four experiments on the frozen samples, then (overnight)
+   `scripts/run_whole_fever.sh <tag>` for the whole FEVER dev set.
 4. Commit only `results/*/<model_slug>/` (the slug is the tag with `:` replaced by `_`).
 5. Open a PR named `<your-name>/add-<model_slug>`; say in the description which experiments
-   you ran and note anything unusual (for example a high invalid-format rate).
+   you ran, the four headline numbers, and anything unusual (for example a high invalid-format
+   rate).
 
 Nothing else changes: the prompt, samples and seeds are shared, so your numbers sit next to
 everyone else's. One owner per model avoids two people overwriting the same folder.
@@ -61,7 +66,8 @@ them.
 
 ## Data
 
-- Never commit `data/*/raw/`; it is gitignored.
+- Never commit anything else under `data/*/raw/` (the FEVER dev claims, the Wikipedia dump, other
+  VitaminC splits); only VitaminC's `test.jsonl` is allowed through `.gitignore`.
 - Do not add new files under `data/*/processed/` without agreeing on them, and record any new
   file's hash in `data/HASHES.txt`.
 
