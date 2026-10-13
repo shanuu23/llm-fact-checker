@@ -1,0 +1,56 @@
+{
+  "experiment": "FEVER five-run repeatability",
+  "prepared_dataset_path": "data/fever/full/fever_dev_full.jsonl",
+  "prepared_dataset_sha256": "46d03c136a5774811e00a92c67c9ad84f78b1daad981bf17c7a07a74f5474882",
+  "expected_dataset_sha256": "6bc7cf910cb0b31186e5fc397ebc7cefab2de1ee65d29ae601e369d8758344cb",
+  "full_dataset_size": 13332,
+  "full_dataset_class_balance": {
+    "SUPPORTED": 6666,
+    "REFUTED": 6666
+  },
+  "sample_size": 13332,
+  "ollama_model": "llama3.2:3b",
+  "temperature": 0.2,
+  "run_seeds": [
+    101,
+    202,
+    303,
+    404,
+    505
+  ],
+  "prompt_template": {
+    "system": "You are an evidence-grounded fact verifier.\n\nDetermine whether the provided evidence supports, refutes, or does not provide enough information to determine the claim.\n\nUse only the supplied evidence. Do not rely on outside knowledge.\n\nReturn exactly one of:\n\nSUPPORTED\nREFUTED\nNOT ENOUGH INFORMATION\n\nReturn the label only. Do not provide an explanation.",
+    "user": "Claim:\n<claim>\n\nEvidence:\n<numbered evidence>"
+  },
+  "run_timestamp_utc": "2026-10-12T17:01:09.158321+00:00",
+  "python_version": "3.12.13",
+  "ollama_version": "0.34.0",
+  "ollama_model_metadata": {
+    "name": "llama3.2:3b",
+    "model": "llama3.2:3b",
+    "modified_at": "2026-10-13T00:01:50.892665409+11:00",
+    "size": 2019393189,
+    "digest": "a80c4f17acd55265feec403c7aef86be0c25983ab279d83f3bcd3abbcb5b8b72",
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "llama",
+      "families": [
+        "llama"
+      ],
+      "parameter_size": "3.2B",
+      "quantization_level": "Q4_K_M",
+      "context_length": 131072,
+      "embedding_length": 3072
+    },
+    "capabilities": [
+      "completion",
+      "tools"
+    ]
+  },
+  "relevant_package_versions": {
+    "llm_fact_checker": "0.0.1",
+    "http_client": "urllib (standard library)"
+  },
+  "git_commit": "b231cf94f4abeb0cd0b686f11d6a45bb0c3f2a0a"
+}
