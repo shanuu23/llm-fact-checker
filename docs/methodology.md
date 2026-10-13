@@ -4,6 +4,10 @@ This project measures whether a model behaves like a reliable evidence-grounded 
 evaluates existing models; nothing is trained. Everything below describes what is *implemented and
 frozen* so results from different models are comparable.
 
+The larger, post-pilot evaluation has separate scoring rules in
+[full_evaluation_protocol.md](full_evaluation_protocol.md). Its workload and model lineup are not
+yet frozen; the 150-case and 100-pair pilot results below are not the full evaluation.
+
 ## Common setup
 
 - **Task:** given a claim and supplied evidence, answer `SUPPORTED`, `REFUTED` or

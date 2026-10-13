@@ -1,0 +1,21 @@
+{
+  "contract": {
+    "schema_version": 1,
+    "model": "llama3.2:3b",
+    "provider": "ollama",
+    "ollama_url": "http://localhost:11434",
+    "seed": 42,
+    "temperature": 0,
+    "transport_retries": 2,
+    "source_hashes": {
+      "prepared": "2511951db73f1f7c266f06e41256fa67b2219a759c25304de4c9289d78f31aec"
+    },
+    "cases_sha256": "60944fceb5fcaf226457659323b18b7133a9a60f826ad569b4fd91433bd14910",
+    "case_count": 13332,
+    "prompt_source_sha256": "36273ba9bf9c6de93bdc7873ad9f4a37546286cc55b6e9942198b9ef85131cff",
+    "system_prompt": "You are an evidence-grounded fact verifier.\n\nDetermine whether the provided evidence supports, refutes, or does not provide enough information to determine the claim.\n\nUse only the supplied evidence. Do not rely on outside knowledge.\n\nReturn exactly one of:\n\nSUPPORTED\nREFUTED\nNOT ENOUGH INFORMATION\n\nReturn the label only. Do not provide an explanation."
+  },
+  "model_digest": "a80c4f17acd55265feec403c7aef86be0c25983ab279d83f3bcd3abbcb5b8b72",
+  "ollama_version": "0.34.4",
+  "created_utc": "2026-10-12T15:26:42.847832+00:00"
+}
