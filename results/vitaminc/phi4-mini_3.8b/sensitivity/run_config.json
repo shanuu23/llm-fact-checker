@@ -1,0 +1,52 @@
+{
+  "experiment": "VitaminC contrastive sensitivity",
+  "raw_test_path": "data/vitaminc/raw/vitaminc/test.jsonl",
+  "raw_test_sha256": "7ad1808dbc30c62e0a1427a53022d0dfaff668a1fde3c4b612a2d266edd753ad",
+  "raw_test_rows": 55197,
+  "raw_label_counts": {
+    "NOT ENOUGH INFO": 7268,
+    "REFUTES": 20265,
+    "SUPPORTS": 27664
+  },
+  "processed_pairs_path": "data/vitaminc/processed/vitaminc_sensitivity_100_pairs.jsonl",
+  "pair_selection": "frozen sample",
+  "full_pair_count": 100,
+  "unique_claims": 100,
+  "sample_size_pairs": 100,
+  "pairing_method": "exact case_id plus exact claim; exactly one SUPPORTS and one REFUTES row; different evidence",
+  "ollama_model": "phi4-mini:3.8b",
+  "temperature": 0,
+  "model_seed": 42,
+  "prompt_template": {
+    "system": "You are an evidence-grounded fact verifier.\n\nDetermine whether the provided evidence supports, refutes, or does not provide enough information to determine the claim.\n\nUse only the supplied evidence. Do not rely on outside knowledge.\n\nReturn exactly one of:\n\nSUPPORTED\nREFUTED\nNOT ENOUGH INFORMATION\n\nReturn the label only. Do not provide an explanation.",
+    "user": "Claim:\n<claim>\n\nEvidence:\n<numbered evidence>"
+  },
+  "run_timestamp_utc": "2026-10-13T09:35:21.273002+00:00",
+  "python_version": "3.12.13",
+  "ollama_version": "0.40.3",
+  "ollama_model_metadata": {
+    "name": "phi4-mini:3.8b",
+    "model": "phi4-mini:3.8b",
+    "modified_at": "2026-10-13T20:14:19.985164246+11:00",
+    "size": 2491876774,
+    "digest": "78fad5d182a7c33065e153a5f8ba210754207ba9d91973f57dffa7f487363753",
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "phi3",
+      "families": [
+        "phi3"
+      ],
+      "parameter_size": "3.8B",
+      "quantization_level": "Q4_K_M",
+      "context_length": 131072,
+      "embedding_length": 3072,
+      "runner": "ggml"
+    },
+    "capabilities": [
+      "completion",
+      "tools"
+    ]
+  },
+  "git_commit": "df7a2b54330da3f42f176f9a89b1dbadd4b818fb"
+}
