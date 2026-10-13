@@ -1,0 +1,75 @@
+fever_id,claim,gold_label,parsed_prediction,valid_format,inference_error,raw_model_output
+2466,Cheese in the Trap (TV series) stars Batman.,REFUTED,SUPPORTED,True,,SUPPORTED
+3149,No Country for Old Men starred Harrison Ford.,REFUTED,SUPPORTED,True,,SUPPORTED
+4058,Balibo (film) involves zero journalist.,REFUTED,SUPPORTED,True,,SUPPORTED
+10810,Halsey signed her first recording contract in 1914.,REFUTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+11730,"Harold Macmillan was born on February 10, 1794.",REFUTED,SUPPORTED,True,,SUPPORTED
+19177,Victoria Palace Theatre is on the same side as a central London railway terminus.,REFUTED,SUPPORTED,True,,SUPPORTED
+20493,"Super Bowl XLV was played on February 6, 2011 in Jamaica.",REFUTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+34105,"Phoenix, Arizona is the most populous country.",REFUTED,SUPPORTED,True,,SUPPORTED
+34496,Email filtering output is capable of redirecting birds elsewhere.,REFUTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+35291,Samsung exited the electronics industry in the late 1960s.,REFUTED,SUPPORTED,True,,SUPPORTED
+35708,Seohyun is only German.,REFUTED,SUPPORTED,True,,SUPPORTED
+36501,Bhagat Singh was not executed.,REFUTED,SUPPORTED,True,,SUPPORTED
+39599,Red Holt died before Steve Wozniak was born.,REFUTED,SUPPORTED,True,,SUPPORTED
+44347,Duff McKagan was born in May of 1964.,REFUTED,SUPPORTED,True,,SUPPORTED
+48047,Konidela Production Company was established by Amitabh Bachchan.,REFUTED,SUPPORTED,True,,SUPPORTED
+49775,Baloch people rarely speak the Balochi language.,REFUTED,SUPPORTED,True,,SUPPORTED
+60763,Dan Trachtenberg is a radio show host.,REFUTED,SUPPORTED,True,,SUPPORTED
+65790,Randy Savage has a high voice.,REFUTED,SUPPORTED,True,,SUPPORTED
+70022,Veep is not a television show.,REFUTED,SUPPORTED,True,,SUPPORTED
+76166,"Camden, New Jersey is in a county in New Jersey.",REFUTED,SUPPORTED,True,,SUPPORTED
+77162,The Mod Squad is a Peruvian television series.,REFUTED,SUPPORTED,True,,SUPPORTED
+82450,One True Thing is a book.,REFUTED,SUPPORTED,True,,SUPPORTED
+85191,"Scotty Moore died on June 28, 2010.",REFUTED,SUPPORTED,True,,SUPPORTED
+85702,The Challenge XXX: Dirty 30 is a season of a show on Syfy.,REFUTED,SUPPORTED,True,,SUPPORTED
+86829,"Chris Kyle did not die on February 2, 2013.",REFUTED,SUPPORTED,True,,SUPPORTED
+87483,Dakota Fanning is a dancer.,REFUTED,SUPPORTED,True,,SUPPORTED
+88425,Exit the King is by Alexander Hamilton.,REFUTED,SUPPORTED,True,,SUPPORTED
+90517,Colombiana was released in 2001.,REFUTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+90865,Salman Rushdie is a German politician.,REFUTED,SUPPORTED,True,,SUPPORTED
+92687,Guillermo del Toro is not a novelist.,REFUTED,SUPPORTED,True,,SUPPORTED
+93416,Aubrey Anderson-Emmons did not star on Modern Family.,REFUTED,SUPPORTED,True,,SUPPORTED
+94861,The Winds of Winter is the eighth book in a series.,REFUTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+97589,The Adventures of Pluto Nash was released in Africa.,REFUTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+99904,"Ashley Cole was born December 10, 1977.",REFUTED,SUPPORTED,True,,SUPPORTED
+103298,"Phoenix, Arizona is not the capital of Arizona.",REFUTED,SUPPORTED,True,,SUPPORTED
+104735,Victor Manuelle was uninvolved with every version of Despacito.,REFUTED,SUPPORTED,True,,SUPPORTED
+105025,The Faroe Islands disappeared in 1035.,REFUTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+106928,Mamata Banerjee has only ever been called Mamata Banerjee.,REFUTED,SUPPORTED,True,,SUPPORTED
+112585,A sailor shirt is typically worn by Donald Duck.,SUPPORTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+113214,The Atlanta metropolitan area spans only 10 counties.,REFUTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+113990,Chile is a food.,REFUTED,SUPPORTED,True,,SUPPORTED
+114748,Kung Fu Panda made $75 million during its opening weekend.,REFUTED,SUPPORTED,True,,SUPPORTED
+123285,Noah Cyrus was born in 1991.,REFUTED,SUPPORTED,True,,SUPPORTED
+123785,Olympic medals have always displayed the Colosseum.,REFUTED,SUPPORTED,True,,SUPPORTED
+124730,The vacuum cleaner is one of the ABC Islands.,REFUTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+126292,"Camden, New Jersey is a county.",REFUTED,SUPPORTED,True,,SUPPORTED
+131006,You Belong with Me is a fan club.,REFUTED,SUPPORTED,True,,SUPPORTED
+131495,Kuching is in the state of Johor.,REFUTED,SUPPORTED,True,,SUPPORTED
+138356,"Murda Beatz was born on February 11, 1984.",REFUTED,SUPPORTED,True,,SUPPORTED
+139636,Stan Beeman is only in modern comedies.,REFUTED,SUPPORTED,True,,SUPPORTED
+140353,Henry II of France did not die.,REFUTED,SUPPORTED,True,,SUPPORTED
+144611,Agent Raghav – Crime Branch lacked any nominations.,REFUTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+149501,Kung Fu Panda was number three at the box office.,REFUTED,SUPPORTED,True,,SUPPORTED
+150096,Trollhunters is a squid.,REFUTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+150357,Musala is a valley.,REFUTED,SUPPORTED,True,,SUPPORTED
+155704,West Virginia borders Maine and Kentucky to the southwest.,REFUTED,SUPPORTED,True,,SUPPORTED
+156098,Benjamin Franklin was born in 1790.,REFUTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+158017,Two of Mozart's sons were alive after his death.,SUPPORTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+161007,Gal Gadot was ranked behind Esti Ginzburgh for highest earning actress/models in Israel.,REFUTED,SUPPORTED,True,,SUPPORTED
+161787,Planet Hollywood Las Vegas is owned by Universal Studios.,REFUTED,SUPPORTED,True,,SUPPORTED
+175643,Fabian Nicieza only writes screenplays.,REFUTED,SUPPORTED,True,,SUPPORTED
+177855,Milk is based on the life of a businessman.,REFUTED,SUPPORTED,True,,SUPPORTED
+182936,The soundtrack of Far from the Madding Crowd was only by a French composer.,REFUTED,SUPPORTED,True,,SUPPORTED
+183468,Henry III of France was succeeded by another Henry.,SUPPORTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+184420,Premam had a theatrical run of 151 days in 2012.,REFUTED,SUPPORTED,True,,SUPPORTED
+185288,Bradley Fuller is the sole owner of Platinum Dunes.,REFUTED,SUPPORTED,True,,SUPPORTED
+186995,The Bermuda Triangle is located completely within the Dead Sea.,REFUTED,SUPPORTED,True,,SUPPORTED
+198084,Story of My Life wasn't recorded by One Direction.,REFUTED,SUPPORTED,True,,SUPPORTED
+200279,Natural Born Killers was based upon Tarantino's original screenplay without revision.,REFUTED,SUPPORTED,True,,SUPPORTED
+201115,"Marcus Bentley was born on November 5th, 1267.",REFUTED,SUPPORTED,True,,SUPPORTED
+201748,North Vietnam existed from 1945 to 1978.,REFUTED,SUPPORTED,True,,SUPPORTED
+202050,Tamerlan Tsarnaev was an only child.,REFUTED,SUPPORTED,True,,SUPPORTED
+211278,The Closer's final season began in July 2013.,REFUTED,SUPPORTED,True,,SUPPORTED
+217212,A monk only avoids practicing religious asceticism.,REFUTED,SUPPORTED,True,,SUPPORTED

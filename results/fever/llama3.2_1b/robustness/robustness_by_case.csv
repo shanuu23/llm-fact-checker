@@ -1,0 +1,151 @@
+fever_id,claim,gold_label,control_prediction,reorder_eligible,reorder_prediction,reorder_prediction_changed,reorder_outcome,distractor_prediction,distractor_prediction_changed,distractor_outcome
+1423,Roberto Orci wrote Star Trek.,SUPPORTED,SUPPORTED,True,SUPPORTED,False,STAYED_CORRECT,SUPPORTED,False,STAYED_CORRECT
+1917,The current Duke of York has been unmarried since his 1996 divorce.,SUPPORTED,SUPPORTED,True,SUPPORTED,False,STAYED_CORRECT,SUPPORTED,False,STAYED_CORRECT
+2466,Cheese in the Trap (TV series) stars Batman.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+3149,No Country for Old Men starred Harrison Ford.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+3201,Zoe Saldana was born in 1978.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+4058,Balibo (film) involves zero journalist.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+7702,An American directed One True Thing.,SUPPORTED,SUPPORTED,True,SUPPORTED,False,STAYED_CORRECT,SUPPORTED,False,STAYED_CORRECT
+10650,Rehab is Amy Winehouse's signature song.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+10810,Halsey signed her first recording contract in 1914.,REFUTED,NOT ENOUGH INFORMATION,False,,,INELIGIBLE,NOT ENOUGH INFORMATION,False,STAYED_WRONG
+11730,"Harold Macmillan was born on February 10, 1794.",REFUTED,SUPPORTED,False,,,INELIGIBLE,NOT ENOUGH INFORMATION,True,STAYED_WRONG
+11989,Scream has some level of success.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+12450,"According to some, Zoroastrianism's major features have been influential.",SUPPORTED,SUPPORTED,False,,,INELIGIBLE,NOT ENOUGH INFORMATION,True,HARMFUL_FLIP
+14820,John Perry Barlow was an associate of the Grateful Dead.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+15482,"South Island is sometimes referred to as the ""mainland"" of New Zealand.",SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+16007,Riverdale is an adaptation.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+17218,Pharmacology deals with the elucidation of molecular and organismal function in relation to chemicals.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+18614,Matthew Gray Gubler is a model.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+19177,Victoria Palace Theatre is on the same side as a central London railway terminus.,REFUTED,SUPPORTED,True,SUPPORTED,False,STAYED_WRONG,SUPPORTED,False,STAYED_WRONG
+20493,"Super Bowl XLV was played on February 6, 2011 in Jamaica.",REFUTED,NOT ENOUGH INFORMATION,False,,,INELIGIBLE,SUPPORTED,True,STAYED_WRONG
+21493,Yugoslavia was in Southeast Europe.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+22092,Meteora is an album by Linkin Park.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+23198,Miranda Otto began her film acting career at age 18.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+27701,"Phoenix, Arizona is in the southwestern United States.",SUPPORTED,SUPPORTED,True,SUPPORTED,False,STAYED_CORRECT,SUPPORTED,False,STAYED_CORRECT
+31675,Jed Whedon is the son of a screenwriter.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+32595,Castlevania was developed by Konami.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+32939,Louis Malle produced films.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+34105,"Phoenix, Arizona is the most populous country.",REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+34357,Mount Hood belongs to the Pacific Northwest.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,NOT ENOUGH INFORMATION,True,HARMFUL_FLIP
+34496,Email filtering output is capable of redirecting birds elsewhere.,REFUTED,NOT ENOUGH INFORMATION,False,,,INELIGIBLE,NOT ENOUGH INFORMATION,False,STAYED_WRONG
+35291,Samsung exited the electronics industry in the late 1960s.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+35708,Seohyun is only German.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+35858,MSG has a savory taste.,SUPPORTED,SUPPORTED,True,SUPPORTED,False,STAYED_CORRECT,SUPPORTED,False,STAYED_CORRECT
+36501,Bhagat Singh was not executed.,REFUTED,SUPPORTED,False,,,INELIGIBLE,NOT ENOUGH INFORMATION,True,STAYED_WRONG
+37250,Production took place in Sydney for the movie Australia (2008 film).,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+39599,Red Holt died before Steve Wozniak was born.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+40641,Harry Fraud interned at a studio.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+44347,Duff McKagan was born in May of 1964.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+46754,Little Dorrit was originally published in serial form.,SUPPORTED,SUPPORTED,True,SUPPORTED,False,STAYED_CORRECT,SUPPORTED,False,STAYED_CORRECT
+48047,Konidela Production Company was established by Amitabh Bachchan.,REFUTED,SUPPORTED,False,,,INELIGIBLE,NOT ENOUGH INFORMATION,True,STAYED_WRONG
+48541,"UNESCO's City of Literature program aims to advocate for the social, economic and cultural development of cities in both the developed and the developing world.",SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+49775,Baloch people rarely speak the Balochi language.,REFUTED,SUPPORTED,False,,,INELIGIBLE,NOT ENOUGH INFORMATION,True,STAYED_WRONG
+51757,The KGB was not a military service.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+51885,A Good Day to Die Hard was directed by John Moore.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+53062,Tim McGraw had a supporting role in a film.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+54701,Shannon Lee acts.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+58415,Ludwig van Beethoven was part of the classical era.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+59144,Kevin Kline stars in The Road to El Dorado.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+60763,Dan Trachtenberg is a radio show host.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+65790,Randy Savage has a high voice.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+70022,Veep is not a television show.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+73466,Colombiana was released after 2000.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,NOT ENOUGH INFORMATION,True,HARMFUL_FLIP
+74583,Antigua and Barbuda was named by Christopher Columbus in 1493.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+75217,The Gettysburg Address was exclusively a movie.,REFUTED,REFUTED,False,,,INELIGIBLE,NOT ENOUGH INFORMATION,True,HARMFUL_FLIP
+76165,"Camden, New Jersey is in Camden County, New Jersey.",SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+76166,"Camden, New Jersey is in a county in New Jersey.",REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+77162,The Mod Squad is a Peruvian television series.,REFUTED,SUPPORTED,False,,,INELIGIBLE,NOT ENOUGH INFORMATION,True,STAYED_WRONG
+79340,"The Washington Monument is constructed from marble, granite, and bluestone gneiss.",SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+82450,One True Thing is a book.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+85191,"Scotty Moore died on June 28, 2010.",REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+85702,The Challenge XXX: Dirty 30 is a season of a show on Syfy.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+86829,"Chris Kyle did not die on February 2, 2013.",REFUTED,SUPPORTED,False,,,INELIGIBLE,NOT ENOUGH INFORMATION,True,STAYED_WRONG
+87483,Dakota Fanning is a dancer.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+88425,Exit the King is by Alexander Hamilton.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+90314,Billboard Dad was released in the 1990s.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+90517,Colombiana was released in 2001.,REFUTED,NOT ENOUGH INFORMATION,False,,,INELIGIBLE,SUPPORTED,True,STAYED_WRONG
+90865,Salman Rushdie is a German politician.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+92687,Guillermo del Toro is not a novelist.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+93416,Aubrey Anderson-Emmons did not star on Modern Family.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+94746,Lemmy had a distinct gravelly voice that made him known.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+94861,The Winds of Winter is the eighth book in a series.,REFUTED,NOT ENOUGH INFORMATION,False,,,INELIGIBLE,SUPPORTED,True,STAYED_WRONG
+97589,The Adventures of Pluto Nash was released in Africa.,REFUTED,NOT ENOUGH INFORMATION,False,,,INELIGIBLE,NOT ENOUGH INFORMATION,False,STAYED_WRONG
+97926,James Earl Jones is known for his voice acting.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+99251,"In 2015, among Americans, more than 50% of adults had consumed alcoholic drink in the last year.",SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+99904,"Ashley Cole was born December 10, 1977.",REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+103298,"Phoenix, Arizona is not the capital of Arizona.",REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+104735,Victor Manuelle was uninvolved with every version of Despacito.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+105025,The Faroe Islands disappeared in 1035.,REFUTED,NOT ENOUGH INFORMATION,False,,,INELIGIBLE,NOT ENOUGH INFORMATION,False,STAYED_WRONG
+106928,Mamata Banerjee has only ever been called Mamata Banerjee.,REFUTED,SUPPORTED,False,,,INELIGIBLE,NOT ENOUGH INFORMATION,True,STAYED_WRONG
+112585,A sailor shirt is typically worn by Donald Duck.,SUPPORTED,NOT ENOUGH INFORMATION,False,,,INELIGIBLE,NOT ENOUGH INFORMATION,False,STAYED_WRONG
+113214,The Atlanta metropolitan area spans only 10 counties.,REFUTED,NOT ENOUGH INFORMATION,False,,,INELIGIBLE,NOT ENOUGH INFORMATION,False,STAYED_WRONG
+113990,Chile is a food.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+114620,Kevin Costner has won things.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+114625,Tye Sheridan is an American actor.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+114748,Kung Fu Panda made $75 million during its opening weekend.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+116129,Salt River Valley is a river valley that contains the Phoenix metropolitan area.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+123285,Noah Cyrus was born in 1991.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+123785,Olympic medals have always displayed the Colosseum.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+124730,The vacuum cleaner is one of the ABC Islands.,REFUTED,NOT ENOUGH INFORMATION,False,,,INELIGIBLE,SUPPORTED,True,STAYED_WRONG
+126292,"Camden, New Jersey is a county.",REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+131006,You Belong with Me is a fan club.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+131087,The NAACP Image Award for Outstanding Supporting Actor in a Drama Series has been won by Joe Morton.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+131495,Kuching is in the state of Johor.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+135928,Dulquer Salmaan was nominated for a Filmfare Award.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+138356,"Murda Beatz was born on February 11, 1984.",REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+139433,Elizabeth of York was married to King George.,REFUTED,REFUTED,False,,,INELIGIBLE,SUPPORTED,True,HARMFUL_FLIP
+139636,Stan Beeman is only in modern comedies.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+140032,Georges Gilles de la Tourette failed to describe symptoms in nine patients.,REFUTED,REFUTED,False,,,INELIGIBLE,SUPPORTED,True,HARMFUL_FLIP
+140353,Henry II of France did not die.,REFUTED,SUPPORTED,False,,,INELIGIBLE,NOT ENOUGH INFORMATION,True,STAYED_WRONG
+143046,Henry Cavill played Superman.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+144188,Always was directed by a director.,SUPPORTED,SUPPORTED,True,SUPPORTED,False,STAYED_CORRECT,SUPPORTED,False,STAYED_CORRECT
+144611,Agent Raghav – Crime Branch lacked any nominations.,REFUTED,NOT ENOUGH INFORMATION,False,,,INELIGIBLE,NOT ENOUGH INFORMATION,False,STAYED_WRONG
+144715,"Ian Gillan was born on August 19, 1945.",SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+145938,Proponents of globalism tend to advocate for changes to global policy.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+147730,Danger UXB is on a commercial TV network in Europe.,SUPPORTED,SUPPORTED,True,SUPPORTED,False,STAYED_CORRECT,SUPPORTED,False,STAYED_CORRECT
+149501,Kung Fu Panda was number three at the box office.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+150096,Trollhunters is a squid.,REFUTED,NOT ENOUGH INFORMATION,False,,,INELIGIBLE,SUPPORTED,True,STAYED_WRONG
+150357,Musala is a valley.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+150636,Kareena Kapoor wrote negative reviews.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+155704,West Virginia borders Maine and Kentucky to the southwest.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+156098,Benjamin Franklin was born in 1790.,REFUTED,NOT ENOUGH INFORMATION,False,,,INELIGIBLE,NOT ENOUGH INFORMATION,False,STAYED_WRONG
+158017,Two of Mozart's sons were alive after his death.,SUPPORTED,NOT ENOUGH INFORMATION,False,,,INELIGIBLE,SUPPORTED,True,BENEFICIAL_FLIP
+159585,"On December 17th, 2009, Dan O'Bannon passed away.",SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+161007,Gal Gadot was ranked behind Esti Ginzburgh for highest earning actress/models in Israel.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+161787,Planet Hollywood Las Vegas is owned by Universal Studios.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+163812,The Ukrainian Soviet Socialist Republic became Ukraine before the founding of the United Nations.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,NOT ENOUGH INFORMATION,True,HARMFUL_FLIP
+164101,Annie is a movie.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+168076,Jean-Jacques Dessalines was the first ruler of independent Hati in 1805.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,NOT ENOUGH INFORMATION,True,HARMFUL_FLIP
+169993,The Brat Pack is a nickname given to a group of elderly actors.,REFUTED,REFUTED,False,,,INELIGIBLE,SUPPORTED,True,HARMFUL_FLIP
+175643,Fabian Nicieza only writes screenplays.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+175656,Fabian Nicieza is a writer.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+177855,Milk is based on the life of a businessman.,REFUTED,SUPPORTED,False,,,INELIGIBLE,NOT ENOUGH INFORMATION,True,STAYED_WRONG
+181132,So You Think You Can Dance's premiere had viewers.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+182456,Epistemology studies the nature of knowledge and the rationality of belief.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+182936,The soundtrack of Far from the Madding Crowd was only by a French composer.,REFUTED,SUPPORTED,True,SUPPORTED,False,STAYED_WRONG,SUPPORTED,False,STAYED_WRONG
+183468,Henry III of France was succeeded by another Henry.,SUPPORTED,NOT ENOUGH INFORMATION,False,,,INELIGIBLE,SUPPORTED,True,BENEFICIAL_FLIP
+184052,Kenneth Lonergan is a writer of screenplays.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+184420,Premam had a theatrical run of 151 days in 2012.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+185167,You Only Live Twice was directed by Lewis Gilbert.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+185288,Bradley Fuller is the sole owner of Platinum Dunes.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+186320,The Hunchback of Notre Dame is based off of a book.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+186995,The Bermuda Triangle is located completely within the Dead Sea.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+188977,William Cohen is from Maine.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+193852,Barry Van Dyke is an American actor.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+195122,Backing vocalists sing with other backing vocalists.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+196158,Sixteen Primetime Emmy Award nominations have gone to actor Jon Hamm.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+198084,Story of My Life wasn't recorded by One Direction.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+200279,Natural Born Killers was based upon Tarantino's original screenplay without revision.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+201115,"Marcus Bentley was born on November 5th, 1267.",REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+201748,North Vietnam existed from 1945 to 1978.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+202050,Tamerlan Tsarnaev was an only child.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+203610,The 1974 crime film The Sugarland Express was American auteur Steven Spielberg's directorial debut.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+206454,Uta Hagan has a middle name.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+209354,Alexandria serves 80% of Egypt's imports and exports.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+211278,The Closer's final season began in July 2013.,REFUTED,SUPPORTED,True,SUPPORTED,False,STAYED_WRONG,SUPPORTED,False,STAYED_WRONG
+217212,A monk only avoids practicing religious asceticism.,REFUTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_WRONG
+217381,Fiji Hindi has been subject to considerable influence.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+222764,Practical Magic is based on a novel that was written by someone.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+224137,Celebrity Rehab with Dr. Drew is a TV show.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+224558,Vampire Academy was a critical failure.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
+226440,Chadwick Boseman portrayed James Brown.,SUPPORTED,SUPPORTED,False,,,INELIGIBLE,SUPPORTED,False,STAYED_CORRECT
