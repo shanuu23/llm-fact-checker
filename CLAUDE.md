@@ -28,7 +28,7 @@ llm_fact_checker/
   cli.py          argparse only          prompts.py     FROZEN prompt, labels, parser
   common.py       shared helpers         ollama.py      HTTP client + inference loop
   evaluation.py   baseline metrics       data_prep/     fever.py, vitaminc.py
-  results.py      read-only results loader
+  results.py      read-only results loader   models.py   default model + model_slug()
   experiments/    baseline, consistency, robustness, sensitivity
 data/             raw (gitignored), processed samples (tracked), HASHES.txt
 results/          <dataset>/<model_slug>/<experiment>/, committed
@@ -55,6 +55,9 @@ tests/            unit tests + tests/test_golden_results.py
   is empty after `factcheck evaluate`.
 - Tests use tiny synthetic fixtures and never call Ollama or read the Wikipedia dump.
 - Use `git mv` for moves so history follows files.
+- Result files are written atomically (`common.write_jsonl`, `write_text_atomic`) and the metrics
+  file is written LAST, because `--resume` treats its existence as "this run is finished". Keep
+  that order when adding outputs.
 
 ## Gotchas
 
@@ -62,6 +65,11 @@ tests/            unit tests + tests/test_golden_results.py
   `llama3.2:latest`, alias it: `ollama cp llama3.2:latest llama3.2:3b` (same weights, no download).
 - The Wikipedia dump path is doubled on purpose: `data/fever/raw/wiki-pages/wiki-pages/`.
 - The FEVER sample has no gold NEI cases, so any NEI answer counts as wrong there.
+- NFC page-title matching is opt-in (`scan_wikipedia(match_nfc=True)`, used by `prepare --all`):
+  turning it on for the frozen sample would change it (candidate FEVER 95159 would replace
+  186995) and break its hash.
+- `vitaminc-sensitivity` re-validates the committed pairs against `data/vitaminc/raw/vitaminc/test.jsonl`,
+  which is committed (via `.gitignore` exceptions: the rest of `raw/` stays untracked).
 - `VIRTUAL_ENV` warnings from uv are harmless; the project uses its own `.venv`.
 
 ## Current state and pending work
@@ -70,19 +78,23 @@ Done: the Llama 3.2 3B pilot on all four experiments (committed under `results/`
 
 Pending, in order:
 
-1. **Multi-model support.** `MODEL = "llama3.2:3b"` is hard-coded in four experiment modules and
-   result directories are hard-coded to `llama3.2_3b`. Add `--model` and derive paths from the
-   model slug (`:` becomes `_`). Planned models: `qwen2.5:7b`, `gemma3:4b`.
-2. **Full-dataset run** (optional extension, not a replacement for the frozen sample): all 13,332
-   SUPPORTS/REFUTES FEVER dev claims, needing a resumable runner (predictions are currently written
-   only after a run completes), NFC-normalised Wikipedia page matching (the audit found 32
-   accented titles that fail without it), and a separate results folder. About 3 hours per model
-   for the baseline at ~0.75 s per call.
-3. **VitaminC hash.** The Hugging Face export of `test.jsonl` differs byte-wise from the file used
-   in the pilot (extra `big_bench_canary` field) but is content-identical. The loader accepts only
-   the pilot hash. Plan: accept both. Do not change `EXPECTED_TEST_SHA256` until the team agrees.
-4. **Baseline hash gate.** `run` neither checks nor records the sample hash (consistency and
-   robustness do).
+1. **Run the other models** (`qwen2.5:7b`, `gemma3:4b`). Multi-model support is in place: every
+   model-calling command takes `--model` and writes to `results/<dataset>/<model_slug>/...`.
+   Perturbed inputs and audits are model-independent and live in `data/*/prepared/`.
+2. **Full-dataset run**: done for the FEVER baseline. `data/fever/full/fever_dev_full.jsonl` (all
+   13,332 claims) is committed, so no raw data is needed to run it; `factcheck prepare --all`
+   rebuilds it from raw data (same bytes) and builds all 13,332
+   claims (no de-duplication, audit flags in `flags`, NFC title matching) and `factcheck run
+   --prepared data/fever/full/fever_dev_full.jsonl --results-dir …/baseline_full [--resume]` runs
+   it, saving each answer as it arrives and writing `metrics_excluding_flagged.json` alongside
+   `metrics.json`. Consistency and robustness run on it too (`scripts/run_whole_fever.sh <model>`
+   runs all steps unattended and resumes). Still frozen-sample only: VitaminC sensitivity (100
+   pairs hard-coded).
+3. **Sample size is still hard-coded** to 150 claims / 100 pairs in `consistency.py`,
+   `robustness.py`, `sensitivity.py` and `data_prep/fever.py` (`per_label`). A larger sample needs
+   those checks generalised.
+4. **Baseline hash gate.** `run` now records the sample hash in `run_config.json` (as consistency
+   and robustness do) but, unlike them, does not refuse to run on a different sample.
 5. **Comparison and a Streamlit app** that reads `results/` only and never runs inference. The
    read-only loader `llm_fact_checker/results.py` exists (`discover_runs`, `select`,
    `ResultRun.headline/metrics/config/provenance/cases`); build the comparison and app on it

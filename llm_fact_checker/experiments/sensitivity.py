@@ -22,6 +22,7 @@ from llm_fact_checker.data_prep.vitaminc import (
     validate_pairs,
     validate_pairs_against_candidates,
 )
+from llm_fact_checker.models import DEFAULT_MODEL
 from llm_fact_checker.ollama import OllamaClient, infer_cases
 from llm_fact_checker.prompts import ALLOWED_LABELS, SYSTEM_PROMPT
 
@@ -33,7 +34,6 @@ PAIR_OUTCOMES = (
     "WRONG_DIRECTION",
     "OTHER_ERROR",
 )
-MODEL = "llama3.2:3b"
 TEMPERATURE = 0
 SEED = 42
 
@@ -228,13 +228,11 @@ def run_vitaminc_sensitivity(
     limit: int | None = None,
     overwrite: bool = False,
     base_url: str = "http://localhost:11434",
+    model: str = DEFAULT_MODEL,
 ) -> dict[str, Any]:
     source_rows, source_summary = load_vitaminc_test(raw_path)
     candidates = identify_contrastive_pairs(source_rows)
     pairs = list(read_jsonl(processed_path))
-    prepared_pairs = list(read_jsonl(sensitivity_dir / "prepared" / "selected_pairs.jsonl"))
-    if pairs != prepared_pairs:
-        raise ValueError("Processed and prepared VitaminC pair files differ")
     validate_pairs(pairs, expected_count=100)
     validate_pairs_against_candidates(pairs, candidates)
     selected = pairs if limit is None else pairs[:limit]
@@ -253,11 +251,11 @@ def run_vitaminc_sensitivity(
         raise FileExistsError(f"Refusing to overwrite VitaminC sensitivity results: {existing}")
 
     client = OllamaClient(base_url=base_url)
-    ollama_metadata = client.check(MODEL)
+    ollama_metadata = client.check(model)
     cases = _inference_cases(selected)
     predictions = infer_cases(
         client,
-        MODEL,
+        model,
         cases,
         seed=SEED,
         temperature=TEMPERATURE,
@@ -284,7 +282,7 @@ def run_vitaminc_sensitivity(
         "full_pair_count": len(pairs),
         "sample_size_pairs": len(selected),
         "pairing_method": "exact case_id plus exact claim; exactly one SUPPORTS and one REFUTES row; different evidence",
-        "ollama_model": MODEL,
+        "ollama_model": model,
         "temperature": TEMPERATURE,
         "model_seed": SEED,
         "prompt_template": {

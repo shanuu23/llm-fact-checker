@@ -18,8 +18,10 @@ results/<dataset>/<model_slug>/<experiment>/
 Folders named `smoke*` (for example `smoke_3`, `consistency_5run_smoke_3`, `robustness/smoke`) are
 3-case development checks, not results. Do not cite them.
 
-> The model slug is currently written by a constant in `llm_fact_checker/cli.py` and is
-> `llama3.2_3b` for every run. Running another model correctly is the next planned change.
+The folder is derived from `--model`, so each model gets its own tree and nothing is shared
+between models. The perturbed inputs and audit files that robustness and sensitivity read are
+derived from the frozen samples, not from a model, so they live in `data/fever/prepared/` and
+`data/vitaminc/prepared/` rather than here.
 
 ## Files per experiment
 
@@ -33,7 +35,24 @@ machine-readable files below.
 | `predictions.jsonl` | one row per case: `fever_id`, `claim`, `evidence`, `gold_label`, `raw_model_output`, `parsed_prediction`, `correct`, `valid_format`, `inference_latency_seconds`, `inference_error`, `ollama_response_metadata` |
 | `metrics.json` | `total_cases`, `number_correct`, `overall_accuracy`, `class_accuracy`, `prediction_counts`, `invalid_format_*`, `inference_failure_count`, `confusion_matrix` |
 | `confusion_matrix.csv` | gold label by predicted label (`SUPPORTED`, `REFUTED`, `NOT ENOUGH INFORMATION`, `INVALID`) |
+| `metrics_excluding_flagged.json` | only for whole-dataset runs: the same metrics without audit-flagged claims, plus `excluded_flagged_cases` and `flag_counts` |
+| `predictions.partial.jsonl` | only while a run is in progress or was interrupted; `--resume` continues from it and it is deleted when the run completes |
 | `errors.csv` | incorrect cases only: `fever_id, claim, gold_label, parsed_prediction, valid_format, inference_error, raw_model_output` |
+
+Whole-dataset runs are stored next to the 150-case ones as `fever/<model>/baseline_full/`,
+`robustness_full/` and `consistency_5run_full/` (see the README, "Run the whole FEVER dev set").
+Each `run_config.json` records the dataset hash, so a comparison can tell them apart from the
+150-case runs. Their large per-case files (`predictions.jsonl`, `predictions/`, `runs/`) are
+git-ignored; the metrics, reports and configs are committed.
+
+Whole-set runs also write the second result without the audit-flagged claims:
+`metrics_excluding_flagged.json` (baseline), `robustness_metrics_excluding_flagged.json` and
+`consistency_metrics_excluding_flagged.json`.
+
+**Crash safety.** Every result file is written atomically (a crash leaves the old file or the
+complete new one, never half), answers are saved as they arrive in `*.partial.jsonl`, and the
+metrics file is written last because its existence is what marks a run as finished. `--resume`
+relies on all three.
 
 ### `fever/<model>/consistency_5run/`
 
@@ -48,7 +67,6 @@ machine-readable files below.
 
 | File | Contents |
 |---|---|
-| `prepared/` | the perturbed inputs (`control`, `reordered_evidence`, `distractor_evidence`) and `distractor_audit.md` for human review |
 | `predictions/{control,reorder,distractor}_predictions.jsonl` | predictions per variant |
 | `robustness_by_case.csv` | per claim: control, reorder and distractor predictions, whether each changed, outcome class |
 | `robustness_metrics.json` | per variant: invariance, paired accuracy and delta, outcomes, label transitions, NEI analysis, technical validity |
@@ -57,7 +75,6 @@ machine-readable files below.
 
 | File | Contents |
 |---|---|
-| `prepared/` | `selected_pairs.jsonl` and `pair_audit.md` for human review |
 | `predictions/predictions.jsonl` | 200 rows; `pair_id` and `side` (`support` / `refute`) identify each |
 | `sensitivity_by_pair.csv` | per pair: both predictions, `prediction_changed`, `correct_sensitivity`, `outcome` |
 | `sensitivity_metrics.json` | correct-flip rate, flip rate, pair outcomes, per-side accuracy, NEI analysis, technical validity |

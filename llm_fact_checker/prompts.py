@@ -9,7 +9,9 @@ from __future__ import annotations
 
 from typing import Any
 
-ALLOWED_LABELS = {"SUPPORTED", "REFUTED", "NOT ENOUGH INFORMATION"}
+# The three answers the model may give, in the order reports list them.
+LABELS = ("SUPPORTED", "REFUTED", "NOT ENOUGH INFORMATION")
+ALLOWED_LABELS = set(LABELS)
 SYSTEM_PROMPT = """You are an evidence-grounded fact verifier.
 
 Determine whether the provided evidence supports, refutes, or does not provide enough information to determine the claim.

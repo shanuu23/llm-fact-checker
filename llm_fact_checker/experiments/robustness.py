@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 import platform
 import re
+import sys
 from typing import Any
 
 from llm_fact_checker.common import (
@@ -16,15 +17,16 @@ from llm_fact_checker.common import (
     read_jsonl,
     write_csv,
     write_jsonl,
+    write_text_atomic,
 )
 from llm_fact_checker.experiments.consistency import (
     EXPECTED_DATASET_SHA256,
     validate_prepared_dataset,
 )
-from llm_fact_checker.ollama import OllamaClient, infer_cases
-from llm_fact_checker.prompts import ALLOWED_LABELS, SYSTEM_PROMPT
+from llm_fact_checker.models import DEFAULT_MODEL
+from llm_fact_checker.ollama import OllamaClient, infer_cases_resumable
+from llm_fact_checker.prompts import ALLOWED_LABELS, LABELS, SYSTEM_PROMPT
 
-MODEL = "llama3.2:3b"
 TEMPERATURE = 0
 SEED = 42
 VARIANTS = ("control", "reorder", "distractor")
@@ -35,7 +37,6 @@ OUTCOMES = (
     "STAYED_WRONG",
     "INCOMPLETE",
 )
-PREDICTION_LABELS = ("SUPPORTED", "REFUTED", "NOT ENOUGH INFORMATION")
 STOPWORDS = {
     "a",
     "an",
@@ -178,8 +179,12 @@ def validate_perturbations(
     reordered: list[dict[str, Any]],
     distractors: list[dict[str, Any]],
 ) -> None:
-    if not (len(source) == len(control) == len(reordered) == len(distractors) == 150):
-        raise ValueError("Source and prepared robustness files must each contain 150 cases")
+    if not (len(source) == len(control) == len(reordered) == len(distractors)):
+        raise ValueError(
+            "Source and prepared robustness files must contain the same cases: "
+            f"{len(source)} source, {len(control)} control, {len(reordered)} reordered, "
+            f"{len(distractors)} distractor"
+        )
     source_by_id = {case["fever_id"]: case for case in source}
     pool = _distractor_pool(source)
     for control_case, reorder_case, distractor_case in zip(
@@ -330,9 +335,7 @@ def invariance_metrics(pairs: list[tuple[str | None, str | None, str]]) -> dict[
 def transition_counts(
     pairs: list[tuple[str | None, str | None, str]],
 ) -> dict[str, int]:
-    counts = {
-        f"{source} -> {target}": 0 for source in PREDICTION_LABELS for target in PREDICTION_LABELS
-    }
+    counts = {f"{source} -> {target}": 0 for source in LABELS for target in LABELS}
     for control, perturbed, _ in pairs:
         if control in ALLOWED_LABELS and perturbed in ALLOWED_LABELS:
             counts[f"{control} -> {perturbed}"] += 1
@@ -507,15 +510,71 @@ Detailed outcome, transition, NEI, and technical-validity counts are in `robustn
 """
 
 
+def _flagged_section(metrics: dict[str, Any], excluded: dict[str, Any]) -> str:
+    def pct(value: float | None) -> str:
+        return percentage(value)
+
+    rows = [
+        ("Cases", metrics["case_count"], excluded["case_count"], False),
+        (
+            "Control FEVER accuracy",
+            metrics["control"]["accuracy"],
+            excluded["control"]["accuracy"],
+            True,
+        ),
+        (
+            "Reorder invariance",
+            metrics["reorder"]["invariance_rate"],
+            excluded["reorder"]["invariance_rate"],
+            True,
+        ),
+        (
+            "Distractor invariance",
+            metrics["distractor"]["invariance_rate"],
+            excluded["distractor"]["invariance_rate"],
+            True,
+        ),
+        (
+            "Distractor FEVER accuracy",
+            metrics["distractor"]["perturbed_accuracy"],
+            excluded["distractor"]["perturbed_accuracy"],
+            True,
+        ),
+    ]
+    table = "\n".join(
+        f"| {name} | {pct(a) if is_rate else a} | {pct(b) if is_rate else b} |"
+        for name, a, b, is_rate in rows
+    )
+    return f"""
+## Result excluding flagged records
+
+The FEVER data audit flagged {excluded["excluded_flagged_cases"]} of these claims as possibly
+inconsistent. The main result above keeps them; this section removes them, as the audit decided.
+Flags are possible label inconsistencies, not proven errors.
+
+| | All cases | Excluding flagged |
+|---|---:|---:|
+{table}
+"""
+
+
 def run_robustness_experiment(
     prepared_path: Path,
     robustness_dir: Path,
     limit: int | None = None,
     overwrite: bool = False,
     base_url: str = "http://localhost:11434",
+    model: str = DEFAULT_MODEL,
+    prepared_dir: Path | None = None,
+    resume: bool = False,
 ) -> dict[str, Any]:
+    """Run control, reorder and distractor passes, saving answers as they arrive.
+
+    ``resume=True`` carries on an interrupted experiment (finished passes are kept, a partly
+    finished pass continues, failures are retried) and does nothing if it already finished.
+    """
     source, dataset_hash = validate_prepared_dataset(prepared_path)
-    prepared_dir = robustness_dir / "prepared"
+    prepared_dir = prepared_dir if prepared_dir is not None else robustness_dir / "prepared"
     control = list(read_jsonl(prepared_dir / "control.jsonl"))
     reordered = list(read_jsonl(prepared_dir / "reordered_evidence.jsonl"))
     distractors = list(read_jsonl(prepared_dir / "distractor_evidence.jsonl"))
@@ -538,21 +597,45 @@ def run_robustness_experiment(
         results_dir / "run_config.json",
         results_dir / "report.md",
     ]
+    metrics_path = results_dir / "robustness_metrics.json"
+    if resume and metrics_path.exists():
+        print(f"Already complete, nothing to do: {results_dir}", file=sys.stderr)
+        return json.loads(metrics_path.read_text(encoding="utf-8"))
     existing = [path for path in output_paths if path.exists()]
-    if existing and not overwrite:
-        raise FileExistsError(f"Refusing to overwrite robustness results: {existing}")
+    if existing and not (overwrite or resume):
+        raise FileExistsError(
+            f"Refusing to overwrite robustness results: {existing}; pass --resume to continue "
+            "an interrupted run or --overwrite to replace it"
+        )
 
     client = OllamaClient(base_url=base_url)
-    ollama_metadata = client.check(MODEL)
+    ollama_metadata = client.check(model)
     predictions_dir.mkdir(parents=True, exist_ok=True)
-    control_predictions = infer_cases(client, MODEL, control_cases, SEED, TEMPERATURE, "Control")
-    reorder_predictions = infer_cases(client, MODEL, reorder_cases, SEED, TEMPERATURE, "Reorder")
-    distractor_predictions = infer_cases(
-        client, MODEL, distractor_cases, SEED, TEMPERATURE, "Distractor"
-    )
-    write_jsonl(output_paths[0], control_predictions)
-    write_jsonl(output_paths[1], reorder_predictions)
-    write_jsonl(output_paths[2], distractor_predictions)
+
+    def predictions_for(name: str, variant_cases: list[dict[str, Any]], prefix: str):
+        final_path = predictions_dir / f"{name}_predictions.jsonl"
+        if resume and final_path.exists():
+            finished = list(read_jsonl(final_path))
+            if len(finished) == len(variant_cases):
+                return finished  # this pass finished before the interruption
+        partial_path = predictions_dir / f"{name}_predictions.partial.jsonl"
+        rows = infer_cases_resumable(
+            client,
+            model,
+            variant_cases,
+            SEED,
+            TEMPERATURE,
+            partial_path,
+            resume=resume,
+            progress_prefix=prefix,
+        )
+        write_jsonl(final_path, rows)
+        partial_path.unlink(missing_ok=True)
+        return rows
+
+    control_predictions = predictions_for("control", control_cases, "Control")
+    reorder_predictions = predictions_for("reorder", reorder_cases, "Reorder")
+    distractor_predictions = predictions_for("distractor", distractor_cases, "Distractor")
 
     metrics = calculate_robustness_metrics(
         control_predictions, reorder_predictions, distractor_predictions
@@ -573,7 +656,7 @@ def run_robustness_experiment(
         "full_dataset_class_balance": dict(Counter(row["gold_label"] for row in source)),
         "sample_size": len(control_cases),
         "reorder_eligible_cases": len(reorder_cases),
-        "ollama_model": MODEL,
+        "ollama_model": model,
         "temperature": TEMPERATURE,
         "model_seed": SEED,
         "prompt_template": {
@@ -586,11 +669,26 @@ def run_robustness_experiment(
         "ollama_model_metadata": ollama_metadata["model"],
         "git_commit": git_commit(),
     }
-    (results_dir / "robustness_metrics.json").write_text(
-        json.dumps(metrics, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    write_text_atomic(
+        results_dir / "run_config.json", json.dumps(config, indent=2, ensure_ascii=False) + "\n"
     )
-    (results_dir / "run_config.json").write_text(
-        json.dumps(config, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-    )
-    (results_dir / "report.md").write_text(_report(metrics, config), encoding="utf-8")
+    report = _report(metrics, config)
+    flagged_ids = {row["fever_id"] for row in control_predictions if row.get("flags")}
+    excluded_path = results_dir / "robustness_metrics_excluding_flagged.json"
+    if flagged_ids:
+
+        def kept(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+            return [row for row in rows if row["fever_id"] not in flagged_ids]
+
+        excluded = calculate_robustness_metrics(
+            kept(control_predictions), kept(reorder_predictions), kept(distractor_predictions)
+        )
+        excluded["excluded_flagged_cases"] = len(flagged_ids)
+        write_text_atomic(excluded_path, json.dumps(excluded, indent=2, ensure_ascii=False) + "\n")
+        report += _flagged_section(metrics, excluded)
+    elif excluded_path.exists():
+        excluded_path.unlink()
+    write_text_atomic(results_dir / "report.md", report)
+    # last: its existence is what marks the experiment as finished
+    write_text_atomic(metrics_path, json.dumps(metrics, indent=2, ensure_ascii=False) + "\n")
     return metrics
