@@ -99,7 +99,23 @@ same one.
 |---|---|---|
 | Full-dataset run and resumable runner | `data_prep/`, `experiments/` | TBD |
 | Metrics, confidence intervals, scorecard | `evaluation.py`, new modules | TBD |
-| Model runs: qwen2.5:7b | `results/*/qwen2.5_7b/` | TBD |
+| Model runs: qwen2.5:7b | `results/*/qwen2.5_7b/` | Aryan Goel (`16aryan`) |
 | Model runs: gemma3:4b | `results/*/gemma3_4b/` | TBD |
-| Comparison page and Streamlit app (built on `results.py`) | `app/`, new `compare.py` | TBD |
+| Comparison tooling & scorecard (built on `results.py`) | `scripts/compare_models.py`, `results/CROSS_MODEL_SCORECARD.md`, `notebooks/02_*.ipynb` | Aryan Goel (`16aryan`) |
 | Report, poster, recommendations | `docs/` | TBD |
+
+## Completed Contributions: Aryan Goel (`16aryan`)
+
+1. **`qwen2.5:7b` Benchmark Suite Execution**:
+   - Evaluated `qwen2.5:7b` across all four core test-bench dimensions on the frozen evaluation samples (1,261 model calls via local Ollama inference, 0 inference failures):
+     - **Baseline Correctness**: 90.67% accuracy (136/150; SUPPORTED 88.0%, REFUTED 93.33%; only 1 NEI).
+     - **5-Run Stability**: 98.0% exact 5/5 consistency (147/150 cases); 99.86% modal agreement; only 1 unstable claim across 750 requests.
+     - **Noise Robustness**: 90.9% reorder invariance (10/11); 95.24% distractor invariance (140/147) with 88.0% post-distractor accuracy and 0 non-NEI to NEI collapses.
+     - **VitaminC Sensitivity**: 72.0% correct sensitivity (72/100 pairs); 77.55% flip rate; 88.0% support-side accuracy and 83.0% refute-side accuracy.
+   - Committed all standardized output files to `results/fever/qwen2.5_7b/` and `results/vitaminc/qwen2.5_7b/`.
+
+2. **Cross-Model Comparison & Scorecard Tooling**:
+   - Created `scripts/compare_models.py`: A clean CLI utility that leverages `llm_fact_checker.results` to discover and aggregate headline metrics across all benchmarked models (`llama3.2_1b`, `llama3.2_3b`, `phi4-mini_3.8b`, `qwen2.5_7b`) without running inference.
+   - Generated `results/CROSS_MODEL_SCORECARD.md`: An audited comparative scorecard summarizing model performance across Correctness, Stability, Robustness, and Sensitivity.
+   - Authored `notebooks/02_model_benchmark_comparison.ipynb`: An interactive Jupyter notebook with 4-dimension bar charts, contradiction vs. confirmation balance breakdowns, and failure mode disagreement case studies.
+
