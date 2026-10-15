@@ -1,0 +1,37 @@
+{
+  "total_cases": 13264,
+  "number_correct": 10408,
+  "overall_accuracy": 0.784680337756333,
+  "class_accuracy": {
+    "SUPPORTED": 0.9407072987208427,
+    "REFUTED": 0.6280404894999244
+  },
+  "prediction_counts": {
+    "SUPPORTED": 7947,
+    "REFUTED": 4442,
+    "NOT ENOUGH INFORMATION": 875,
+    "INVALID": 0
+  },
+  "invalid_format_count": 0,
+  "invalid_format_rate": 0.0,
+  "inference_failure_count": 0,
+  "confusion_matrix": {
+    "SUPPORTED": {
+      "SUPPORTED": 6251,
+      "REFUTED": 285,
+      "NOT ENOUGH INFORMATION": 109,
+      "INVALID": 0
+    },
+    "REFUTED": {
+      "SUPPORTED": 1696,
+      "REFUTED": 4157,
+      "NOT ENOUGH INFORMATION": 766,
+      "INVALID": 0
+    }
+  },
+  "excluded_flagged_cases": 68,
+  "flag_counts": {
+    "conflicting_duplicate_label": 67,
+    "normalized_claim_conflict": 1
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "total_cases": 150,
+  "run_count": 5,
+  "expected_inference_attempts": 750,
+  "successful_inference_requests": 750,
+  "inference_failure_count": 0,
+  "invalid_format_count": 0,
+  "complete_case_count": 150,
+  "incomplete_case_count": 0,
+  "exact_consistency_count": 150,
+  "exact_consistency_rate": 1.0,
+  "mean_modal_agreement": 1.0,
+  "agreement_distribution": {
+    "5_of_5": 150,
+    "4_of_5": 0,
+    "3_of_5": 0,
+    "2_of_5": 0
+  },
+  "unique_label_count_distribution": {
+    "1": 150,
+    "2": 0,
+    "3": 0
+  },
+  "tie_case_count": 0,
+  "stability_classification": {
+    "STABLE_CORRECT": {
+      "count": 121,
+      "percentage": 0.8066666666666666
+    },
+    "STABLE_WRONG": {
+      "count": 29,
+      "percentage": 0.19333333333333333
+    },
+    "UNSTABLE": {
+      "count": 0,
+      "percentage": 0.0
+    },
+    "INCOMPLETE": {
+      "count": 0,
+      "percentage": 0.0
+    }
+  },
+  "consensus": {
+    "eligible_non_tied_cases": 150,
+    "tie_count": 0,
+    "correct_count": 121,
+    "fever_accuracy": 0.8066666666666666
+  },
+  "nei_behavior": {
+    "cases_with_nei_at_least_once": 10,
+    "cases_with_nei_all_five_runs": 10,
+    "cases_switching_between_nei_and_verdict": 0,
+    "total_nei_predictions": 50
+  },
+  "run_accuracy": [
+    {
+      "run": 1,
+      "seed": 101,
+      "correct": 121,
+      "total": 150,
+      "fever_accuracy": 0.8066666666666666
+    },
+    {
+      "run": 2,
+      "seed": 202,
+      "correct": 121,
+      "total": 150,
+      "fever_accuracy": 0.8066666666666666
+    },
+    {
+      "run": 3,
+      "seed": 303,
+      "correct": 121,
+      "total": 150,
+      "fever_accuracy": 0.8066666666666666
+    },
+    {
+      "run": 4,
+      "seed": 404,
+      "correct": 121,
+      "total": 150,
+      "fever_accuracy": 0.8066666666666666
+    },
+    {
+      "run": 5,
+      "seed": 505,
+      "correct": 121,
+      "total": 150,
+      "fever_accuracy": 0.8066666666666666
+    }
+  ],
+  "accuracy_summary": {
+    "mean": 0.8066666666666666,
+    "population_standard_deviation": 0.0,
+    "minimum": 0.8066666666666666,
+    "maximum": 0.8066666666666666
+  }
+}
