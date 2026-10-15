@@ -1,0 +1,98 @@
+{
+  "total_cases": 13332,
+  "run_count": 5,
+  "expected_inference_attempts": 66660,
+  "successful_inference_requests": 66660,
+  "inference_failure_count": 0,
+  "invalid_format_count": 0,
+  "complete_case_count": 13332,
+  "incomplete_case_count": 0,
+  "exact_consistency_count": 13275,
+  "exact_consistency_rate": 0.9957245724572458,
+  "mean_modal_agreement": 0.9990699069906991,
+  "agreement_distribution": {
+    "5_of_5": 13275,
+    "4_of_5": 52,
+    "3_of_5": 5,
+    "2_of_5": 0
+  },
+  "unique_label_count_distribution": {
+    "1": 13275,
+    "2": 57,
+    "3": 0
+  },
+  "tie_case_count": 0,
+  "stability_classification": {
+    "STABLE_CORRECT": {
+      "count": 10433,
+      "percentage": 0.7825532553255325
+    },
+    "STABLE_WRONG": {
+      "count": 2842,
+      "percentage": 0.21317131713171317
+    },
+    "UNSTABLE": {
+      "count": 57,
+      "percentage": 0.004275427542754276
+    },
+    "INCOMPLETE": {
+      "count": 0,
+      "percentage": 0.0
+    }
+  },
+  "consensus": {
+    "eligible_non_tied_cases": 13332,
+    "tie_count": 0,
+    "correct_count": 10454,
+    "fever_accuracy": 0.7841284128412841
+  },
+  "nei_behavior": {
+    "cases_with_nei_at_least_once": 913,
+    "cases_with_nei_all_five_runs": 867,
+    "cases_switching_between_nei_and_verdict": 46,
+    "total_nei_predictions": 4454
+  },
+  "run_accuracy": [
+    {
+      "run": 1,
+      "seed": 101,
+      "correct": 10453,
+      "total": 13332,
+      "fever_accuracy": 0.784053405340534
+    },
+    {
+      "run": 2,
+      "seed": 202,
+      "correct": 10454,
+      "total": 13332,
+      "fever_accuracy": 0.7841284128412841
+    },
+    {
+      "run": 3,
+      "seed": 303,
+      "correct": 10454,
+      "total": 13332,
+      "fever_accuracy": 0.7841284128412841
+    },
+    {
+      "run": 4,
+      "seed": 404,
+      "correct": 10454,
+      "total": 13332,
+      "fever_accuracy": 0.7841284128412841
+    },
+    {
+      "run": 5,
+      "seed": 505,
+      "correct": 10453,
+      "total": 13332,
+      "fever_accuracy": 0.784053405340534
+    }
+  ],
+  "accuracy_summary": {
+    "mean": 0.7840984098409841,
+    "population_standard_deviation": 3.674602074381879e-05,
+    "minimum": 0.784053405340534,
+    "maximum": 0.7841284128412841
+  }
+}
