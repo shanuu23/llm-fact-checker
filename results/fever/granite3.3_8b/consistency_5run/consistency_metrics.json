@@ -1,0 +1,98 @@
+{
+  "total_cases": 150,
+  "run_count": 5,
+  "expected_inference_attempts": 750,
+  "successful_inference_requests": 750,
+  "inference_failure_count": 0,
+  "invalid_format_count": 10,
+  "complete_case_count": 147,
+  "incomplete_case_count": 3,
+  "exact_consistency_count": 145,
+  "exact_consistency_rate": 0.9666666666666667,
+  "mean_modal_agreement": 0.9972789115646258,
+  "agreement_distribution": {
+    "5_of_5": 145,
+    "4_of_5": 2,
+    "3_of_5": 0,
+    "2_of_5": 0
+  },
+  "unique_label_count_distribution": {
+    "1": 145,
+    "2": 2,
+    "3": 0
+  },
+  "tie_case_count": 0,
+  "stability_classification": {
+    "STABLE_CORRECT": {
+      "count": 130,
+      "percentage": 0.8666666666666667
+    },
+    "STABLE_WRONG": {
+      "count": 15,
+      "percentage": 0.1
+    },
+    "UNSTABLE": {
+      "count": 2,
+      "percentage": 0.013333333333333334
+    },
+    "INCOMPLETE": {
+      "count": 3,
+      "percentage": 0.02
+    }
+  },
+  "consensus": {
+    "eligible_non_tied_cases": 147,
+    "tie_count": 0,
+    "correct_count": 131,
+    "fever_accuracy": 0.891156462585034
+  },
+  "nei_behavior": {
+    "cases_with_nei_at_least_once": 5,
+    "cases_with_nei_all_five_runs": 3,
+    "cases_switching_between_nei_and_verdict": 1,
+    "total_nei_predictions": 21
+  },
+  "run_accuracy": [
+    {
+      "run": 1,
+      "seed": 101,
+      "correct": 131,
+      "total": 150,
+      "fever_accuracy": 0.8733333333333333
+    },
+    {
+      "run": 2,
+      "seed": 202,
+      "correct": 131,
+      "total": 150,
+      "fever_accuracy": 0.8733333333333333
+    },
+    {
+      "run": 3,
+      "seed": 303,
+      "correct": 131,
+      "total": 150,
+      "fever_accuracy": 0.8733333333333333
+    },
+    {
+      "run": 4,
+      "seed": 404,
+      "correct": 131,
+      "total": 150,
+      "fever_accuracy": 0.8733333333333333
+    },
+    {
+      "run": 5,
+      "seed": 505,
+      "correct": 133,
+      "total": 150,
+      "fever_accuracy": 0.8866666666666667
+    }
+  ],
+  "accuracy_summary": {
+    "mean": 0.876,
+    "population_standard_deviation": 0.005333333333333368,
+    "minimum": 0.8733333333333333,
+    "maximum": 0.8866666666666667
+  }
+}
