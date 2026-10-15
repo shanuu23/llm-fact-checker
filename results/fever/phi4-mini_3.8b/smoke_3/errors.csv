@@ -1,0 +1,2 @@
+fever_id,claim,gold_label,parsed_prediction,valid_format,inference_error,raw_model_output
+2466,Cheese in the Trap (TV series) stars Batman.,REFUTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
