@@ -28,6 +28,21 @@ Repeatable but often wrong, and easily thrown by irrelevant evidence. Full repor
 
 ## Quickstart
 
+### Results dashboard
+
+Explore the saved full-run results in Streamlit:
+
+```bash
+uv run --group app streamlit run app/main.py
+```
+
+Open the URL printed in the terminal. Select **Open comparison**, choose two models, and click
+**Compare** to view correctness, consistency, robustness and sensitivity. The dashboard reads the
+committed metrics and case tables; Ollama is not required. **Try the evaluator** is a disabled
+placeholder for a future live demo. See [app/README.md](app/README.md) for details.
+
+### Experiment setup
+
 Requires [uv](https://docs.astral.sh/uv/) and [Ollama](https://ollama.com/).
 
 ```bash

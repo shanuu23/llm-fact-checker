@@ -1,5 +1,6 @@
 # Raw datasets are downloaded separately (several GB). Processed samples are tracked.
 data/fever/raw/
+/data/vitaminc/processed/train_full/
 # ... except VitaminC's test.jsonl (2.3 MB in git), the one raw file the sensitivity experiment
 # reads, so it runs from a clean clone. Everything else under raw/ stays untracked.
 data/vitaminc/raw/*
