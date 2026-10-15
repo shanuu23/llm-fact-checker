@@ -1,0 +1,50 @@
+{
+  "dataset_name": "FEVER shared_task_dev gold-evidence baseline",
+  "raw_dataset_path": "data/fever/raw/shared_task_dev.jsonl",
+  "prepared_dataset_path": "data/fever/processed/fever_baseline_150.jsonl",
+  "prepared_dataset_sha256": "6bc7cf910cb0b31186e5fc397ebc7cefab2de1ee65d29ae601e369d8758344cb",
+  "sample_size": 150,
+  "class_balance": {
+    "SUPPORTED": 75,
+    "REFUTED": 75
+  },
+  "sampling_seed": 42,
+  "ollama_model": "qwen2.5:7b",
+  "temperature": 0,
+  "model_seed": 42,
+  "prompt_template": {
+    "system": "You are an evidence-grounded fact verifier.\n\nDetermine whether the provided evidence supports, refutes, or does not provide enough information to determine the claim.\n\nUse only the supplied evidence. Do not rely on outside knowledge.\n\nReturn exactly one of:\n\nSUPPORTED\nREFUTED\nNOT ENOUGH INFORMATION\n\nReturn the label only. Do not provide an explanation.",
+    "user": "Claim:\n<claim>\n\nEvidence:\n<numbered evidence>"
+  },
+  "run_timestamp_utc": "2026-10-15T02:28:19.836161+00:00",
+  "python_version": "3.12.13",
+  "ollama_version": "0.34.2",
+  "ollama_model_metadata": {
+    "name": "qwen2.5:7b",
+    "model": "qwen2.5:7b",
+    "modified_at": "2026-10-10T15:02:00.720611111+11:00",
+    "size": 4683087332,
+    "digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "qwen2",
+      "families": [
+        "qwen2"
+      ],
+      "parameter_size": "7.6B",
+      "quantization_level": "Q4_K_M",
+      "context_length": 32768,
+      "embedding_length": 3584
+    },
+    "capabilities": [
+      "completion",
+      "tools"
+    ]
+  },
+  "relevant_package_versions": {
+    "llm_fact_checker": "0.0.1",
+    "http_client": "urllib (standard library)"
+  },
+  "git_commit": "b655a545811f1374e530cfb5e1ce06960d4522c3"
+}

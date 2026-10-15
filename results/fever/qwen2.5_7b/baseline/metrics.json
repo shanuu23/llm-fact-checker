@@ -1,0 +1,32 @@
+{
+  "total_cases": 150,
+  "number_correct": 136,
+  "overall_accuracy": 0.9066666666666666,
+  "class_accuracy": {
+    "SUPPORTED": 0.88,
+    "REFUTED": 0.9333333333333333
+  },
+  "prediction_counts": {
+    "SUPPORTED": 70,
+    "REFUTED": 78,
+    "NOT ENOUGH INFORMATION": 1,
+    "INVALID": 1
+  },
+  "invalid_format_count": 1,
+  "invalid_format_rate": 0.006666666666666667,
+  "inference_failure_count": 0,
+  "confusion_matrix": {
+    "SUPPORTED": {
+      "SUPPORTED": 66,
+      "REFUTED": 8,
+      "NOT ENOUGH INFORMATION": 1,
+      "INVALID": 0
+    },
+    "REFUTED": {
+      "SUPPORTED": 4,
+      "REFUTED": 70,
+      "NOT ENOUGH INFORMATION": 0,
+      "INVALID": 1
+    }
+  }
+}

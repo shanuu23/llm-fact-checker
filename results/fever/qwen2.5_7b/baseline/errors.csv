@@ -1,0 +1,15 @@
+fever_id,claim,gold_label,parsed_prediction,valid_format,inference_error,raw_model_output
+16007,Riverdale is an adaptation.,SUPPORTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+17218,Pharmacology deals with the elucidation of molecular and organismal function in relation to chemicals.,SUPPORTED,REFUTED,True,,REFUTED
+19177,Victoria Palace Theatre is on the same side as a central London railway terminus.,REFUTED,SUPPORTED,True,,SUPPORTED
+51757,The KGB was not a military service.,SUPPORTED,REFUTED,True,,REFUTED
+58415,Ludwig van Beethoven was part of the classical era.,SUPPORTED,REFUTED,True,,REFUTED
+60763,Dan Trachtenberg is a radio show host.,REFUTED,SUPPORTED,True,,SUPPORTED
+76166,"Camden, New Jersey is in a county in New Jersey.",REFUTED,SUPPORTED,True,,SUPPORTED
+144188,Always was directed by a director.,SUPPORTED,REFUTED,True,,REFUTED
+144715,"Ian Gillan was born on August 19, 1945.",SUPPORTED,REFUTED,True,,REFUTED
+158017,Two of Mozart's sons were alive after his death.,SUPPORTED,REFUTED,True,,REFUTED
+163812,The Ukrainian Soviet Socialist Republic became Ukraine before the founding of the United Nations.,SUPPORTED,REFUTED,True,,REFUTED
+177855,Milk is based on the life of a businessman.,REFUTED,SUPPORTED,True,,SUPPORTED
+196158,Sixteen Primetime Emmy Award nominations have gone to actor Jon Hamm.,SUPPORTED,REFUTED,True,,REFUTED
+217212,A monk only avoids practicing religious asceticism.,REFUTED,INVALID,False,,REFUTATED
