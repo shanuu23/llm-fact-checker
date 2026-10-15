@@ -1,0 +1,30 @@
+fever_id,claim,gold_label,parsed_prediction,valid_format,inference_error,raw_model_output
+4058,Balibo (film) involves zero journalist.,REFUTED,SUPPORTED,True,,SUPPORTED
+19177,Victoria Palace Theatre is on the same side as a central London railway terminus.,REFUTED,SUPPORTED,True,,SUPPORTED
+34496,Email filtering output is capable of redirecting birds elsewhere.,REFUTED,SUPPORTED,True,,SUPPORTED
+39599,Red Holt died before Steve Wozniak was born.,REFUTED,SUPPORTED,True,,SUPPORTED
+51757,The KGB was not a military service.,SUPPORTED,REFUTED,True,,REFUTED
+58415,Ludwig van Beethoven was part of the classical era.,SUPPORTED,REFUTED,True,,REFUTED
+59144,Kevin Kline stars in The Road to El Dorado.,SUPPORTED,REFUTED,True,,REFUTED
+60763,Dan Trachtenberg is a radio show host.,REFUTED,SUPPORTED,True,,SUPPORTED
+70022,Veep is not a television show.,REFUTED,SUPPORTED,True,,SUPPORTED
+76166,"Camden, New Jersey is in a county in New Jersey.",REFUTED,SUPPORTED,True,,SUPPORTED
+82450,One True Thing is a book.,REFUTED,SUPPORTED,True,,SUPPORTED
+85702,The Challenge XXX: Dirty 30 is a season of a show on Syfy.,REFUTED,SUPPORTED,True,,SUPPORTED
+87483,Dakota Fanning is a dancer.,REFUTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+92687,Guillermo del Toro is not a novelist.,REFUTED,SUPPORTED,True,,SUPPORTED
+105025,The Faroe Islands disappeared in 1035.,REFUTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+106928,Mamata Banerjee has only ever been called Mamata Banerjee.,REFUTED,SUPPORTED,True,,SUPPORTED
+113214,The Atlanta metropolitan area spans only 10 counties.,REFUTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+113990,Chile is a food.,REFUTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+123785,Olympic medals have always displayed the Colosseum.,REFUTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+131006,You Belong with Me is a fan club.,REFUTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+140032,Georges Gilles de la Tourette failed to describe symptoms in nine patients.,REFUTED,SUPPORTED,True,,SUPPORTED
+150096,Trollhunters is a squid.,REFUTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+150357,Musala is a valley.,REFUTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+163812,The Ukrainian Soviet Socialist Republic became Ukraine before the founding of the United Nations.,SUPPORTED,REFUTED,True,,REFUTED
+177855,Milk is based on the life of a businessman.,REFUTED,SUPPORTED,True,,SUPPORTED
+182936,The soundtrack of Far from the Madding Crowd was only by a French composer.,REFUTED,SUPPORTED,True,,SUPPORTED
+184420,Premam had a theatrical run of 151 days in 2012.,REFUTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+202050,Tamerlan Tsarnaev was an only child.,REFUTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+224558,Vampire Academy was a critical failure.,SUPPORTED,REFUTED,True,,REFUTED
