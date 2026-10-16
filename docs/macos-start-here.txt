@@ -1,0 +1,61 @@
+ModelLens for macOS — start here
+===============================
+
+ModelLens evaluates local language models and displays saved benchmark results.
+No Git clone or typed Terminal commands are needed. Guided setup opens a
+Terminal window and asks yes/no questions.
+
+Before you begin
+---------------
+- Use macOS 14 or newer, on an Apple silicon or Intel Mac. Model inference on
+  Intel can be slow; performance also depends on the selected model and memory.
+- First-time setup may need internet access and permission from your IT team.
+- Only open a package received from the ModelLens team that you trust. This
+  prototype is not Apple-notarized; its local signature is not Apple approval.
+
+First launch
+------------
+1. Extract the ZIP. Keep ModelLens.app in a stable folder of your choice.
+2. Double-click ModelLens.app.
+3. If macOS blocks it as an unverified app, and you trust this package, open
+   System Settings > Privacy & Security. Use Open Anyway for ModelLens, then
+   confirm Open if asked. This approves only this app, not other downloads.
+4. If asked, allow ModelLens to control Terminal. This is how it opens the
+   guided setup and local server window.
+5. In that window, read each prompt. Type y and press Return to approve a step,
+   or n and Return to decline. Setup can obtain uv, Python 3.12 and the locked
+   app dependencies. It asks separately before installing or starting Ollama.
+6. When setup finishes, ModelLens opens in your browser. Keep its Terminal
+   window open while using the app.
+
+Existing Ollama installations and downloaded models are not replaced. Models
+are not downloaded automatically. To run a live evaluation, open Ollama and
+have a compatible text model available; saved comparisons work without it.
+
+Using it again
+--------------
+Double-click the same ModelLens.app. It reuses that build's setup and saved
+local runs. The app uses an available local port so it does not take over an
+existing development server. Keep the computer awake during an evaluation.
+
+Before closing the server's Terminal window, pause any evaluation in the app
+and wait for it to stop. Closing a browser tab alone does not stop the worker.
+
+Where your files go
+-------------------
+Setup and results are stored outside the application, under:
+
+  ~/Library/Application Support/ModelLens/<build-id>/ModelLens/
+
+The .venv folder holds the Python environment; .modellens/runs holds local
+evaluation runs. Each package build has its own workspace. A different build
+does not automatically import results or reuse the previous build's setup.
+Do not delete an old workspace if you want to keep its results.
+
+If opening or setup fails
+-------------------------
+If the app says it is damaged or harmful, Open Anyway is unavailable, or your
+organisation blocks it, stop and contact the team or your IT administrator.
+Do not disable macOS security or remove quarantine attributes to force it open.
+Share the exact error text or a screenshot, with any private details removed.
+This package has not been verified on every Mac or managed-device policy.
