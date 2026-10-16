@@ -9,10 +9,8 @@ from unittest.mock import patch
 
 from app.comparison import (
     comparison_issues,
+    headline_score,
     load_models,
-    result_examples,
-    robustness_rows,
-    score_rows,
 )
 from llm_fact_checker.results import ResultRun
 
@@ -51,25 +49,22 @@ class ComparisonTests(unittest.TestCase):
 
     def test_sensitivity_uses_both_correct_not_any_flip(self):
         metrics = self.phi["sensitivity"].metrics()
-        rows = score_rows("sensitivity", metrics)
-        self.assertEqual(rows[0][1], metrics["correct_sensitivity_count"] / metrics["total_pairs"])
-        self.assertEqual(rows[1][1], metrics["flip_count"] / metrics["complete_pairs"])
-        self.assertNotEqual(rows[0][1], rows[1][1])
+        label, value = headline_score("sensitivity", metrics)
+        self.assertEqual(label, "Both evidence versions correct")
+        self.assertEqual(value, metrics["correct_sensitivity_count"] / metrics["total_pairs"])
+        self.assertNotEqual(value, metrics["flip_count"] / metrics["complete_pairs"])
 
-    def test_reordering_uses_control_on_the_same_subset(self):
-        metrics = self.phi["robustness"].metrics()
-        original = robustness_rows(metrics, "reorder")[0][1]
-        self.assertEqual(original, metrics["reorder"]["control_accuracy"])
-        self.assertNotEqual(original, metrics["control"]["accuracy"])
-
-    def test_examples_work_without_reading_ignored_prediction_logs(self):
-        with patch.object(
-            ResultRun, "cases", side_effect=AssertionError("prediction log accessed")
+    def test_headline_scores_preserve_labels_values_and_missing_scores(self):
+        for kind, key, label in (
+            ("baseline", "overall_accuracy", "Overall accuracy"),
+            ("consistency", "exact_consistency_rate", "Same answer in all five runs"),
+            ("sensitivity", "correct_sensitivity_rate", "Both evidence versions correct"),
         ):
-            for run in self.phi.values():
-                rows = result_examples(run, limit=2)
-                self.assertLessEqual(len(rows), 2)
-                self.assertIn("claim", rows[0])
+            for value in (None, 0.0, 0.625, 1.0):
+                with self.subTest(kind=kind, value=value):
+                    self.assertEqual(headline_score(kind, {key: value}), (label, value))
+        with self.assertRaises(ValueError):
+            headline_score("unsupported", {})
 
 
 @unittest.skipUnless(importlib.util.find_spec("streamlit"), "install the app dependency group")

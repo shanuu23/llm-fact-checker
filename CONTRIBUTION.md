@@ -1,27 +1,58 @@
 # Contributing
 
-How the group works on this repository. Keep it short; update it when the process changes.
+Developer setup and maintenance rules for the delivered ModelLens prototype. For using the app
+without a checkout, see the [Mac recipient instructions](docs/macos-start-here.txt).
 
 ## Setup
 
 ```bash
 git clone https://github.com/shanuu23/llm-fact-checker.git
 cd llm-fact-checker
-uv sync                  # one command installs everything
-make test                # must pass before you open a PR
+uv sync --locked --group app
 ```
 
-You need [uv](https://docs.astral.sh/uv/) and a local [Ollama](https://ollama.com/) with the model
-you plan to run. No raw data is needed to run the experiments: the samples, the whole FEVER dev set and
-VitaminC's `test.jsonl` are committed. See [data/README.md](data/README.md) for what each command
-requires.
+This installs the locked app dependencies as well as the default developer/notebook groups.
+Plain `uv sync` does not select the app group, which the UI tests need. Python 3.12 is selected
+by `.python-version`; uv can obtain it if it is missing.
+
+You need uv for this developer workflow. Ollama and an installed model are needed only for real
+inference, not saved comparisons or offline tests. Public prepared inputs are committed; raw
+Wikipedia is needed only to rebuild FEVER evidence. See [data/README.md](data/README.md).
+For launching the interface and packaging it, use the [app guide](app/README.md).
+
+## Verification
+
+Run from the repository root:
+
+```bash
+uv run --group app python -m unittest discover -s tests -v
+make lint
+```
+
+The explicit app group makes the test command work on a fresh checkout. Tests use fixtures,
+saved artifacts and fake model responses; this is not a full benchmark inference run.
+For a focused UI change, the affected tests can be run first:
+
+```bash
+uv run --group app python -m unittest tests.test_app tests.test_charts tests.test_live_evaluator -v
+```
+
+The current Ruff configuration covers `app/` and `llm_fact_checker/`, not `scripts/` or `tests/`.
+When changing the latter, check the touched files explicitly, for example:
+
+```bash
+uv run ruff check --config 'include = ["scripts/**/*.py", "tests/**/*.py"]' tests/test_app.py
+```
+
+Report which checks passed and which were not run. Real-model quick demos, browser inspection
+and fresh-machine release acceptance are separate checks; do not claim them from offline tests.
 
 ## Branches and pull requests
 
 - Branch from an up-to-date `main`; name it `<your-name>/<task>`, for example
   `shanu/data-auditing`.
 - Keep a PR to one purpose. A refactor and a behaviour change belong in separate PRs.
-- Before pushing: `make test` and `make lint`.
+- Before pushing, run the offline suite and lint commands in [Verification](#verification).
 - A PR needs one teammate's review before it merges to `main`. Say in the description what you ran
   and what changed in `results/`.
 - Do not push to `main` directly or force-push shared branches.
@@ -44,19 +75,14 @@ changes, so you will find out immediately.
 
 ## Adding a model
 
-Follow the step-by-step guide in the README, **"Run a new model"**. In short:
+Use the [research workflow in the README](README.md#run-a-new-model) for additional recorded
+benchmark experiments. Coordinate ownership before writing to a model's results directory;
+preserve completed runs and report the model digest, workload, settings and invalid/failure counts.
+Do not change the shared prompt, cases or seeds to improve an individual model's score.
 
-1. `ollama pull <tag>` and check the exact tag appears in `ollama list`.
-2. Smoke test: `uv run factcheck run --model <tag> --limit 3`, then delete the `smoke_3` folder.
-3. Run the four experiments on the frozen samples, then (overnight)
-   `scripts/run_whole_fever.sh <tag>` for the whole FEVER dev set.
-4. Commit only `results/*/<model_slug>/` (the slug is the tag with `:` replaced by `_`).
-5. Open a PR named `<your-name>/add-<model_slug>`; say in the description which experiments
-   you ran, the four headline numbers, and anything unusual (for example a high invalid-format
-   rate).
-
-Nothing else changes: the prompt, samples and seeds are shared, so your numbers sit next to
-everyone else's. One owner per model avoids two people overwriting the same folder.
+An app user evaluating a model does not need to add it to the repository. Local runs are saved
+under `.modellens/runs/` and compared through **Local evaluator runs**, separate from the
+committed research experiments. Do not commit those private local outputs.
 
 ## Results policy
 
@@ -74,12 +100,14 @@ them.
 ## Code conventions
 
 - The experiment pipeline uses only the standard library. Do not add runtime dependencies without
-  discussing it; notebook and tooling libraries go in the `notebooks` or `dev` groups in
-  `pyproject.toml`.
+  discussing it. App libraries go in the `app` group; notebook and tooling libraries go in
+  the `notebooks` or `dev` groups in `pyproject.toml`.
 - Shared helpers live in `common.py`. Do not copy a helper into a second module.
-- Formatting and imports are enforced by ruff (`make format`).
-- Tests use small synthetic fixtures; never call Ollama or read the raw Wikipedia dump in a test.
-- Notebooks are for audits and analysis only. Experiment runs are CLI commands.
+- Follow Ruff formatting/import rules; see the current coverage limits in [Verification](#verification).
+- Tests may read saved benchmark artifacts but must not call real models or read the raw Wikipedia dump.
+- Notebooks are for audits and analysis. Research experiments run through the CLI; interactive
+  local evaluations run through the app's worker.
+- Do not regenerate results, rebuild ZIPs or change dependencies as incidental cleanup.
 
 ## Commit messages
 
@@ -90,19 +118,12 @@ saying *why*. Example from this repository:
 Consolidate shared helpers into common.py and prompts.py
 ```
 
-## Workstreams and owners
+## Maintenance coordination
 
-Fill in as the group assigns work. Each workstream owns its files so two people rarely edit the
-same one.
-
-| Workstream | Files | Owner |
-|---|---|---|
-| Full-dataset run and resumable runner | `data_prep/`, `experiments/` | TBD |
-| Metrics, confidence intervals, scorecard | `evaluation.py`, new modules | TBD |
-| Model runs: qwen2.5:7b | `results/*/qwen2.5_7b/` | Aryan Goel (`16aryan`) |
-| Model runs: gemma3:4b | `results/*/gemma3_4b/` | TBD |
-| Comparison tooling & scorecard (built on `results.py`) | `scripts/compare_models.py`, `results/CROSS_MODEL_SCORECARD.md`, `notebooks/02_*.ipynb` | Aryan Goel (`16aryan`) |
-| Report, poster, recommendations | `docs/` | TBD |
+The app and recorded full experiments are delivered; this document is not an outstanding-work
+checklist. Assign an owner and scope for each new issue or change before editing shared files.
+Use [the app release guide](app/README.md#share-and-verify) for packaging and acceptance checks.
+Preserve contributor attribution and historical records when reorganising documentation.
 
 ## Completed Contributions: Aryan Goel (`16aryan`)
 

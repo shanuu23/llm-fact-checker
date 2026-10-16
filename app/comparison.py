@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import csv
-from itertools import islice
 from pathlib import Path
 
 from llm_fact_checker.results import DEFAULT_RESULTS_DIR, ResultRun, discover_runs
@@ -50,57 +48,12 @@ def comparison_issues(left: ResultRun, right: ResultRun) -> list[str]:
     ]
 
 
-def score_rows(kind: str, metrics: dict) -> list[tuple[str, float, str]]:
-    """Use the saved formulas and denominators without silently re-scoring answers."""
+def headline_score(kind: str, metrics: dict) -> tuple[str, float | None]:
+    """Read the result card's score without re-scoring saved answers."""
     if kind == "baseline":
-        return [
-            ("Overall accuracy", metrics["overall_accuracy"], "higher"),
-            ("SUPPORTS accuracy", metrics["class_accuracy"]["SUPPORTED"], "higher"),
-            ("REFUTES accuracy", metrics["class_accuracy"]["REFUTED"], "higher"),
-        ]
+        return "Overall accuracy", metrics["overall_accuracy"]
     if kind == "consistency":
-        states = metrics["stability_classification"]
-        return [
-            ("Same answer in all five runs", metrics["exact_consistency_rate"], "context"),
-            ("Consistently correct", states["STABLE_CORRECT"]["percentage"], "higher"),
-            ("Consistently wrong", states["STABLE_WRONG"]["percentage"], "lower"),
-            ("Answer changed across runs", states["UNSTABLE"]["percentage"], "context"),
-            ("Incomplete cases", states["INCOMPLETE"]["percentage"], "lower"),
-        ]
+        return "Same answer in all five runs", metrics["exact_consistency_rate"]
     if kind == "sensitivity":
-        return [
-            ("Both evidence versions correct", metrics["correct_sensitivity_rate"], "higher"),
-            ("Any verdict change", metrics["flip_rate"], "context"),
-            (
-                "Supporting evidence accuracy",
-                metrics["individual_accuracy"]["support_accuracy"],
-                "higher",
-            ),
-            (
-                "Refuting evidence accuracy",
-                metrics["individual_accuracy"]["refute_accuracy"],
-                "higher",
-            ),
-        ]
-    raise ValueError(f"Unsupported score table: {kind}")
-
-
-def robustness_rows(metrics: dict, variant: str) -> list[tuple[str, float, str]]:
-    block = metrics[variant]
-    return [
-        ("Original evidence accuracy", block["control_accuracy"], "higher"),
-        ("Changed evidence accuracy", block["perturbed_accuracy"], "higher"),
-        ("Verdict unchanged", block["invariance_rate"], "context"),
-    ]
-
-
-def result_examples(run: ResultRun, limit: int = 10) -> list[dict]:
-    # Full prediction logs stay local. These committed CSVs also work on a deployed clone.
-    filenames = {
-        "baseline": "errors.csv",
-        "consistency": "consistency_by_case.csv",
-        "robustness": "robustness_by_case.csv",
-        "sensitivity": "sensitivity_by_pair.csv",
-    }
-    with (run.path / filenames[run.kind]).open(newline="", encoding="utf-8") as handle:
-        return list(islice(csv.DictReader(handle), limit))
+        return "Both evidence versions correct", metrics["correct_sensitivity_rate"]
+    raise ValueError(f"Unsupported headline score: {kind}")

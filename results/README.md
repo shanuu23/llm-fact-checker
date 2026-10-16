@@ -1,7 +1,10 @@
 # Results
 
-Every experiment writes its outputs here. Results are committed so the whole team (and the
-planned Streamlit app) can read them without running a model or downloading raw data.
+Research CLI experiments write their outputs here. Committed summaries and case tables let the
+team and the ModelLens app explore saved results without running a model or downloading raw data.
+The app's **Saved full experiments** view selects the full-run folders, not pilot or smoke runs.
+New app evaluations are stored separately in the workspace's Git-ignored `.modellens/runs/`;
+see the [app guide](../app/README.md#save-pause-and-compare).
 
 ## Layout
 
@@ -12,7 +15,7 @@ results/<dataset>/<model_slug>/<experiment>/
 | Part | Meaning | Example |
 |---|---|---|
 | `<dataset>` | benchmark the cases come from | `fever`, `vitaminc` |
-| `<model_slug>` | Ollama tag with `:` replaced by `_` | `llama3.2_3b`, `qwen2.5_7b` |
+| `<model_slug>` | Ollama tag with `:` and `/` replaced by `_` | `llama3.2_3b`, `qwen2.5_7b` |
 | `<experiment>` | one folder per experiment | `baseline`, `consistency_5run`, `robustness`, `sensitivity` |
 
 Folders named `smoke*` (for example `smoke_3`, `consistency_5run_smoke_3`, `robustness/smoke`) are
@@ -49,10 +52,11 @@ Whole-set runs also write the second result without the audit-flagged claims:
 `metrics_excluding_flagged.json` (baseline), `robustness_metrics_excluding_flagged.json` and
 `consistency_metrics_excluding_flagged.json`.
 
-**Crash safety.** Every result file is written atomically (a crash leaves the old file or the
-complete new one, never half), answers are saved as they arrive in `*.partial.jsonl`, and the
-metrics file is written last because its existence is what marks a run as finished. `--resume`
-relies on all three.
+**Checkpointing.** Prediction and metric helpers use atomic file replacement; in-progress
+answers are appended to `*.partial.jsonl`. The metrics file is written last and acts as a CLI
+completion marker. This does not validate every saved file or guarantee an interrupted overwrite
+can resume safely. Keep inputs/model/settings unchanged when resuming, and use a new output
+directory for changed experiments. See the CLI resume limitation in the repository README.
 
 ### `fever/<model>/consistency_5run/`
 

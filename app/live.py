@@ -11,7 +11,7 @@ import streamlit as st
 
 from app import jobs
 from app.charts import show_comparison_charts, show_validity_warnings
-from app.comparison import robustness_rows, score_rows
+from app.comparison import headline_score
 from app.evaluator import (
     FEVER_FULL,
     FEVER_SAMPLE,
@@ -53,16 +53,6 @@ def run_label(run, include_model=True):
     return (
         f"{prefix}{size} | {run['created'][:19]} UTC | {run['status']['state']} | {run['id'][:8]}"
     )
-
-
-def metric_rows(kind, metrics):
-    if kind == "robustness":
-        return [
-            (f"{variant}: {label}", value, direction)
-            for variant in ("reorder", "distractor")
-            for label, value, direction in robustness_rows(metrics, variant)
-        ]
-    return score_rows(kind, metrics)
 
 
 def results_download(path):
@@ -137,7 +127,7 @@ def display_results(run, key_prefix="live", history=False):
                             )
                     st.caption("Verdict unchanged; incomplete cases excluded.")
                 else:
-                    label, value, _ = metric_rows(kind, block)[0]
+                    label, value = headline_score(kind, block)
                     if kind == "baseline":
                         detail = f"{block['number_correct']:,} of {block['total_cases']:,} claims correct"
                     elif kind == "consistency":
