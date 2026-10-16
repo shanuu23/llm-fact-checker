@@ -1,4 +1,4 @@
-# LLM fact-checker reliability tests
+# ModelLens — LLM reliability evaluation
 
 Can a small local LLM be trusted as an **evidence-grounded fact-checker**? This project does not ask
 "is this claim true?". It gives a model a claim plus supplied Wikipedia evidence and measures how
@@ -28,18 +28,28 @@ Repeatable but often wrong, and easily thrown by irrelevant evidence. Full repor
 
 ## Quickstart
 
-### Results dashboard
+### Local ModelLens app
 
-Explore the saved full-run results in Streamlit:
+Explore saved full results or evaluate an installed local Ollama model. From this folder:
 
 ```bash
-uv run --group app streamlit run app/main.py
+bash "Setup ModelLens.command"  # guided setup: reuse tools or offer missing installations
+make app                       # opens the local UI; no inference until you click Run
 ```
 
 Open the URL printed in the terminal. Select **Open comparison**, choose two models, and click
 **Compare** to view correctness, consistency, robustness and sensitivity. The dashboard reads the
-committed metrics and case tables; Ollama is not required. **Try the evaluator** is a disabled
-placeholder for a future live demo. See [app/README.md](app/README.md) for details.
+committed metrics and case tables; Ollama is not required for saved comparisons. **Try the evaluator**
+connects directly to local Ollama, offers a quick demo or percentage-based workload, and saves
+resumable runs separately. See [app/README.md](app/README.md) for setup, timing, pause/resume and
+comparison rules. `make app-package` builds `dist/modellens-macos-app.zip` for recipients:
+unzip and open **ModelLens.app**, rather than opening a downloaded `.command` file.
+No Git, cloning or typed shell commands are required. Normal macOS approval and permission to
+control Terminal may be required; this prototype is not Apple-notarized. The guided Terminal
+setup checks for uv and Ollama and offers missing installations with permission.
+Python 3.12 and the locked app dependencies are set up automatically after confirmation.
+You still choose/install your own local model. No ngrok or paid model service is needed.
+See [the recipient instructions](docs/macos-start-here.txt) before sharing/testing the ZIP.
 
 ### Experiment setup
 

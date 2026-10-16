@@ -85,7 +85,7 @@ class DashboardTests(unittest.TestCase):
         ):
             app = self.app()
             self.assertEqual(len(app.exception), 0)
-            self.assertTrue(app.button(key="try_evaluator").disabled)
+            self.assertFalse(app.button(key="try_evaluator").disabled)
             self.assertEqual(len(app.selectbox), 0)
             app.button(key="open_compare").click().run()
             app.selectbox(key="model_1").select("llama3.2_3b")
@@ -93,7 +93,16 @@ class DashboardTests(unittest.TestCase):
             app.button(key="FormSubmitter:model_comparison-Compare").click().run()
             self.assertEqual(len(app.exception), 0)
             self.assertEqual(len(app.error), 0)
-            self.assertEqual(len(app.warning), 0)
+            self.assertGreater(len(app.warning), 0)
+            self.assertTrue(
+                all("inference failures" in w.value and "invalid responses" in w.value
+                    for w in app.warning)
+            )
+            self.assertFalse(any(e.label == "Run quality" for e in app.expander))
+            self.assertFalse(
+                any(e.label in {"Input and model details", "Explore saved examples"}
+                    for e in app.expander)
+            )
             self.assertEqual(
                 [tab.label for tab in app.tabs],
                 ["Correctness", "Consistency", "Robustness", "Sensitivity"],

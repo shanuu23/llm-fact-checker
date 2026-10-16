@@ -187,6 +187,7 @@ def infer_cases_resumable(
     progress_prefix: str = "Inference",
     id_field: str = "fever_id",
     id_label: str = "FEVER",
+    on_result: Callable[[dict[str, Any]], None] | None = None,
 ) -> list[dict[str, Any]]:
     """Like ``infer_cases``, but every row is appended to ``partial_path`` as it arrives.
 
@@ -229,6 +230,8 @@ def infer_cases_resumable(
         def save(row: dict[str, Any]) -> None:
             sink.write(json.dumps(row, ensure_ascii=False) + "\n")
             sink.flush()
+            if on_result is not None:
+                on_result(row)
 
         new_rows = infer_cases(
             client,

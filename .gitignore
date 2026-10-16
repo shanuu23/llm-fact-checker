@@ -21,6 +21,10 @@ results/*/*/*_full/runs/
 # A smoke test (--limit, *-smoke) of a whole-set run is a check, never a result.
 results/*/*/*_full/smoke/
 
+# Local evaluator outputs and secrets
+.modellens/
+.streamlit/secrets.toml
+
 # Personal Claude Code settings
 .claude/settings.local.json
 
