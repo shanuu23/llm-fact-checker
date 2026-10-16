@@ -1,38 +1,42 @@
-# llm-fact-checker: project context
+# ModelLens: project context
 
-Group 10 project. A **reliability test bench for evidence-grounded LLM fact-checkers**, not a
-fact-checking app. It answers "can this model be trusted to judge a claim from supplied evidence?"
-by measuring four things separately: correctness, stability, robustness, sensitivity. Models are
-local, via Ollama. Nothing is trained.
+Evidence Lab / Group 10 project. ModelLens is a delivered **local LLM evaluation prototype**
+for AI engineers and researchers, not an end-user fact-checking service. It measures correctness,
+consistency, robustness and evidence sensitivity separately using supplied FEVER/VitaminC
+evidence. The Streamlit app supports saved comparisons and live evaluation through local Ollama.
+Nothing is trained, and no combined model ranking is calculated.
 
-Read `docs/methodology.md` for definitions and `results/README.md` for the output schema.
+Read `README.md` for the product overview and research commands, `app/README.md` for the app
+workflow and packaging, `CONTRIBUTING.md` for developer setup and checks,
+`docs/methodology.md` for definitions, and `results/README.md` for the research output schema.
 
 ## Commands
 
 ```bash
-uv sync                               # installs everything (dev + notebooks groups)
-make test                             # unit + golden tests; no Ollama or raw data needed
-make lint                             # ruff check + format check
-uv run factcheck <command>            # same as: python -m llm_fact_checker <command>
-                                      # (python -m llm_fact_checker.baseline also works)
+make app                             # local app; launcher offers setup if needed
+uv run factcheck <command>            # research CLI, not the app's worker
 ```
 
-Commands: `prepare`, `run`, `evaluate`, `consistency`, `robustness-prepare`, `robustness-smoke`,
+CLI commands: `prepare`, `run`, `evaluate`, `consistency`, `robustness-prepare`, `robustness-smoke`,
 `robustness`, `vitaminc-prepare`, `vitaminc-smoke`, `vitaminc-sensitivity`, `all`. Run from the
 repository root: paths are relative.
 
 ## Layout
 
 ```text
+app/              Streamlit UI, charts, interpretation, local workloads and worker jobs
 llm_fact_checker/
   cli.py          argparse only          prompts.py     FROZEN prompt, labels, parser
   common.py       shared helpers         ollama.py      HTTP client + inference loop
   evaluation.py   baseline metrics       data_prep/     fever.py, vitaminc.py
   results.py      read-only results loader   models.py   default model + model_slug()
   experiments/    baseline, consistency, robustness, sensitivity
-data/             raw (gitignored), processed samples (tracked), HASHES.txt
-results/          <dataset>/<model_slug>/<experiment>/, committed
-tests/            unit tests + tests/test_golden_results.py
+data/             benchmark inputs, prepared cases, audits and HASHES.txt
+results/          research outputs; summaries tracked, large full predictions ignored
+.modellens/       private local runs and tool state, Git-ignored
+scripts/          Mac packaging/launch support and research commands
+tests/            offline core, UI, worker, packaging and golden regression checks
+notebooks/        data audits and historical comparison analysis
 ```
 
 ## Frozen: do not change without an explicit team decision
@@ -47,22 +51,26 @@ tests/            unit tests + tests/test_golden_results.py
 
 ## Conventions
 
-- The pipeline is **standard library only**. Do not add runtime dependencies; notebook and tooling
-  libraries belong in the `notebooks` / `dev` groups.
+- The core experiment pipeline is **standard library only**. UI dependencies belong in `app`;
+  notebook and tooling libraries belong in the `notebooks` / `dev` groups.
 - Shared helpers go in `common.py`; do not duplicate them per module.
 - Ruff: line length 99, import sorting on. Keep `make lint` clean.
-- A refactor must not change behaviour: after it, the golden tests pass and `git status results`
-  is empty after `factcheck evaluate`.
-- Tests use tiny synthetic fixtures and never call Ollama or read the Wikipedia dump.
+- A refactor must not change scoring or saved records. Run the affected offline tests and check
+  the diff; do not regenerate committed results merely to validate a refactor.
+- Tests use synthetic fixtures, fake model responses and saved benchmark artifacts. They do not
+  call a real Ollama model or read the Wikipedia dump. Follow `CONTRIBUTING.md` for test setup.
 - Use `git mv` for moves so history follows files.
-- Result files are written atomically (`common.write_jsonl`, `write_text_atomic`) and the metrics
-  file is written LAST, because `--resume` treats its existence as "this run is finished". Keep
-  that order when adding outputs.
+- Preserve atomic prediction/metric writes and checkpoint flushing. CLI runners use the final
+  metrics file as a completion marker; the app also tracks worker status. These are distinct paths.
+- Core Python files plus `app/evaluator.py` and `app/jobs.py` contribute to the local protocol
+  fingerprint. Changes can prevent old runs from resuming or comparing with new runs.
+- Do not rebuild/share ZIPs, change frozen artifacts or run real inference as an incidental
+  documentation or UI cleanup step.
 
 ## Gotchas
 
-- `ollama.py` requires the **exact** model tag `llama3.2:3b`. If `ollama list` only shows
-  `llama3.2:latest`, alias it: `ollama cp llama3.2:latest llama3.2:3b` (same weights, no download).
+- `llama3.2:3b` is the CLI default, not the only supported model. Use the exact installed tag
+  with `--model`; the app lists compatible local text models.
 - The Wikipedia dump path is doubled on purpose: `data/fever/raw/wiki-pages/wiki-pages/`.
 - The FEVER sample has no gold NEI cases, so any NEI answer counts as wrong there.
 - NFC page-title matching is opt-in (`scan_wikipedia(match_nfc=True)`, used by `prepare --all`):
@@ -72,32 +80,31 @@ tests/            unit tests + tests/test_golden_results.py
   which is committed (via `.gitignore` exceptions: the rest of `raw/` stays untracked).
 - `VIRTUAL_ENV` warnings from uv are harmless; the project uses its own `.venv`.
 
-## Current state and pending work
+## Delivered functionality
 
-Done: the Llama 3.2 3B pilot on all four experiments (committed under `results/`).
+- Saved full comparisons cover `gemma3:4b`, `llama3.2:1b`, `llama3.2:3b` and `phi4-mini:3.8b`
+  across all four tests. FEVER uses 13,332 claims; VitaminC uses 20,232 contrastive pairs.
+  Historical pilot results remain separate, including Qwen 2.5 7B. Discover actual result folders
+  through `llm_fact_checker.results`; do not substitute pilot scores for a missing full run.
+- The local evaluator offers model selection, test selection, a quick demo or custom percentage,
+  optional runtime estimation, background execution, pause/resume, saved history, result export
+  and compatible local-run comparisons. See `app/README.md` for exact controls and constraints.
+- Quick demo uses three FEVER claims and three VitaminC pairs when relevant. The historical
+  frozen pilots use 150 claims / 100 pairs. Custom local workloads sample from the full eligible
+  populations, not those pilot files. Do not merge these three scopes.
+- The macOS ZIP launches `ModelLens.app`, which uses the `.command` files internally. It offers
+  guided dependency setup and runs in a per-build workspace. Preserve both launch scripts.
 
-Pending, in order:
+## Limits and maintenance cautions
 
-1. **Run the other models** (`qwen2.5:7b`, `gemma3:4b`). Multi-model support is in place: every
-   model-calling command takes `--model` and writes to `results/<dataset>/<model_slug>/...`.
-   Perturbed inputs and audits are model-independent and live in `data/*/prepared/`.
-2. **Full-dataset run**: done for the FEVER baseline. `data/fever/full/fever_dev_full.jsonl` (all
-   13,332 claims) is committed, so no raw data is needed to run it; `factcheck prepare --all`
-   rebuilds it from raw data (same bytes) and builds all 13,332
-   claims (no de-duplication, audit flags in `flags`, NFC title matching) and `factcheck run
-   --prepared data/fever/full/fever_dev_full.jsonl --results-dir …/baseline_full [--resume]` runs
-   it, saving each answer as it arrives and writing `metrics_excluding_flagged.json` alongside
-   `metrics.json`. Consistency and robustness run on it too (`scripts/run_whole_fever.sh <model>`
-   runs all steps unattended and resumes). VitaminC sensitivity runs on every valid pair too:
-   `factcheck vitaminc-sensitivity --all --resume` (20,232 pairs, 40,464 requests, rebuilt from
-   the committed `test.jsonl`) writes `results/vitaminc/<slug>/sensitivity_full/`; without `--all`
-   it is still the 100 frozen pairs.
-3. **Sample sizes stay hard-coded** to 150 claims / 100 pairs in the frozen-sample paths
-   (`consistency.py`, `robustness.py`, `data_prep/fever.py` `per_label`, and `sensitivity.py`
-   without `--all`), on purpose: the samples are frozen. The whole-set paths bypass those checks.
-4. **Baseline hash gate.** `run` now records the sample hash in `run_config.json` (as consistency
-   and robustness do) but, unlike them, does not refuse to run on a different sample.
-5. **Comparison and a Streamlit app** that reads `results/` only and never runs inference. The
-   read-only loader `llm_fact_checker/results.py` exists (`discover_runs`, `select`,
-   `ResultRun.headline/metrics/config/provenance/cases`); build the comparison and app on it
-   rather than reading result files directly.
+- This is a single-user local prototype, not a hosted service or compliance-certified product.
+  Private dataset import and additional model-serving backends are not implemented.
+- Mac builds are ad-hoc signed, not Apple-notarized. New payloads use separate workspaces;
+  there is no automatic updater or run migration. Never delete old workspaces as cleanup.
+- Research CLI resume assumes unchanged inputs, model and settings; it does not enforce the
+  app's full identity checks. Use a new output location for changed experiments. Avoid restarting
+  an interrupted overwrite in the old directory, where old completion files can remain.
+- The baseline CLI records its input hash but does not enforce the frozen sample hash.
+  Protect the committed samples and results independently of this permissive CLI path.
+- Historical full comparisons check recorded inputs/settings, not identical hardware/runtime.
+  Local comparisons additionally require matching workload IDs and Ollama versions.

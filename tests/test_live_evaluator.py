@@ -416,6 +416,16 @@ class LiveUITests(unittest.TestCase):
                     if 'class="result-stat"' in element.proto.body
                 ]
                 self.assertEqual(len(stats), 5)
+                metrics = jobs.read_json(runs[0]["path"] / "metrics.json")
+                expected_values = (
+                    metrics["baseline"]["overall_accuracy"],
+                    metrics["consistency"]["exact_consistency_rate"],
+                    metrics["robustness"]["reorder"]["invariance_rate"],
+                    metrics["robustness"]["distractor"]["invariance_rate"],
+                    metrics["sensitivity"]["correct_sensitivity_rate"],
+                )
+                for body, value in zip(stats, expected_values, strict=True):
+                    self.assertIn(f'class="result-stat-value">{value:.1%}</div>', body)
                 for body, label in zip(stats, (
                     "Overall accuracy", "Same answer in all five runs",
                     "Reordered evidence", "Added distractor", "Both evidence versions correct",

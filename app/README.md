@@ -1,8 +1,13 @@
-# ModelLens — local evaluator
+# ModelLens: app user and release guide
 
 ModelLens is a single-user research prototype for evaluating evidence-grounded text models.
 It uses Ollama on the same computer. No ngrok, account, tunnel, hosted model service or model
 upload is required. This version targets macOS; the worker uses POSIX file locking.
+
+This guide covers the implemented app, setup, saved runs and Mac distribution.
+The repository README covers the research CLI; contributor setup and offline checks are in
+`CONTRIBUTING.md` in the source repository. Those developer workflows are not required to use
+the shared Mac app.
 
 ## Setup and launch
 
@@ -19,7 +24,6 @@ Reopening the **same build** reuses this workspace and opens its existing local 
 It selects a free local port, independent of an existing developer server. Different payload
 builds have separate workspaces; no updater, migration or deletion of previous runs is automatic.
 
-From a developer checkout, **Setup ModelLens.command** and **Launch ModelLens.command** still work.
 The supported target is macOS 14 or newer, Apple Silicon or Intel. Intel inference is CPU-only
 and can be much slower. See [Ollama's Mac requirements](https://docs.ollama.com/macos).
 
@@ -52,6 +56,9 @@ For developers running from the repository, the equivalent is:
 bash "Setup ModelLens.command"
 bash "Launch ModelLens.command"
 ```
+
+Keep both `.command` files: `ModelLens.app` calls the launcher internally, and the launcher
+offers the setup script if the environment is missing. Recipients open the app, not these files.
 
 If setup was skipped, the launcher offers to open it. Subsequent launches reuse the environment
 and can offer to start Ollama; they do not install or update dependencies automatically.
@@ -140,9 +147,8 @@ outcome stacks, separate reorder/distractor accuracy panels, and both-evidence-c
 Axes stay at 0–100%, missing scores display N/A, and labels identify models (with run IDs
 when comparing the same model). Consistency colours describe outcomes, not model identity.
 Compatibility checks still run before charts are displayed; no combined ranking is calculated.
-Running Streamlit without `MODELLENS_LOCAL=1` leaves the evaluator disabled (read-only/hosted mode).
-The app no longer reads or sends tunnel credentials. Your existing private ngrok configuration
-and account are not modified; stop any old tunnel yourself if it is still running.
+Running Streamlit without `MODELLENS_LOCAL=1` leaves the evaluator disabled (read-only mode).
+There is no tunnel configuration or credential entry in the current app.
 
 ## Share and verify
 
@@ -165,12 +171,7 @@ See [recipient instructions](../docs/macos-start-here.txt). Apple's guidance:
 [embedded tools](https://developer.apple.com/forums/thread/706379) and
 [normal app approval](https://support.apple.com/en-au/102445).
 
-Check the dashboard and comparison adapters without calling any models:
-
-```bash
-uv run --group app python -m unittest discover -s tests -v
-```
-
+Before packaging, run the offline checks documented in `CONTRIBUTING.md` from the source checkout.
 Automated tests use fake model responses. A real-model quick demo and a teammate's clean-machine
 setup are separate acceptance checks, not implied by passing offline tests.
 For each shared app build, also download/extract the exact ZIP, verify its bundle signature,

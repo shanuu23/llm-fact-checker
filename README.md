@@ -1,18 +1,43 @@
-# ModelLens — LLM reliability evaluation
+# ModelLens: local LLM reliability evaluation
 
-Can a small local LLM be trusted as an **evidence-grounded fact-checker**? This project does not ask
-"is this claim true?". It gives a model a claim plus supplied Wikipedia evidence and measures how
-reliably it behaves, from four angles.
+ModelLens helps **AI engineers and researchers** compare language models beyond a single
+accuracy score. It supplies claims and evidence from FEVER and VitaminC, then measures model
+behaviour across four dimensions. It evaluates models; it does not train them, retrieve evidence
+from the web or act as an end-user fact-checking service.
 
 | Dimension | Question | Experiment | Dataset |
 |---|---|---|---|
-| Correctness | Does it return the expected verdict? | Baseline | FEVER, 150 claims |
-| Stability | Does it repeat the same verdict on the same input? | Five-run consistency | same 150 claims |
-| Robustness | Does irrelevant evidence leave the verdict unchanged? | Reorder and distractor | same 150 claims |
-| Sensitivity | Does a meaningful evidence change flip the verdict correctly? | Contrastive pairs | VitaminC, 100 pairs |
+| Correctness | Does it return the expected verdict? | Baseline | FEVER |
+| Consistency | Does it repeat the same verdict on the same input? | Five runs with fixed seeds | FEVER |
+| Robustness | Does the verdict stay stable when evidence is reordered or a distractor is added? | Reorder and distractor | FEVER |
+| Evidence sensitivity | Are both supporting and refuting evidence versions answered correctly? | Contrastive pairs | VitaminC |
 
 The model may answer `SUPPORTED`, `REFUTED` or `NOT ENOUGH INFORMATION` (NEI). Definitions and
 caveats are in [docs/methodology.md](docs/methodology.md).
+
+## Current project
+
+The local Streamlit app and guided macOS launcher are implemented. The app opens in a browser
+but runs on the user's computer, with two workflows:
+
+- **Compare models:** explore recorded full experiments, or compare compatible saved local runs.
+  Saved comparisons do not require loading a model or repeating inference.
+- **Try the evaluator:** connect to local Ollama, select an installed text model and tests,
+  choose a quick demo or custom workload, optionally estimate runtime, run/pause/resume,
+  inspect scores and save/export results.
+
+Saved full experiments cover **gemma3:4b, llama3.2:1b, llama3.2:3b and phi4-mini:3.8b** across
+all four dimensions. Keep the evaluation scopes distinct:
+
+| Scope | FEVER claims | VitaminC pairs | Purpose |
+|---|---|---|---|
+| Historical frozen pilots | 150 | 100 | Initial research experiments and regression checks |
+| Saved full experiments | 13,332 | 20,232 | Recorded full-benchmark comparisons |
+| Local quick demo | 3 | 3 | Check the workflow, not rank models |
+| Local custom workload | 1–100% of the eligible full population | 1–100% of the eligible full population | User-selected local evaluation |
+
+Only datasets needed by the selected tests are used. Reordering requires multi-sentence evidence.
+Local runs remain separate from historical experiments even at 100% workload.
 
 ## Pilot results: `llama3.2:3b`
 
@@ -23,46 +48,28 @@ caveats are in [docs/methodology.md](docs/methodology.md).
 | Robustness | Reordering: 8/11 unchanged. One distractor sentence: only **39.33%** unchanged, accuracy 64.67% to 14.67%, NEI answers 35 to 104 |
 | Sensitivity | Verdict changed on 72/100 pairs but was **correct on only 27/100** |
 
-Repeatable but often wrong, and easily thrown by irrelevant evidence. Full reports are under
+These historical pilot results illustrate why the four dimensions are reported separately.
+They are not the full-run scores shown in the app. Reports and schemas are under
 [results/](results/README.md).
 
 ## Quickstart
 
 ### Local ModelLens app
 
-Explore saved full results or evaluate an installed local Ollama model. From this folder:
+For a shared Mac ZIP, extract it and open **ModelLens.app**, following
+[the recipient instructions](docs/macos-start-here.txt). No repository clone is needed.
+From a developer checkout, run `make app`; the launcher offers guided setup if needed.
+Model inference requires Ollama and a compatible installed local text model. No ngrok or hosted
+model service is required. The prototype is not Apple-notarized.
 
-```bash
-bash "Setup ModelLens.command"  # guided setup: reuse tools or offer missing installations
-make app                       # opens the local UI; no inference until you click Run
-```
-
-Open the URL printed in the terminal. Select **Open comparison**, choose two models, and click
-**Compare** to view correctness, consistency, robustness and sensitivity. The dashboard reads the
-committed metrics and case tables; Ollama is not required for saved comparisons. **Try the evaluator**
-connects directly to local Ollama, offers a quick demo or percentage-based workload, and saves
-resumable runs separately. See [app/README.md](app/README.md) for setup, timing, pause/resume and
-comparison rules. `make app-package` builds `dist/modellens-macos-app.zip` for recipients:
-unzip and open **ModelLens.app**, rather than opening a downloaded `.command` file.
-No Git, cloning or typed shell commands are required. Normal macOS approval and permission to
-control Terminal may be required; this prototype is not Apple-notarized. The guided Terminal
-setup checks for uv and Ollama and offers missing installations with permission.
-Python 3.12 and the locked app dependencies are set up automatically after confirmation.
-You still choose/install your own local model. No ngrok or paid model service is needed.
-See [the recipient instructions](docs/macos-start-here.txt) before sharing/testing the ZIP.
+See the [app guide](app/README.md) for setup, controls, storage, limitations and packaging.
 
 ### Experiment setup
 
-Requires [uv](https://docs.astral.sh/uv/) and [Ollama](https://ollama.com/).
-
-```bash
-uv sync                       # installs everything: dev tools and notebook libraries
-make test                     # unit + golden tests; no Ollama or raw data needed
-ollama list                   # must include the exact tag llama3.2:3b
-# only `llama3.2:latest` listed?  ollama cp llama3.2:latest llama3.2:3b
-```
-
-The experiments call the local Ollama HTTP API directly and never download a model.
+Follow [contributor setup and checks](CONTRIBUTING.md#setup) for the Python environment.
+Research inference requires running Ollama with the exact installed tag passed to `--model`.
+`llama3.2:3b` is the CLI default, not a requirement to use that model.
+The experiments call the Ollama HTTP API and do not download models automatically.
 
 **Running a model for the team?** Follow [Run a new model](#run-a-new-model).
 
@@ -82,15 +89,23 @@ layout and hashes. Which raw data you need depends on what you run:
 
 | You want to | Raw data needed |
 |---|---|
-| Run the FEVER baseline, consistency or robustness | None (the 150-claim sample is committed) |
+| Run the FEVER baseline, consistency or robustness | None (the pilot and full prepared claims are committed) |
 | Run the VitaminC sensitivity experiment, on the 100 pairs or on every pair | None: `test.jsonl` is committed (the run re-validates the pairs against it) |
 | Re-create the FEVER sample (`prepare`) | FEVER dev file + Wikipedia dump |
 
 ## Run the experiments
 
-Every command refuses to overwrite existing results unless `--overwrite` is passed, and smoke tests
-(`--limit`, `*-smoke`) write to their own folders. Every command that calls a model takes
+Inference commands protect existing prediction files unless resume/replacement is requested,
+and smoke tests (`--limit`, `*-smoke`) write to their own folders. Every command that calls a model takes
 `--model` (default `llama3.2:3b`); see [Run a new model](#run-a-new-model).
+
+The repository already contains completed experiments. The commands below document the research
+workflow, not work still required to use the app. Do not overwrite the committed results.
+
+**CLI resume limitation:** keep the model weights, inputs, prompts and settings unchanged when
+resuming. Unlike the app's worker, the research CLI does not fully validate run identity before
+reusing answers. For changed experiments, select a new output directory. Do not use an existing
+completed directory for an interrupted `--overwrite` replacement: old completion files can remain.
 
 ```bash
 # FEVER baseline
@@ -129,19 +144,16 @@ seeds are identical for every model, which is what makes the numbers comparable,
 them. Results land in `results/<dataset>/<model_slug>/<experiment>/`, so your run never touches
 anyone else's.
 
-**Before you start:** [uv](https://docs.astral.sh/uv/), [Ollama](https://ollama.com/) installed and
-running, and a model that fits your laptop (about 9B parameters or less on 16 GB). Check
-[CONTRIBUTING.md](CONTRIBUTING.md) for who owns which model: one owner per model.
+**Before you start:** complete [contributor setup](CONTRIBUTING.md#setup), start Ollama and choose
+a model that fits your hardware. Coordinate ownership of the result folder before running it.
+The examples use Qwen, which already has pilot results here; use a new model/output location for
+new work rather than replacing the recorded experiment.
 
 ### 1. Set up (once)
 
-```bash
-git clone https://github.com/shanuu23/llm-fact-checker.git
-cd llm-fact-checker
-git switch -c <your-name>/add-qwen2.5_7b        # a branch for your model
-uv sync
-make test                                        # should end with OK
-```
+Use the environment and offline checks in [CONTRIBUTING.md](CONTRIBUTING.md#setup), then create
+a branch for the additional experiment. Setup instructions are maintained there rather than
+duplicated for each research workflow.
 
 ### 2. Get the model and name it
 
@@ -152,15 +164,15 @@ MODEL=qwen2.5:7b                                 # set these two in the terminal
 SLUG=qwen2.5_7b                                  # the tag with ":" and "/" replaced by "_"
 ```
 
-If `ollama list` shows only `<name>:latest` and you want a specific tag, alias it without
-downloading anything: `ollama cp <name>:latest <name>:<tag>`.
+Use the exact tag shown by `ollama list`. Renaming a model does not establish which weights it
+contains; retain the model digest recorded with the experiment.
 
 ### 3. Smoke test (about a minute)
 
 ```bash
 uv run factcheck run --model $MODEL --limit 3
 cat results/fever/$SLUG/smoke_3/metrics.json     # want: inference_failure_count 0
-rm -rf results/fever/$SLUG/smoke_3               # a smoke run is not a result; never commit it
+# Keep smoke outputs separate from reported experiments; do not commit or cite them.
 ```
 
 If this fails, fix it here before spending hours: see the table at the end.
@@ -218,7 +230,7 @@ git push -u origin HEAD
 
 Open a pull request and put in the description: the model tag (the digest is in each
 `run_config.json`), which experiments you ran, the four headline numbers (baseline accuracy,
-consistency 5/5 agreement, distractor invariance, correct-flip rate), and anything unusual, such as
+consistency 5/5 agreement, distractor invariance, both-evidence-correct sensitivity), and anything unusual, such as
 a high invalid-format rate. The large per-case files of whole-set runs are git-ignored on purpose.
 
 Re-score saved baseline predictions at any time, without the model, with
@@ -230,7 +242,7 @@ Re-score saved baseline predictions at any time, without the model, with
 |---|---|
 | `Required Ollama model '…' is not installed` | The tag does not match `ollama list` exactly. Copy it from there, or alias it with `ollama cp` |
 | `Ollama is not reachable` | Start the Ollama app (or `ollama serve`) and run the command again |
-| `Refusing to overwrite …` | Results already exist there. Add `--resume` to continue an interrupted run; use `--overwrite` only if you mean to replace them |
+| `Refusing to overwrite …` | Preserve completed records. Resume only an unchanged interrupted experiment; use a new output directory for a replacement |
 | The run stopped partway | Run the same command again with `--resume` (the whole-set script resumes by itself) |
 | High `invalid_format_count` | The model does not follow "return the label only". That is a result, not a bug: do not change the prompt, mention it in your PR |
 | `inference_failure_count` above 0 | Some requests were rejected or timed out. They are recorded per case, not lost; report the count in your PR |
@@ -278,8 +290,9 @@ robustness, consistency):
 caffeinate -i scripts/run_whole_fever.sh llama3.2:3b 2>&1 | tee whole_run.log
 ```
 
-It is safe to stop and start again: every step saves each answer as it arrives, resumes where it
-left off, and is skipped once finished. Results go to `results/fever/<model_slug>/baseline_full/`,
+For an unchanged experiment, every step saves answers as it runs, resumes from checkpoints,
+and is skipped once finished. The CLI resume limitation above still applies.
+Results go to `results/fever/<model_slug>/baseline_full/`,
 `robustness_full/` and `consistency_5run_full/`. About 108,000 model calls in total. Measured for
 Llama 3.2 3B on a MacBook Air: baseline about 1 h, then robustness and consistency together
 6.6 h (94,528 calls). Plan for 7 to 8 hours per 3B model. The individual commands
@@ -325,6 +338,7 @@ caffeinate -i uv run factcheck vitaminc-sensitivity --all --resume --model llama
 ## Repository layout
 
 ```text
+app/                  local Streamlit UI, comparison charts, workload planning and worker jobs
 llm_fact_checker/
 ├── cli.py            command-line interface (argparse only)
 ├── common.py         JSONL/CSV helpers, SHA-256, git commit, formatting
@@ -336,32 +350,36 @@ llm_fact_checker/
 ├── data_prep/        fever.py, vitaminc.py: sampling and evidence extraction
 └── experiments/      baseline.py, consistency.py, robustness.py, sensitivity.py
 data/                 raw (ignored), processed samples, shared prepared/audit files, HASHES.txt
-results/              <dataset>/<model>/<experiment>/ outputs, committed
+results/              research outputs; summaries tracked, large full predictions ignored
+.modellens/           local evaluator history and tool state, ignored
+scripts/              Mac launcher/packaging and research workflow helpers
 notebooks/            data audits and analysis
-docs/                 methodology
-tests/                unit tests and golden regression tests
+docs/                 methodology and Mac recipient instructions
+tests/                core, UI, worker, packaging and golden regression tests
+dist/                 generated release ZIPs and verification records, ignored
 ```
 
 ## Tests
 
-```bash
-make test        # or: uv run python -m unittest discover -s tests -v
-make lint        # ruff check + format check
-```
-
-Unit tests use tiny synthetic fixtures. The golden tests recompute every metric and report from the
-committed predictions and require an exact match, so published numbers cannot change silently.
+See [contributor verification](CONTRIBUTING.md#verification) for the test and lint commands.
+Offline tests use fixtures, fake model responses and saved records, not real model inference.
+Golden tests protect the recorded pilot metrics, reports and prompt. Passing tests is separate
+from visually checking the app and testing an exact release ZIP on another Mac.
 
 ## Scope and limitations
 
-- The FEVER sample contains no gold NOT ENOUGH INFO cases, so NEI accuracy is not measured, and any
-  NEI answer counts as wrong on this sample.
+- The selected FEVER/VitaminC evaluations use SUPPORTS/REFUTES gold labels, not gold NEI cases.
+  NEI predictions do not count as correct on these cases.
 - FEVER accuracy means agreement with FEVER labels, which contain known annotation noise. It is not
   absolute truth.
 - Consistency measures repeatability, not correctness.
 - The experiments supply gold evidence. They do not test evidence retrieval, calibration, or
   real-world fact-checking.
-- Samples are small (150 claims, 100 pairs); differences of a few points are within noise.
+- Quick demos and historical pilots are small. Do not treat demo scores as model rankings or
+  assume small score differences establish a meaningful performance advantage.
+- Private dataset import and non-Ollama model backends are not implemented. Local execution is
+  not a privacy/compliance certification. Review your model and environment before sensitive use.
+- The Mac launcher has no automatic updater or migration of local runs between different builds.
 
 ## Contributing
 

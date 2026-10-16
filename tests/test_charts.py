@@ -112,6 +112,23 @@ show_comparison_charts("robustness", [metrics, metrics], ["Model A", "Model B"])
 """).run()
         self.assertEqual(len(app.exception), 0)
 
+    def test_reordering_chart_uses_control_on_the_same_subset(self):
+        from streamlit.testing.v1 import AppTest
+
+        metrics = load_models()["phi4-mini_3.8b"]["robustness"].metrics()
+        with patch("app.charts.paired_chart", wraps=paired_chart) as chart:
+            app = AppTest.from_string("""
+from app.charts import show_comparison_charts
+from app.comparison import load_models
+metrics = load_models()["phi4-mini_3.8b"]["robustness"].metrics()
+show_comparison_charts("robustness", [metrics, metrics], ["Model A", "Model B"])
+""").run()
+        self.assertEqual(len(app.exception), 0)
+        self.assertEqual(chart.call_count, 2)
+        original = chart.call_args_list[0].args[1][0][0]
+        self.assertEqual(original, metrics["reorder"]["control_accuracy"])
+        self.assertNotEqual(original, metrics["control"]["accuracy"])
+
 
 if __name__ == "__main__":
     unittest.main()
