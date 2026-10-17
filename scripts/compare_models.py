@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Cross-Model Benchmark Comparison and Error Analysis.
 
-Author / Contributor: Aryan Goel (16aryan)
-
 Reads committed results under results/ via the read-only loader
 llm_fact_checker.results and generates comparative scorecards,
 disagreement analysis, and optional figures.
