@@ -1,0 +1,26 @@
+fever_id,claim,gold_label,parsed_prediction,valid_format,inference_error,raw_model_output
+1423,Roberto Orci wrote Star Trek.,SUPPORTED,REFUTED,True,,REFUTED
+7702,An American directed One True Thing.,SUPPORTED,REFUTED,True,,REFUTED
+16007,Riverdale is an adaptation.,SUPPORTED,INVALID,False,,"NOT ENOUGH INFORMATION
+
+[Explanation] The evidence provided only states that Riverdale is based on characters from Archie Comics, not that it is an adaptation. It does not clarify if it's an adaptation of the comics, a live-action version, or another form of adaptation. Therefore, the evidence does not provide enough information to definitively support or refute the claim that Riverdale is an adaptation."
+19177,Victoria Palace Theatre is on the same side as a central London railway terminus.,REFUTED,SUPPORTED,True,,SUPPORTED
+34105,"Phoenix, Arizona is the most populous country.",REFUTED,SUPPORTED,True,,SUPPORTED
+34496,Email filtering output is capable of redirecting birds elsewhere.,REFUTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+39599,Red Holt died before Steve Wozniak was born.,REFUTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+51757,The KGB was not a military service.,SUPPORTED,REFUTED,True,,REFUTED
+58415,Ludwig van Beethoven was part of the classical era.,SUPPORTED,REFUTED,True,,REFUTED
+60763,Dan Trachtenberg is a radio show host.,REFUTED,SUPPORTED,True,,SUPPORTED
+73466,Colombiana was released after 2000.,SUPPORTED,REFUTED,True,,REFUTED
+147730,Danger UXB is on a commercial TV network in Europe.,SUPPORTED,INVALID,False,,"NOT ENOUGH INFORMATION
+
+(The claim specifies ""Europe"" but the evidence only confirms the UK, so it's not enough to definitively say it's on a European network beyond the UK.)"
+150636,Kareena Kapoor wrote negative reviews.,SUPPORTED,REFUTED,True,,REFUTED
+158017,Two of Mozart's sons were alive after his death.,SUPPORTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+163812,The Ukrainian Soviet Socialist Republic became Ukraine before the founding of the United Nations.,SUPPORTED,REFUTED,True,,REFUTED
+185167,You Only Live Twice was directed by Lewis Gilbert.,SUPPORTED,REFUTED,True,,REFUTED
+201748,North Vietnam existed from 1945 to 1978.,REFUTED,INVALID,False,,"NOT ENOUGH INFORMATION
+
+(The evidence only mentions North Vietnam existing from 1945 to 1976, not 1978.)"
+202050,Tamerlan Tsarnaev was an only child.,REFUTED,NOT ENOUGH INFORMATION,True,,NOT ENOUGH INFORMATION
+224558,Vampire Academy was a critical failure.,SUPPORTED,REFUTED,True,,REFUTED

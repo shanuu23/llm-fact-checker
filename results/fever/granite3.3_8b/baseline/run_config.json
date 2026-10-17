@@ -1,0 +1,50 @@
+{
+  "dataset_name": "FEVER shared_task_dev gold-evidence baseline",
+  "raw_dataset_path": "data\\fever\\raw\\shared_task_dev.jsonl",
+  "prepared_dataset_path": "data\\fever\\processed\\fever_baseline_150.jsonl",
+  "prepared_dataset_sha256": "6bc7cf910cb0b31186e5fc397ebc7cefab2de1ee65d29ae601e369d8758344cb",
+  "sample_size": 150,
+  "class_balance": {
+    "SUPPORTED": 75,
+    "REFUTED": 75
+  },
+  "sampling_seed": 42,
+  "ollama_model": "granite3.3:8b",
+  "temperature": 0,
+  "model_seed": 42,
+  "prompt_template": {
+    "system": "You are an evidence-grounded fact verifier.\n\nDetermine whether the provided evidence supports, refutes, or does not provide enough information to determine the claim.\n\nUse only the supplied evidence. Do not rely on outside knowledge.\n\nReturn exactly one of:\n\nSUPPORTED\nREFUTED\nNOT ENOUGH INFORMATION\n\nReturn the label only. Do not provide an explanation.",
+    "user": "Claim:\n<claim>\n\nEvidence:\n<numbered evidence>"
+  },
+  "run_timestamp_utc": "2026-10-15T08:25:40.507997+00:00",
+  "python_version": "3.12.13",
+  "ollama_version": "0.33.2",
+  "ollama_model_metadata": {
+    "name": "granite3.3:8b",
+    "model": "granite3.3:8b",
+    "modified_at": "2026-10-15T16:07:47.8506612+11:00",
+    "size": 4942891653,
+    "digest": "fd429f23b90980ed1bef53b990894e7b0199331f6ae90c5650240a7d5b70f1f7",
+    "details": {
+      "parent_model": "/Users/ollama/.ollama/models/blobs/sha256-77bcee066a76dcdd10d0d123c87e32c8ec2c74e31b6ffd87ebee49c9ac215dca",
+      "format": "gguf",
+      "family": "granite",
+      "families": [
+        "granite"
+      ],
+      "parameter_size": "8.2B",
+      "quantization_level": "Q4_K_M",
+      "context_length": 131072,
+      "embedding_length": 4096
+    },
+    "capabilities": [
+      "completion",
+      "tools"
+    ]
+  },
+  "relevant_package_versions": {
+    "llm_fact_checker": "0.0.1",
+    "http_client": "urllib (standard library)"
+  },
+  "git_commit": "ac71b5b8c24900d6ddeef07f2c32d479ed1e38e8"
+}
